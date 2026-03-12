@@ -22,11 +22,7 @@ class ForumsTable
                 TextColumn::make('description')
                     ->searchable(),
                 TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('followers')
-                    ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

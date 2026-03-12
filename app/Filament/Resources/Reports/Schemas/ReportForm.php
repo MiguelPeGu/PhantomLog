@@ -12,9 +12,11 @@ class ReportForm
         return $schema
             ->components([
                 TextInput::make('forum_id')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('user_id')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('title')
                     ->required(),
                 TextInput::make('description')

@@ -15,7 +15,6 @@ use App\Models\Report;
  * @property-read string $title
  * @property-read string $description
  * @property-read string $user_id
- * @property-read string $followers
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
@@ -33,7 +32,6 @@ final class Forum extends Model
         'title',
         'description',
         'user_id',
-        'followers',
     ];
 
     /**
@@ -46,7 +44,6 @@ final class Forum extends Model
             'title' => 'string',
             'description' => 'string',
             'user_id' => 'string',
-            'followers' => 'integer',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

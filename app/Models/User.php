@@ -6,14 +6,14 @@ namespace App\Models;
 
 use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
-use Filament\Models\Contracts\HasName; 
 
 /**
  * @property-read string $id
@@ -31,7 +31,8 @@ use Filament\Models\Contracts\HasName;
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
-final class User extends Authenticatable implements MustVerifyEmail, FilamentUser, HasName{
+final class User extends Authenticatable implements FilamentUser, HasName, MustVerifyEmail
+{
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
@@ -90,7 +91,7 @@ final class User extends Authenticatable implements MustVerifyEmail, FilamentUse
         return $this->hasMany(Forum::class);
     }
 
-    public function expeditions()
+    public function createdExpeditions()
     {
         return $this->hasMany(Expedition::class);
     }
@@ -117,10 +118,16 @@ final class User extends Authenticatable implements MustVerifyEmail, FilamentUse
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true; 
+        return true;
     }
+
     public function getFilamentName(): string
     {
         return "{$this->firstname} {$this->lastname}";
+    }
+
+    public function joinedExpeditions()
+    {
+        return $this->belongsToMany(Expedition::class, 'enrollment');
     }
 }

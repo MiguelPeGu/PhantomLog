@@ -12,9 +12,11 @@ class InvoiceDetailForm
         return $schema
             ->components([
                 TextInput::make('invoice_id')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('product_id')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('sku')
                     ->label('SKU')
                     ->required(),
@@ -35,7 +37,8 @@ class InvoiceDetailForm
                     ->numeric(),
                 TextInput::make('total_with_tax')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->disabledon('edit'),
             ]);
     }
 }

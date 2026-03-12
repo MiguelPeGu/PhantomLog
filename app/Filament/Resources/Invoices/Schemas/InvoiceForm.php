@@ -12,15 +12,20 @@ class InvoiceForm
         return $schema
             ->components([
                 TextInput::make('n_invoice')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('user_id')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('dni')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('first_name')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('last_name')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('address')
                     ->required(),
                 TextInput::make('tax')
@@ -30,7 +35,8 @@ class InvoiceForm
                 TextInput::make('total')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->disabledon('edit'),
             ]);
     }
 }

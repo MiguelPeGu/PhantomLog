@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -13,7 +12,6 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
-                'id'                => Str::uuid(),
                 'dni'               => '12345678A',
                 'username'          => 'ghost_hunter_01',
                 'img'               => 'https://api.dicebear.com/9.x/lorelei/svg?seed=Felix',
@@ -24,12 +22,19 @@ class UserSeeder extends Seeder
                 'email'             => 'carlos.martinez@example.com',
                 'email_verified_at' => now(),
                 'password'          => Hash::make('password123'),
-                'remember_token'    => Str::random(10),
-                'created_at'        => now(),
-                'updated_at'        => now(),
+            ],[
+                'dni'               => '77494608H',
+                'username'          => 'InfernalGhost',
+                'img'               => 'https://api.dicebear.com/9.x/lorelei/svg?seed=Felix',
+                'firstname'         => 'Miguel',
+                'lastname'          => 'Pérez Gutiérrez',
+                'address'           => 'Calle Mayor 12, Alhaurin de la Torre',
+                'postalCode'        => '29130',
+                'email'             => 'miguel@gmail.com',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('123123'),
             ],
             [
-                'id'                => Str::uuid(),
                 'dni'               => '87654321B',
                 'username'          => 'phantom_seeker',
                 'img'               => 'https://api.dicebear.com/9.x/lorelei/svg?seed=Luna',
@@ -40,12 +45,8 @@ class UserSeeder extends Seeder
                 'email'             => 'laura.garcia@example.com',
                 'email_verified_at' => now(),
                 'password'          => Hash::make('password123'),
-                'remember_token'    => Str::random(10),
-                'created_at'        => now(),
-                'updated_at'        => now(),
             ],
             [
-                'id'                => Str::uuid(),
                 'dni'               => '11223344C',
                 'username'          => 'spirit_watcher',
                 'img'               => 'https://api.dicebear.com/9.x/lorelei/svg?seed=Shadow',
@@ -56,12 +57,8 @@ class UserSeeder extends Seeder
                 'email'             => 'miguel.fernandez@example.com',
                 'email_verified_at' => now(),
                 'password'          => Hash::make('password123'),
-                'remember_token'    => Str::random(10),
-                'created_at'        => now(),
-                'updated_at'        => now(),
             ],
             [
-                'id'                => Str::uuid(),
                 'dni'               => '55667788D',
                 'username'          => 'dark_explorer',
                 'img'               => 'https://api.dicebear.com/9.x/lorelei/svg?seed=Raven',
@@ -72,12 +69,8 @@ class UserSeeder extends Seeder
                 'email'             => 'ana.perez@example.com',
                 'email_verified_at' => now(),
                 'password'          => Hash::make('password123'),
-                'remember_token'    => Str::random(10),
-                'created_at'        => now(),
-                'updated_at'        => now(),
             ],
             [
-                'id'                => Str::uuid(),
                 'dni'               => '99887766E',
                 'username'          => 'night_chaser',
                 'img'               => 'https://api.dicebear.com/9.x/lorelei/svg?seed=Storm',
@@ -86,14 +79,13 @@ class UserSeeder extends Seeder
                 'address'           => 'Gran Vía 20, Bilbao',
                 'postalCode'        => '48001',
                 'email'             => 'david.lopez@example.com',
-                'email_verified_at' => null,
+                'email_verified_at' => now(),
                 'password'          => Hash::make('password123'),
-                'remember_token'    => Str::random(10),
-                'created_at'        => now(),
-                'updated_at'        => now(),
             ],
         ];
 
-        DB::table('users')->insert($users);
+        foreach ($users as $data) {
+            User::create($data);
+        }
     }
 }

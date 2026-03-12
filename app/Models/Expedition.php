@@ -7,8 +7,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Phantom;
 
 /**
  * @property-read string $id
@@ -61,6 +59,11 @@ final class Expedition extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function participants()
+    {
+        return $this->belongsToMany(User::class, 'enrollment');
     }
 
     public function phantom()

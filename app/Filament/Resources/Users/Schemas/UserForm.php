@@ -13,7 +13,8 @@ class UserForm
         return $schema
             ->components([
                 TextInput::make('dni')
-                    ->required(),
+                    ->required()
+                    ->disabledon('edit'),
                 TextInput::make('username')
                     ->required(),
                 TextInput::make('img')

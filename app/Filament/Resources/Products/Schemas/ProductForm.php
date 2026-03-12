@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
-class ProductForm
+final class ProductForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -34,7 +36,10 @@ class ProductForm
                     ->default(0),
                 FileUpload::make('image')
                     ->image()
-                    ->required(),
+                    ->dehydrated(function ($state) {
+                    return filled($state);
+                    })
+                    ->required(fn (string $operation): bool => $operation === 'create'),
                 TextInput::make('description')
                     ->required(),
             ]);

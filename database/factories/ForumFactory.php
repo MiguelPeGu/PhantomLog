@@ -23,7 +23,6 @@ class ForumFactory extends Factory
             'title' => $this->faker->unique()->sentence(3),
             'description' => $this->faker->paragraph(),
             'user_id' => User::factory(), // Relación
-            'followers' => $this->faker->numberBetween(0, 1000),
         ];
     }
 }

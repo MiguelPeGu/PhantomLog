@@ -2,99 +2,69 @@
 
 namespace Database\Seeders;
 
+use App\Models\Invoice;
+use App\Models\Product;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class InvoiceDetailSeeder extends Seeder
 {
     public function run(): void
     {
-        $invoices = DB::table('invoices')->orderBy('created_at')->get();
-        $products = DB::table('products')->get()->keyBy('sku');
+        $invoices = Invoice::all();
 
-        $emf      = $products['8410000001234'];
-        $evp      = $products['8410000002345'];
-        $camara   = $products['8410000003456'];
-        $kit      = $products['8410000005678'];
-        $termo    = $products['8410000006789'];
+        $emf    = Product::where('sku', '8410000001234')->first();
+        $evp    = Product::where('sku', '8410000002345')->first();
+        $camara = Product::where('sku', '8410000003456')->first();
+        $kit    = Product::where('sku', '8410000005678')->first();
+        $termo  = Product::where('sku', '8410000006789')->first();
 
         $details = [
-            // Factura 0 → 2 productos: EMF + Grabadora EVP
+            // Factura 0 → EMF x2 + Termómetro x1
             [
-                'id'             => Str::uuid(),
-                'invoice_id'     => $invoices[0]->id,
-                'product_id'     => $emf->id,
-                'sku'            => $emf->sku,
-                'title'          => $emf->title,
-                'price'          => $emf->price,
-                'tax'            => $emf->tax,
-                'quantity'       => 2,
-                'total'          => round($emf->price * 2, 2),
-                'total_with_tax' => round($emf->price * 2 * (1 + $emf->tax / 100), 2),
-                'created_at'     => now()->subDays(20),
-                'updated_at'     => now()->subDays(20),
+                'invoice'  => $invoices[0],
+                'product'  => $emf,
+                'quantity' => 2,
             ],
             [
-                'id'             => Str::uuid(),
-                'invoice_id'     => $invoices[0]->id,
-                'product_id'     => $termo->id,
-                'sku'            => $termo->sku,
-                'title'          => $termo->title,
-                'price'          => $termo->price,
-                'tax'            => $termo->tax,
-                'quantity'       => 1,
-                'total'          => round($termo->price, 2),
-                'total_with_tax' => round($termo->price * (1 + $termo->tax / 100), 2),
-                'created_at'     => now()->subDays(20),
-                'updated_at'     => now()->subDays(20),
+                'invoice'  => $invoices[0],
+                'product'  => $termo,
+                'quantity' => 1,
             ],
-            // Factura 1 → Cámara Térmica
+            // Factura 1 → Cámara Térmica x1
             [
-                'id'             => Str::uuid(),
-                'invoice_id'     => $invoices[1]->id,
-                'product_id'     => $camara->id,
-                'sku'            => $camara->sku,
-                'title'          => $camara->title,
-                'price'          => $camara->price,
-                'tax'            => $camara->tax,
-                'quantity'       => 1,
-                'total'          => round($camara->price, 2),
-                'total_with_tax' => round($camara->price * (1 + $camara->tax / 100), 2),
-                'created_at'     => now()->subDays(15),
-                'updated_at'     => now()->subDays(15),
+                'invoice'  => $invoices[1],
+                'product'  => $camara,
+                'quantity' => 1,
             ],
-            // Factura 2 → Kit completo + Grabadora EVP
+            // Factura 2 → Kit completo x1 + Grabadora EVP x1
             [
-                'id'             => Str::uuid(),
-                'invoice_id'     => $invoices[2]->id,
-                'product_id'     => $kit->id,
-                'sku'            => $kit->sku,
-                'title'          => $kit->title,
-                'price'          => $kit->price,
-                'tax'            => $kit->tax,
-                'quantity'       => 1,
-                'total'          => round($kit->price, 2),
-                'total_with_tax' => round($kit->price * (1 + $kit->tax / 100), 2),
-                'created_at'     => now()->subDays(10),
-                'updated_at'     => now()->subDays(10),
+                'invoice'  => $invoices[2],
+                'product'  => $kit,
+                'quantity' => 1,
             ],
             [
-                'id'             => Str::uuid(),
-                'invoice_id'     => $invoices[2]->id,
-                'product_id'     => $evp->id,
-                'sku'            => $evp->sku,
-                'title'          => $evp->title,
-                'price'          => $evp->price,
-                'tax'            => $evp->tax,
-                'quantity'       => 1,
-                'total'          => round($evp->price, 2),
-                'total_with_tax' => round($evp->price * (1 + $evp->tax / 100), 2),
-                'created_at'     => now()->subDays(10),
-                'updated_at'     => now()->subDays(10),
+                'invoice'  => $invoices[2],
+                'product'  => $evp,
+                'quantity' => 1,
             ],
         ];
 
-        DB::table('invoice_details')->insert($details);
+        foreach ($details as $data) {
+            $invoice  = $data['invoice'];
+            $product  = $data['product'];
+            $quantity = $data['quantity'];
+            $total    = round($product->price * $quantity, 2);
+
+            $invoice->details()->create([
+                'product_id'     => $product->id,
+                'sku'            => $product->sku,
+                'title'          => $product->title,
+                'price'          => $product->price,
+                'tax'            => $product->tax,
+                'quantity'       => $quantity,
+                'total'          => $total,
+                'total_with_tax' => round($total * (1 + $product->tax / 100), 2),
+            ]);
+        }
     }
 }
