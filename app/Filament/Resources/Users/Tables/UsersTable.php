@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -21,8 +22,7 @@ class UsersTable
                     ->searchable(),
                 TextColumn::make('username')
                     ->searchable(),
-                TextColumn::make('img')
-                    ->searchable(),
+                ImageColumn::make('img'),
                 TextColumn::make('firstname')
                     ->searchable(),
                 TextColumn::make('lastname')

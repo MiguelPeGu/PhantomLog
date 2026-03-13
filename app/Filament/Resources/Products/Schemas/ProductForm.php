@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -19,17 +20,23 @@ final class ProductForm
                     ->required(),
                 TextInput::make('title')
                     ->required(),
+
+                Textarea::make('description')
+                    ->required()
+                    ->rows(3),
                 TextInput::make('provider')
                     ->required(),
                 TextInput::make('price')
                     ->required()
                     ->numeric()
                     ->default(0)
-                    ->prefix('$'),
+                    ->prefix('$')
+                    ->live(),
                 TextInput::make('tax')
                     ->required()
                     ->numeric()
-                    ->default(21),
+                    ->default(21)
+                    ->suffix('%'),
                 TextInput::make('stock')
                     ->required()
                     ->numeric()
@@ -37,11 +44,9 @@ final class ProductForm
                 FileUpload::make('image')
                     ->image()
                     ->dehydrated(function ($state) {
-                    return filled($state);
+                        return filled($state);
                     })
                     ->required(fn (string $operation): bool => $operation === 'create'),
-                TextInput::make('description')
-                    ->required(),
             ]);
     }
 }

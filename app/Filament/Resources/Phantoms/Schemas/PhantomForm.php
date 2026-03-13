@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Phantoms\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
-class PhantomForm
+final class PhantomForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -22,7 +24,12 @@ class PhantomForm
                     ->required(),
                 FileUpload::make('image')
                     ->image()
-                    ->required(),
+                    ->maxSize(1024 * 5)
+                    ->dehydrated(function ($state) {
+                        return filled($state);
+                    })
+                    ->required(fn (string $operation): bool => $operation === 'create'),
+
             ]);
     }
 }

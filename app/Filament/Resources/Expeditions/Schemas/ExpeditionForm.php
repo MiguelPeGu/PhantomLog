@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Expeditions\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
@@ -7,7 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
-class ExpeditionForm
+final class ExpeditionForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -26,9 +28,11 @@ class ExpeditionForm
                     ->preload()
                     ->required(),
                 TextInput::make('name')
-                    ->required(),
+                    ->required()
+                    ->disabledOn('edit'),
                 TextInput::make('description')
-                    ->required(),
+                    ->required()
+                    ->disabledOn('edit'),
                 TextInput::make('location')
                     ->required(),
                 DateTimePicker::make('date')

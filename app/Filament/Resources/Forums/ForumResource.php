@@ -7,6 +7,7 @@ use App\Filament\Resources\Forums\Pages\EditForum;
 use App\Filament\Resources\Forums\Pages\ListForums;
 use App\Filament\Resources\Forums\Schemas\ForumForm;
 use App\Filament\Resources\Forums\Tables\ForumsTable;
+use App\Filament\Resources\Forums\Schemas\ForumInfolist;
 use App\Models\Forum;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -31,6 +32,9 @@ class ForumResource extends Resource
     {
         return ForumsTable::configure($table);
     }
+    public static function infolist(Schema $schema): Schema {
+        return ForumInfolist::configure($schema);
+    }
 
     public static function getRelations(): array
     {
@@ -44,6 +48,7 @@ class ForumResource extends Resource
         return [
             'index' => ListForums::route('/'),
             'create' => CreateForum::route('/create'),
+            'view' => Pages\ViewForum::route('/{record}'),
             'edit' => EditForum::route('/{record}/edit'),
         ];
     }
