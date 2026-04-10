@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,7 +36,7 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-
+    use HasApiTokens;
     use HasUuids;
     use Notifiable;
 
@@ -52,7 +53,7 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
         'email',
         'address',
         'postalCode',
-        'email',
+        'password',
     ];
 
     /**

@@ -16,11 +16,13 @@ class InvoicesTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('n_invoice')
                     ->searchable(),
                 TextColumn::make('user_id')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('dni')
                     ->searchable(),
                 TextColumn::make('first_name')
