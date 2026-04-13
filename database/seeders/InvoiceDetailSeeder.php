@@ -15,8 +15,8 @@ class InvoiceDetailSeeder extends Seeder
         $emf    = Product::where('sku', '8410000001234')->first();
         $evp    = Product::where('sku', '8410000002345')->first();
         $camara = Product::where('sku', '8410000003456')->first();
-        $kit    = Product::where('sku', '8410000005678')->first();
-        $termo  = Product::where('sku', '8410000006789')->first();
+        $kit    = Product::where('sku', 'PHASMO-002')->first();
+        $termo  = Product::where('sku', 'PHASMO-007')->first();
 
         $details = [
             // Factura 0 → EMF x2 + Termómetro x1

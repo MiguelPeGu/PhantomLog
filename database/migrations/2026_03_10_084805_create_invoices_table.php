@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('address');
             $table->integer('tax')->default(21);
             $table->decimal('total', 10, 2)->default(0);
+            $table->string('payment_method')->default('credito');
             $table->timestamps();
         });
     }

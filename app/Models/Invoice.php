@@ -42,6 +42,7 @@ final class Invoice extends Model
         'address',
         'tax',
         'total',
+        'payment_method',
         ];
 
     /**

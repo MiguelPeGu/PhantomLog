@@ -8,11 +8,39 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            Product::latest()->get()
-        );
+        $query = Product::withCount('invoiceDetails');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $term = $request->search;
+            $query->where(function ($q) use ($term) {
+                $q->where('title', 'like', '%' . $term . '%')
+                  ->orWhere('description', 'like', '%' . $term . '%')
+                  ->orWhere('provider', 'like', '%' . $term . '%');
+            });
+        }
+
+        if ($request->has('sort')) {
+            switch ($request->sort) {
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'popular':
+                    $query->orderByDesc('invoice_details_count')->orderBy('title', 'asc');
+                    break;
+                default:
+                    $query->latest();
+                    break;
+            }
+        } else {
+            $query->latest();
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request)

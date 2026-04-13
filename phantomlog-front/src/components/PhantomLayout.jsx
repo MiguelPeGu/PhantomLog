@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 
 export default function PhantomLayout() {
   const canvasRef = useRef(null)
   const location = useLocation()
   const navigate = useNavigate()
   const { logout, user } = useAuth()
+  const { cartCount } = useCart()
   const [showContent, setShowContent] = useState(false)
 
   // Canvas fog
@@ -228,9 +230,38 @@ export default function PhantomLayout() {
           ))}
         </div>
 
-        <button onClick={handleLogout} className="logout-btn">
-          Abandonar
-        </button>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <Link to="/cart" className="nav-link" style={{ position: 'relative', display: 'flex', alignItems: 'center', color: '#c8a96e' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '28px', height: '28px' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+              </svg>
+
+              {cartCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  right: '-10px',
+                  background: '#ff2222',
+                  color: '#fff',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontFamily: 'sans-serif',
+                  fontWeight: 'bold',
+                  boxShadow: '0 0 10px rgba(255, 34, 34, 0.8)'
+                }}>
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+            <button onClick={handleLogout} className="logout-btn">
+              Abandonar
+            </button>
+        </div>
       </nav>
 
       {/* Main Content Area */}

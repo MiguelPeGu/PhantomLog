@@ -55,7 +55,7 @@ body {
 }
 
 #root {
-  width: 1126px;
+  width: 1600px;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -108,4 +108,39 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+button {
+  transition: transform 0.1s ease, filter 0.1s ease, opacity 0.1s ease, background-color 0.1s ease !important;
+}
+
+button:active {
+  transform: scale(0.95);
+  filter: brightness(0.8);
+}
+
+.qty-btn {
+  background: transparent !important;
+  color: #c8a96e !important;
+  transition: all 0.1s ease !important;
+}
+
+.qty-btn.border-none {
+  border: none !important;
+}
+
+.qty-btn.border-sides {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.qty-btn:hover {
+  background-color: rgba(255, 170, 0, 0.15) !important;
+  color: #ffaa00 !important;
+}
+
+.qty-btn:active {
+  background-color: #ffaa00 !important;
+  color: #000 !important;
+  transform: scale(0.85);
 }

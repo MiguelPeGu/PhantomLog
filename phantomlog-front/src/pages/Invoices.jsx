@@ -1,70 +1,96 @@
-const mockInvoices = [
-  { id: 101, client: 'Familia Von Graff', date: '1899-10-31', status: 'Pagado', amount: '500 魂', desc: 'Exorcismo preventivo en mansión ancestral.' },
-  { id: 102, client: 'Orden del Alba', date: '1900-02-15', status: 'Pendiente', amount: '1200 魂', desc: 'Contención de espectro clase III en orfanato abandonado.' },
-  { id: 103, client: 'Cementerio de las Ánimas', date: '1900-05-01', status: 'Cancelado', amount: '0 魂', desc: 'Falsa alarma, solo eran saqueadores de tumbas.' },
-]
+import { useEffect, useState } from 'react'
+import { getInvoices } from '../api/invoices'
+import { useNavigate } from 'react-router-dom'
 
 export default function Invoices() {
+  const [invoices, setInvoices] = useState([])
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    getInvoices()
+      .then(res => setInvoices(res.data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
+        <h1 style={{ fontFamily: "'IM Fell English', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
           Contratos y Honorarios
         </h1>
         <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
-          El registro de encargos. Cada vida salvada tiene su precio.
+          El registro de encargos. Cada pacto tiene su costo en sangre (PAGADO).
         </p>
       </header>
-
-      <div style={{
-        display: 'flex', flexDirection: 'column', gap: '20px'
-      }}>
-        {mockInvoices.map(invoice => (
-          <div key={invoice.id} style={{
-            background: 'rgba(8, 4, 10, 0.85)',
-            border: '1px solid rgba(200, 169, 110, 0.3)',
-            borderLeft: invoice.status === 'Pagado' ? '4px solid #28a745' :
-                        invoice.status === 'Pendiente' ? '4px solid #ffaa00' : '4px solid #ff4d4d',
-            padding: '24px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)'
-          }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                <h2 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '24px', color: '#e8c98e', margin: 0 }}>
-                  Contrato #{invoice.id}
-                </h2>
-                <span style={{ 
-                  fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em',
-                  padding: '4px 8px', borderRadius: '4px',
-                  background: invoice.status === 'Pagado' ? 'rgba(40, 167, 69, 0.1)' :
-                              invoice.status === 'Pendiente' ? 'rgba(255, 170, 0, 0.1)' : 'rgba(255, 77, 77, 0.1)',
-                  color: invoice.status === 'Pagado' ? '#28a745' :
-                         invoice.status === 'Pendiente' ? '#ffaa00' : '#ff4d4d',
-                  border: invoice.status === 'Pagado' ? '1px solid #28a745' :
-                          invoice.status === 'Pendiente' ? '1px solid #ffaa00' : '1px solid #ff4d4d',
-                }}>
-                  {invoice.status}
-                </span>
-              </div>
-              <div style={{ color: 'rgba(200, 169, 110, 0.6)', fontSize: '13px', display: 'flex', gap: '24px', marginBottom: '12px' }}>
-                <span><strong>Cliente:</strong> {invoice.client}</span>
-                <span><strong>Fecha:</strong> {invoice.date}</span>
-              </div>
-              <p style={{ color: '#c8a96e', fontSize: '14px', lineHeight: '1.5', margin: 0 }}>
-                {invoice.desc}
-              </p>
-            </div>
-            <div style={{ paddingLeft: '32px', textAlign: 'right' }}>
-              <span style={{ color: '#e8c98e', fontFamily: "'UnifrakturMaguntia', serif", fontSize: '32px' }}>
-                {invoice.amount}
-              </span>
-            </div>
-          </div>
-        ))}
+      
+      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+         <button onClick={() => navigate('/products')} style={{ background: 'transparent', color: '#ffaa00', border: '1px solid #ffaa00', padding: '10px 20px', cursor: 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px' }}>
+           Regresar a la Armería
+         </button>
       </div>
+
+      {loading ? (
+        <p style={{ textAlign: 'center', color: '#c8a96e' }}>Invocando contratos del pasado...</p>
+      ) : invoices.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#c8a96e' }}>No exisen ritos consagrados en tu historia.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {invoices.map(invoice => (
+            <div key={invoice.id} style={{
+              background: 'rgba(8, 4, 10, 0.85)',
+              border: '1px solid rgba(200, 169, 110, 0.3)',
+              borderLeft: '4px solid #28a745',
+              padding: '24px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)'
+            }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+                  <h2 style={{ fontFamily: "'IM Fell English', serif", fontSize: '24px', color: '#e8c98e', margin: 0 }}>
+                    Contrato #{invoice.n_invoice}
+                  </h2>
+                  <span style={{ 
+                    fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em',
+                    padding: '4px 8px', borderRadius: '4px',
+                    background: 'rgba(40, 167, 69, 0.1)',
+                    color: '#28a745',
+                    border: '1px solid #28a745',
+                  }}>
+                    Sagrado / Pagado
+                  </span>
+                </div>
+                <div style={{ color: 'rgba(200, 169, 110, 0.6)', fontSize: '13px', display: 'flex', gap: '24px', marginBottom: '12px' }}>
+                  <span><strong>Identidad:</strong> {invoice.first_name} {invoice.last_name} ({invoice.dni})</span>
+                  <span><strong>Sello Mortal:</strong> {new Date(invoice.created_at).toLocaleDateString()}</span>
+                  <span><strong>Vía de Tributo:</strong> {invoice.payment_method ? invoice.payment_method.toUpperCase() : 'DESCONOCIDO'}</span>
+                </div>
+                
+                <div style={{ color: '#c8a96e', fontSize: '14px', lineHeight: '1.5', margin: 0, marginTop: '10px', background: 'rgba(0,0,0,0.5)', padding: '10px' }}>
+                   {invoice.details && invoice.details.map((d, i) => (
+                      <div key={i}> - {d.quantity}x {d.title} (Impuesto Divino: {d.tax}%) | ${Number(d.price).toFixed(2)} unit. </div>
+                   ))}
+                </div>
+              </div>
+              <div style={{ paddingLeft: '32px', textAlign: 'right' }}>
+                <span style={{ color: '#e8c98e', fontFamily: "'IM Fell English', serif", fontSize: '32px' }}>
+                  ${Number(invoice.total).toFixed(2)}
+                </span>
+                <div style={{ marginTop: '10px' }}>
+                  <button onClick={() => navigate(`/success/${invoice.id}`)} style={{
+                      background: 'transparent', color: '#e8c98e', border: '1px solid #e8c98e', padding: '5px 10px', cursor: 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '14px'
+                  }}>
+                    Ver Recibo Imperial
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

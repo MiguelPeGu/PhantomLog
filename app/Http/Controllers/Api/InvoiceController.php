@@ -25,6 +25,7 @@ class InvoiceController extends Controller
             'first_name' => 'required|string',
             'last_name'  => 'required|string',
             'address'    => 'required|string',
+            'payment_method' => 'required|string|in:credito,debito,bizum',
             'items'      => 'required|array|min:1',
             'items.*.product_id' => 'required|uuid|exists:products,id',
             'items.*.quantity'   => 'required|integer|min:1',
@@ -51,7 +52,6 @@ class InvoiceController extends Controller
                     'total_with_tax' => $lineTotalWithTax,
                 ];
 
-                // Descontar stock
                 $product->decrement('stock', $item['quantity']);
             }
 
@@ -61,6 +61,7 @@ class InvoiceController extends Controller
                 'first_name' => $data['first_name'],
                 'last_name'  => $data['last_name'],
                 'address'    => $data['address'],
+                'payment_method' => $data['payment_method'],
                 'tax'        => 21,
                 'total'      => $total,
             ]);

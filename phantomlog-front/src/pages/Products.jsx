@@ -1,15 +1,66 @@
-const mockProducts = [
-  { id: 1, name: 'Medallón de San Benito', category: 'Protección', price: '150 魂', desc: 'Aleja entidades de Categoría I y II. Forjado en plata y bendecido.' },
-  { id: 2, name: 'Sal Gema Purificada', category: 'Consumible', price: '20 魂', desc: 'Disuasorio temporal para apariciones y sombras. Purifica áreas pequeñas.' },
-  { id: 3, name: 'Caja de Contención S.C.', category: 'Contención', price: '850 魂', desc: 'Capaz de atrapar y aislar ecos residuales tras ritos de dominancia.' },
-  { id: 4, name: 'Lector EMF Modificado', category: 'Equipamiento', price: '300 魂', desc: 'Detecta picos electromagnéticos residuales de presencias no corpóreas.' },
-]
+import { useEffect, useState } from 'react'
+import { getProducts } from '../api/products'
+import { addToCart } from '../api/cart'
+import { useToast } from '../context/ToastContext'
+import { useNavigate } from 'react-router-dom'
+import { useCart } from '../context/CartContext'
 
 export default function Products() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const { addToast } = useToast()
+  const navigate = useNavigate()
+  const { fetchGlobalCart } = useCart()
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 9
+
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState('latest')
+
+  const getProductsFiltered = async () => {
+    setLoading(true)
+    try {
+      const res = await getProducts({ search: searchTerm, sort: sortBy })
+      setProducts(res.data.data || res.data)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      getProductsFiltered()
+    }, 400) // 400ms debounce
+    return () => clearTimeout(delayDebounceFn)
+  }, [searchTerm, sortBy])
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, sortBy])
+
+  const handleBuy = async (productId, stock) => {
+    if (stock <= 0) {
+      addToast("Las sombras se han llevado este artefacto. (Sin stock)", "error")
+      return;
+    }
+    try {
+      await addToCart(productId, 1)
+      await fetchGlobalCart() // Refresca la burbuja rojiza del carrito arriba en la UI
+      addToast("Objeto guardado en tu contenedor (Carrito).", "info")
+    } catch (e) {
+      console.error(e)
+      addToast(e.response?.data?.message || "Error al intentar sellar el objeto en tu contenedor.", "error")
+    }
+  }
+
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '100%', padding: '0 40px', color: '#c8a96e', boxSizing: 'border-box' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
+        <h1 style={{ fontFamily: "'IM Fell English', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
           Armería Esotérica
         </h1>
         <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
@@ -17,50 +68,159 @@ export default function Products() {
         </p>
       </header>
 
+      {/* Filtros: Buscador y Ordenación */}
       <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '32px'
+        display: 'flex', gap: '20px', marginBottom: '40px', justifyContent: 'center', flexWrap: 'wrap'
       }}>
-        {mockProducts.map(product => (
-          <div key={product.id} style={{
+        <input 
+          type="text"
+          placeholder="Buscar reliquias por voz del espíritu..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
             background: 'rgba(8, 4, 10, 0.85)',
             border: '1px solid rgba(200, 169, 110, 0.3)',
-            padding: '24px',
-            display: 'flex',
-            gap: '24px',
-            alignItems: 'center',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)'
-          }}>
-            <div style={{ 
-              width: '120px', height: '120px', 
-              border: '1px solid rgba(200, 169, 110, 0.5)',
-              background: 'radial-gradient(circle, rgba(100, 100, 100, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: 'inset 0 0 10px rgba(0,0,0,1)'
-            }}>
-              <span style={{ fontSize: '48px', color: 'rgba(200, 169, 110, 0.1)', fontFamily: "'UnifrakturMaguntia', serif" }}>
-                ⚜
-              </span>
-            </div>
-
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <h2 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '24px', color: '#e8c98e', margin: '0 0 4px 0' }}>
-                  {product.name}
-                </h2>
-                <span style={{ color: '#ffaa00', fontFamily: "'UnifrakturMaguntia', serif", fontSize: '20px' }}>
-                  {product.price}
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: '16px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>
-                <span style={{ color: 'rgba(200, 169, 110, 0.6)' }}>Clase: {product.category}</span>
-              </div>
-              <p style={{ color: '#c8a96e', fontSize: '14px', lineHeight: '1.5', margin: 0 }}>
-                {product.desc}
-              </p>
-            </div>
-          </div>
-        ))}
+            color: '#c8a96e',
+            padding: '12px 20px',
+            fontFamily: "'IM Fell English', serif",
+            fontSize: '18px',
+            width: '100%',
+            maxWidth: '400px',
+            outline: 'none'
+          }}
+        />
+        
+        <select 
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          style={{
+            background: 'rgba(8, 4, 10, 0.85)',
+            border: '1px solid rgba(200, 169, 110, 0.3)',
+            color: '#c8a96e',
+            padding: '12px 20px',
+            fontFamily: "'IM Fell English', serif",
+            fontSize: '18px',
+            outline: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="latest">Ordenar por...</option>
+          <option value="price_asc">Precio: Menor a Mayor</option>
+          <option value="price_desc">Precio: Mayor a Menor</option>
+          <option value="popular">Por Popularidad (más usados)</option>
+        </select>
       </div>
+
+      {loading ? (
+        <p style={{ textAlign: 'center' }}>Aguardando revelación...</p>
+      ) : (
+        <>
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px'
+          }}>
+            {products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(product => (
+              <div key={product.id} style={{
+              background: 'rgba(8, 4, 10, 0.85)',
+              border: '1px solid rgba(200, 169, 110, 0.3)',
+              padding: '24px',
+              display: 'flex',
+              gap: '30px',
+              alignItems: 'flex-start',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)'
+            }}>
+              <div onClick={() => navigate(`/products/${product.id}`)} style={{ 
+                width: '180px', height: '180px', cursor: 'pointer',
+                border: '1px solid rgba(200, 169, 110, 0.5)',
+                background: 'radial-gradient(circle, rgba(100, 100, 100, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: 'inset 0 0 10px rgba(0,0,0,1)',
+                flexShrink: 0, overflow: 'hidden'
+              }}>
+                {product.image ? (
+                  <img src={product.image} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ fontSize: '48px', color: 'rgba(200, 169, 110, 0.1)', fontFamily: "'IM Fell English', serif" }}>
+                    ⚜
+                  </span>
+                )}
+              </div>
+
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <h2 onClick={() => navigate(`/products/${product.id}`)} style={{ fontFamily: "'IM Fell English', serif", fontSize: '28px', color: '#e8c98e', margin: '0 0 8px 0', cursor: 'pointer', lineHeight: '1.2' }}>
+                    {product.title}
+                  </h2>
+                  <span style={{ color: '#ffaa00', fontFamily: "'IM Fell English', serif", fontSize: '20px' }}>
+                    ${Number(product.price).toFixed(2)}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>
+                  <span style={{ color: 'rgba(200, 169, 110, 0.6)' }}>Proveedor: {product.provider} | Stock: {product.stock}</span>
+                </div>
+                <p style={{ color: '#c8a96e', fontSize: '14px', lineHeight: '1.5', margin: '0 0 16px 0' }}>
+                  {product.description || "Propiedades desconocidas."}
+                </p>
+                
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => navigate(`/products/${product.id}`)} style={{
+                    background: 'transparent',
+                    color: '#e8c98e',
+                    border: '1px solid #e8c98e',
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    fontFamily: "'IM Fell English', serif",
+                    fontSize: '18px'
+                  }}>
+                    Inspeccionar
+                  </button>
+                  <button 
+                    disabled={product.stock <= 0}
+                    onClick={() => handleBuy(product.id, product.stock)} style={{
+                    background: product.stock <= 0 ? 'transparent' : 'transparent',
+                    color: product.stock <= 0 ? '#555' : '#ffaa00',
+                    border: product.stock <= 0 ? '1px solid #555' : '1px solid #ffaa00',
+                    padding: '8px 16px',
+                    cursor: product.stock <= 0 ? 'not-allowed' : 'pointer',
+                    fontFamily: "'IM Fell English', serif",
+                    fontSize: '18px'
+                  }}>
+                    {product.stock <= 0 ? 'Sin stock' : 'Añadir al carrito'}
+                  </button>
+                </div>
+              </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {products.length > itemsPerPage && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '60px', marginBottom: '40px' }}>
+              <button 
+                disabled={currentPage === 1}
+                onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
+                style={{
+                  background: 'transparent', color: currentPage === 1 ? '#555' : '#c8a96e', border: `1px solid ${currentPage === 1 ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+                }}>
+                Página Anterior
+              </button>
+              <span style={{ fontSize: '18px', fontFamily: "'IM Fell English', serif", color: '#ffaa00' }}>
+                Página {currentPage} de {Math.ceil(products.length / itemsPerPage)}
+              </span>
+              <button 
+                disabled={currentPage === Math.ceil(products.length / itemsPerPage)}
+                onClick={() => { setCurrentPage(prev => Math.min(prev + 1, Math.ceil(products.length / itemsPerPage))); window.scrollTo(0, 0); }}
+                style={{
+                  background: 'transparent', color: currentPage === Math.ceil(products.length / itemsPerPage) ? '#555' : '#c8a96e', border: `1px solid ${currentPage === Math.ceil(products.length / itemsPerPage) ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === Math.ceil(products.length / itemsPerPage) ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+                }}>
+                Siguiente Página
+              </button>
+            </div>
+          )}
+          {products.length === 0 && (
+            <p style={{ textAlign: 'center', color: '#888' }}>El sensor EMF no capta ninguna reliquia con esos parámetros.</p>
+          )}
+        </>
+      )}
     </div>
   )
 }
