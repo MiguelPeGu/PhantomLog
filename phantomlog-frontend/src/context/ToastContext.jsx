@@ -1,13 +1,18 @@
 import { createContext, useContext, useState, useCallback } from 'react'
 
+//crea los mensajes en toda la página
 const ToastContext = createContext(null)
 
+//lo hacemos como un array de mensajes porque pueden haber varios a la vez
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([])
 
+  //usamos un useCallback para que no se re-renderice innecesariamente, es decir, no se vuelva a crear inneceraiamente la función
   const addToast = useCallback((message, type = 'info') => {
     const id = Date.now()
+    //consercamos los mensajes anteriores
     setToasts((prev) => [...prev, { id, message, type }])
+    //después de 4 segundos se elimina el mensaje
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id))
     }, 4000)

@@ -17,6 +17,11 @@ class CartController extends Controller
 
     public function index()
     {
+        return $this->cartResponse();
+    }
+
+    private function cartResponse()
+    {
         return response()->json([
             'items' => array_values($this->cartService->getCart()),
             'totalWithTax' => $this->cartService->getTotalWithTax(),
@@ -30,11 +35,7 @@ class CartController extends Controller
 
         try {
             $this->cartService->add($product, $quantity);
-
-            return response()->json([
-                'message' => 'Product added to cart',
-                'cart' => array_values($this->cartService->getCart())
-            ]);
+            return $this->cartResponse();
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
@@ -45,30 +46,18 @@ class CartController extends Controller
     public function subtract(Product $product)
     {
         $this->cartService->subtract($product);
-
-        return response()->json([
-            'message' => 'Product subtracted',
-            'cart' => array_values($this->cartService->getCart())
-        ]);
+        return $this->cartResponse();
     }
 
     public function remove(Product $product)
     {
         $this->cartService->remove($product->id);
-
-        return response()->json([
-            'message' => 'Product removed',
-            'cart' => array_values($this->cartService->getCart())
-        ]);
+        return $this->cartResponse();
     }
 
     public function clear()
     {
         $this->cartService->clear();
-
-        return response()->json([
-            'message' => 'Cart cleared',
-            'cart' => []
-        ]);
+        return $this->cartResponse();
     }
 }

@@ -6,26 +6,33 @@ import { useToast } from '../context/ToastContext'
 import { useCart } from '../context/CartContext'
 
 export default function ProductDetail() {
+  //extraigo el id de la url a través del useParams que analiza la url
   const { id } = useParams()
   const navigate = useNavigate()
   const { addToast } = useToast()
   
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
+  //evita añadir al carrito
   const [adding, setAdding] = useState(false)
-  
   const { fetchGlobalCart } = useCart()
-
+  //useEffect se ejecuta cunado uno de los valores cambia
   useEffect(() => {
-    getProduct(id)
-      .then(res => setProduct(res.data))
-      .catch(err => {
-        console.error(err)
-        addToast("El oráculo no pudo encontrar este artefacto.", "error")
-        navigate('/products')
-      })
-      .finally(() => setLoading(false))
-  }, [id, navigate, addToast])
+  const fetchProduct = async () => {
+    try {
+      const res = await getProduct(id)
+      setProduct(res.data)
+    } catch (err) {
+      console.error(err)
+      addToast("El oráculo no pudo encontrar este artefacto.", "error")
+      navigate('/products')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  fetchProduct()
+}, [id, navigate, addToast])
 
   const handleBuy = async () => {
     if (product.stock <= 0) {
@@ -87,7 +94,7 @@ export default function ProductDetail() {
               <img src={product.image} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : (
               <span style={{ fontSize: '100px', color: 'rgba(200, 169, 110, 0.1)' }}>
-                ⚜
+                No hay una imagen disponible
               </span>
             )}
           </div>

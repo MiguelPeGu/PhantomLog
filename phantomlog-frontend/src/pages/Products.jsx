@@ -6,54 +6,71 @@ import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 
 export default function Products() {
+  //empieza la lista de productos vacía
   const [products, setProducts] = useState([])
+  //crea la pantalla de carga al inicio
   const [loading, setLoading] = useState(true)
+  //crea los mensajes emergentes
   const { addToast } = useToast()
+  //permite navegar entre páginas sin recargar
   const navigate = useNavigate()
+  //trae la función fetchGlobalCart del contexto del carrito
   const { fetchGlobalCart } = useCart()
-
+  //página actual de la paginación y número de items que hay en cada una
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 9
 
+  //buscador y ordenamiento
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('latest')
+
+  const [addingId, setAddingId] = useState(null)
 
   const getProductsFiltered = async () => {
     setLoading(true)
     try {
+      //intenta obtener el producto con los filtros
       const res = await getProducts({ search: searchTerm, sort: sortBy })
-      setProducts(res.data.data || res.data)
+      setProducts(res.data)
     } catch (e) {
       console.error(e)
     } finally {
+      //sale del loading
       setLoading(false)
     }
   }
 
   useEffect(() => {
+    //espera 400ms antes de buscar
     const delayDebounceFn = setTimeout(() => {
       getProductsFiltered()
-    }, 400) // 400ms debounce
+    }, 400)
+    //limpia el timeout
     return () => clearTimeout(delayDebounceFn)
   }, [searchTerm, sortBy])
 
-  // Reset page to 1 when filters change
+  // Reinicia la página a 1 cuando cambian los filtros
   useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm, sortBy])
-
+  //función que maneja la compra del producto
   const handleBuy = async (productId, stock) => {
+    //si el stock es menor o igual a 0, muestra un mensaje de error
     if (stock <= 0) {
       addToast("Las sombras se han llevado este artefacto. (Sin stock)", "error")
       return;
     }
+    setAddingId(productId)
     try {
+      //intenta agregar el producto al carrito
       await addToCart(productId, 1)
-      await fetchGlobalCart() // Refresca la burbuja rojiza del carrito arriba en la UI
       addToast("Objeto guardado en tu contenedor (Carrito).", "info")
+      await fetchGlobalCart() // Refresca la burbuja roja del carrito arriba en la UI
     } catch (e) {
       console.error(e)
       addToast(e.response?.data?.message || "Error al intentar sellar el objeto en tu contenedor.", "error")
+    } finally {
+      setAddingId(null)
     }
   }
 
@@ -118,6 +135,7 @@ export default function Products() {
           <div style={{
             display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px'
           }}>
+            {/* Muestra los productos y corta los que no son de la página actual */}
             {products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(product => (
               <div key={product.id} style={{
               background: 'rgba(8, 4, 10, 0.85)',
@@ -140,7 +158,7 @@ export default function Products() {
                   <img src={product.image} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <span style={{ fontSize: '48px', color: 'rgba(200, 169, 110, 0.1)', fontFamily: "'IM Fell English', serif" }}>
-                    ⚜
+                    No hay imagen disponible
                   </span>
                 )}
               </div>
@@ -174,7 +192,7 @@ export default function Products() {
                     Inspeccionar
                   </button>
                   <button 
-                    disabled={product.stock <= 0}
+                    disabled={product.stock <= 0 || addingId === product.id}
                     onClick={() => handleBuy(product.id, product.stock)} style={{
                     background: product.stock <= 0 ? 'transparent' : 'transparent',
                     color: product.stock <= 0 ? '#555' : '#ffaa00',
@@ -184,7 +202,11 @@ export default function Products() {
                     fontFamily: "'IM Fell English', serif",
                     fontSize: '18px'
                   }}>
-                    {product.stock <= 0 ? 'Sin stock' : 'Añadir al carrito'}
+                    {product.stock <= 0 
+                      ? 'Sin stock' 
+                      : addingId === product.id 
+                        ? 'Invocando...' 
+                        : 'Añadir al carrito'}
                   </button>
                 </div>
               </div>
@@ -192,7 +214,7 @@ export default function Products() {
             ))}
           </div>
 
-          {/* Pagination Controls */}
+          {/* Controles de paginación */}
           {products.length > itemsPerPage && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '60px', marginBottom: '40px' }}>
               <button 
