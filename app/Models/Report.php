@@ -39,6 +39,7 @@ final class Report extends Model
         'user_id',
         'title',
         'description',
+        'image',
         'score',
     ];
 
@@ -53,6 +54,7 @@ final class Report extends Model
             'user_id' => 'string',
             'title' => 'string',
             'description' => 'string',
+            'image' => 'string',
             'score' => 'integer',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',

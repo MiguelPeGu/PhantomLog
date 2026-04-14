@@ -26,6 +26,7 @@ class ReportFactory extends Factory
             'user_id' => User::factory(),
             'title' => $this->faker->unique()->sentence(4),
             'description' => $this->faker->paragraph(),
+            'image' => $this->faker->boolean(50) ? $this->faker->imageUrl() : null,
             'score' => $this->faker->numberBetween(0, 100),
         ];
     }

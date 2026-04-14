@@ -12,7 +12,7 @@ class CommentController extends Controller
     public function index(Report $report)
     {
         return response()->json(
-            $report->comments()->with('user')->latest()->get()
+            $report->comments()->with('user')->latest()->paginate(10)
         );
     }
 

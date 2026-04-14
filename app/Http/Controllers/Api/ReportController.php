@@ -21,7 +21,25 @@ class ReportController extends Controller
         $data = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
+            'image'       => 'nullable|string',
         ]);
+
+        if (!empty($request->image)) {
+            if (preg_match('/^data:image\/(\w+);base64,/', $request->image, $type)) {
+                $image   = substr($request->image, strpos($request->image, ',') + 1);
+                $type    = strtolower($type[1]);
+                $image   = base64_decode($image);
+                $imgName = \Illuminate\Support\Str::random(40) . '.' . $type;
+                \Illuminate\Support\Facades\Storage::disk('public')->put('reports/' . $imgName, $image);
+                $data['image'] = 'reports/' . $imgName;
+            } else {
+                return response()->json(['message' => 'Invalid image format.'], 422);
+            }
+        }
+
+        if ($request->user()->id !== $forum->user_id) {
+            return response()->json(['message' => 'Solo el creador del foro puede hacer reportes.'], 403);
+        }
 
         $report = $forum->reports()->create([
             ...$data,

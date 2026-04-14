@@ -20,7 +20,19 @@ class ForumController extends Controller
         $data = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
+            'image'       => 'required|string',
         ]);
+
+        if (preg_match('/^data:image\/(\w+);base64,/', $request->image, $type)) {
+            $image   = substr($request->image, strpos($request->image, ',') + 1);
+            $type    = strtolower($type[1]); // jpg, png, etc.
+            $image   = base64_decode($image);
+            $imgName = \Illuminate\Support\Str::random(40) . '.' . $type;
+            \Illuminate\Support\Facades\Storage::disk('public')->put('forums/' . $imgName, $image);
+            $data['image'] = 'forums/' . $imgName;
+        } else {
+            return response()->json(['message' => 'Invalid image format.'], 422);
+        }
 
         $forum = $request->user()->forums()->create($data);
 

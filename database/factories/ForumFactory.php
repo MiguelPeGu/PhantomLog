@@ -22,6 +22,7 @@ class ForumFactory extends Factory
             'id' => (string) Str::uuid(),
             'title' => $this->faker->unique()->sentence(3),
             'description' => $this->faker->paragraph(),
+            'image' => $this->faker->imageUrl(),
             'user_id' => User::factory(), // Relación
         ];
     }
