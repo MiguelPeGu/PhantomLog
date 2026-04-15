@@ -8,12 +8,19 @@ export default function Invoices() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    getInvoices()
-      .then(res => setInvoices(res.data))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false))
-  }, [])
+  const fetchInvoices = async () => {
+    try {
+      const res = await getInvoices()
+      setInvoices(res.data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
+  fetchInvoices()
+}, [])
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>

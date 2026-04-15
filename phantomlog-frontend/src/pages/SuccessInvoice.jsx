@@ -9,15 +9,20 @@ export default function SuccessInvoice() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getInvoice(id)
-      .then(res => setInvoice(res.data))
-      .catch(err => {
-        console.error(err)
-        navigate('/invoices')
-      })
-      .finally(() => setLoading(false))
-  }, [id, navigate])
+  const fetchInvoice = async () => {
+    try {
+      const res = await getInvoice(id)
+      setInvoice(res.data)
+    } catch (err) {
+      console.error(err)
+      navigate('/invoices')
+    } finally {
+      setLoading(false)
+    }
+  }
 
+  fetchInvoice()
+}, [id, navigate])
   if (loading) return <p style={{ textAlign: 'center', color: '#c8a96e' }}>Invocando la factura de sangre...</p>
   if (!invoice) return null
 
