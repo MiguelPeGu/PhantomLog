@@ -10,6 +10,7 @@ import Login          from './pages/Login'
 import Register       from './pages/Register'
 import Forums         from './pages/Forums'
 import ForumDetail    from './pages/ForumDetail'
+import ReportDetail   from './pages/ReportDetail'
 import Expeditions    from './pages/Expeditions'
 import ExpeditionDetail from './pages/ExpeditionDetail'
 import Phantoms       from './pages/Phantoms'
@@ -36,6 +37,7 @@ export default function App() {
           <Route element={<PrivateRoute><PhantomLayout /></PrivateRoute>}>
             <Route path="/forums"          element={<Forums />} />
             <Route path="/forums/:id"      element={<ForumDetail />} />
+            <Route path="/forums/:id/reports/:reportId" element={<ReportDetail />} />
             <Route path="/expeditions"     element={<Expeditions />} />
             <Route path="/expeditions/:id" element={<ExpeditionDetail />} />
             <Route path="/phantoms"        element={<Phantoms />} />

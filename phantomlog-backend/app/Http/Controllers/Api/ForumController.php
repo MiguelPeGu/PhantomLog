@@ -36,8 +36,14 @@ class ForumController extends Controller
             $type    = strtolower($type[1]); // jpg, png, etc.
             $image   = base64_decode($image);
             $imgName = \Illuminate\Support\Str::random(40) . '.' . $type;
-            \Illuminate\Support\Facades\Storage::disk('public')->put('forums/' . $imgName, $image);
-            $data['image'] = 'forums/' . $imgName;
+            
+            $path = public_path('images/forums');
+            if (!file_exists($path)) {
+                mkdir($path, 0755, true);
+            }
+            file_put_contents($path . '/' . $imgName, $image);
+            
+            $data['image'] = 'images/forums/' . $imgName;
         } else {
             return response()->json(['message' => 'Invalid image format.'], 422);
         }

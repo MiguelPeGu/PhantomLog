@@ -176,7 +176,13 @@ export default function Forums() {
                 }}>
                   {forum.image && (
                     <img 
-                      src={forum.image.startsWith('blob:') || forum.image.startsWith('http') ? forum.image : `http://localhost:8000/storage/${forum.image}`} 
+                      src={
+                        forum.image.startsWith('blob:') || forum.image.startsWith('http') 
+                          ? forum.image 
+                          : forum.image.startsWith('images/') 
+                            ? `http://localhost:8000/${forum.image}` 
+                            : `http://localhost:8000/storage/${forum.image}`
+                      } 
                       alt={forum.title}
                       style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(200, 169, 110, 0.3)' }}
                     />
@@ -234,36 +240,120 @@ export default function Forums() {
             )}
           </>
         )}
-      </div>
-
-      {showModal && (
+      </div>      {showModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+          background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000,
+          backdropFilter: 'blur(8px)'
         }}>
           <form onSubmit={handleCreateForum} style={{
-            background: 'rgba(15, 8, 18, 0.95)', border: '1px solid rgba(200, 169, 110, 0.3)', padding: '32px', width: '400px', display: 'flex', flexDirection: 'column', gap: '16px'
+            background: 'rgba(15, 8, 18, 0.95)', 
+            border: '1px solid rgba(200, 169, 110, 0.3)', 
+            padding: '40px', 
+            width: '450px', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '24px',
+            boxShadow: '0 0 50px rgba(0,0,0,1)',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            <h2 style={{ fontFamily: "'UnifrakturMaguntia', serif", color: '#c8a96e', margin: '0 0 16px 0' }}>Nuevo Foro</h2>
+            {/* Ornamentation */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '2px', background: 'linear-gradient(90deg, transparent, rgba(200,169,110,0.5), transparent)' }}></div>
             
-            <input 
-              required placeholder="Título" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
-              style={{ background: 'rgba(5, 3, 5, 0.8)', border: '1px solid rgba(200, 169, 110, 0.3)', color: '#c8a96e', padding: '10px' }}
-            />
-            <textarea 
-              required placeholder="Descripción" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
-              style={{ background: 'rgba(5, 3, 5, 0.8)', border: '1px solid rgba(200, 169, 110, 0.3)', color: '#c8a96e', padding: '10px', height: '100px', resize: 'vertical' }}
-            />
+            <h2 style={{ 
+              fontFamily: "'UnifrakturMaguntia', serif", 
+              color: '#c8a96e', 
+              margin: '0', 
+              fontSize: '32px',
+              textAlign: 'center',
+              textShadow: '0 0 10px rgba(200, 169, 110, 0.3)'
+            }}>Apertura de Nuevo Expediente</h2>
             
-            <label style={{ color: '#c8a96e', fontSize: '14px' }}>Imagen (Obligatoria)</label>
-            <input 
-              type="file" required accept="image/*" onChange={e => setFormData({...formData, image: e.target.files[0]})}
-              style={{ color: '#c8a96e' }}
-            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ color: 'rgba(200, 169, 110, 0.6)', fontSize: '13px', fontFamily: "'IM Fell English', serif", textTransform: 'uppercase', letterSpacing: '1px' }}>Título de la Investigación</label>
+              <input 
+                required placeholder="Ej: Las Luces de Heisler..." value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
+                style={{ 
+                  background: 'rgba(5, 3, 5, 0.8)', 
+                  border: '1px solid rgba(200, 169, 110, 0.2)', 
+                  color: '#e8c98e', 
+                  padding: '12px',
+                  fontFamily: "'IM Fell English', serif",
+                  fontSize: '16px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s'
+                }}
+                onFocus={e => e.target.style.borderColor = 'rgba(200, 169, 110, 0.6)'}
+                onBlur={e => e.target.style.borderColor = 'rgba(200, 169, 110, 0.2)'}
+              />
+            </div>
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-              <button type="submit" style={{ flex: 1, background: 'rgba(180, 50, 40, 0.2)', color: '#f0d090', border: '1px solid rgba(180, 50, 40, 0.5)', padding: '10px' }}>Crear Foro</button>
-              <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, background: 'transparent', color: 'rgba(200,169,110,0.6)', border: '1px solid rgba(200,169,110,0.3)', padding: '10px' }}>Cancelar</button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ color: 'rgba(200, 169, 110, 0.6)', fontSize: '13px', fontFamily: "'IM Fell English', serif", textTransform: 'uppercase', letterSpacing: '1px' }}>Descripción del Fenómeno</label>
+              <textarea 
+                required placeholder="Relata los antecedentes conocidos..." value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
+                style={{ 
+                  background: 'rgba(5, 3, 5, 0.8)', 
+                  border: '1px solid rgba(200, 169, 110, 0.2)', 
+                  color: '#e8c98e', 
+                  padding: '12px', 
+                  height: '120px', 
+                  resize: 'none',
+                  fontFamily: "'IM Fell English', serif",
+                  fontSize: '16px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s'
+                }}
+                onFocus={e => e.target.style.borderColor = 'rgba(200, 169, 110, 0.6)'}
+                onBlur={e => e.target.style.borderColor = 'rgba(200, 169, 110, 0.2)'}
+              />
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ color: 'rgba(200, 169, 110, 0.6)', fontSize: '13px', fontFamily: "'IM Fell English', serif", textTransform: 'uppercase', letterSpacing: '1px' }}>Evidencia Pictórica</label>
+              <div style={{ 
+                position: 'relative', 
+                border: '1px dashed rgba(200, 169, 110, 0.3)', 
+                padding: '15px', 
+                textAlign: 'center',
+                background: 'rgba(200, 169, 110, 0.02)'
+              }}>
+                <input 
+                  type="file" required accept="image/*" onChange={e => setFormData({...formData, image: e.target.files[0]})}
+                  style={{ color: '#c8a96e', fontSize: '14px', width: '100%' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+              <button type="submit" style={{ 
+                flex: 1, 
+                background: 'rgba(180, 50, 40, 0.2)', 
+                color: '#f0d090', 
+                border: '1px solid rgba(180, 50, 40, 0.5)', 
+                padding: '14px',
+                cursor: 'crosshair',
+                fontFamily: "'IM Fell English', serif",
+                fontSize: '18px',
+                transition: 'all 0.3s'
+              }}
+              onMouseOver={e => e.target.style.background = 'rgba(180, 50, 40, 0.4)'}
+              onMouseOut={e => e.target.style.background = 'rgba(180, 50, 40, 0.2)'}>
+                Registrar Foro
+              </button>
+              <button type="button" onClick={() => setShowModal(false)} style={{ 
+                flex: 1, 
+                background: 'transparent', 
+                color: 'rgba(200,169,110,0.5)', 
+                border: '1px solid rgba(200,169,110,0.2)', 
+                padding: '14px',
+                cursor: 'pointer',
+                fontFamily: "'IM Fell English', serif",
+                fontSize: '18px'
+              }}>
+                Descartar
+              </button>
             </div>
           </form>
         </div>

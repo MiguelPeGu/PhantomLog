@@ -9,10 +9,10 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function index(Forum $forum)
+    public function index(Request $request, Forum $forum)
     {
         return response()->json(
-            $forum->reports()->with('user')->withCount('comments')->latest()->get()
+            $forum->reports()->with('user')->withCount('comments')->latest()->paginate($request->input('per_page', 10))
         );
     }
 
@@ -30,8 +30,14 @@ class ReportController extends Controller
                 $type    = strtolower($type[1]);
                 $image   = base64_decode($image);
                 $imgName = \Illuminate\Support\Str::random(40) . '.' . $type;
-                \Illuminate\Support\Facades\Storage::disk('public')->put('reports/' . $imgName, $image);
-                $data['image'] = 'reports/' . $imgName;
+                
+                $path = public_path('images/reports');
+                if (!file_exists($path)) {
+                    mkdir($path, 0755, true);
+                }
+                file_put_contents($path . '/' . $imgName, $image);
+                
+                $data['image'] = 'images/reports/' . $imgName;
             } else {
                 return response()->json(['message' => 'Invalid image format.'], 422);
             }
