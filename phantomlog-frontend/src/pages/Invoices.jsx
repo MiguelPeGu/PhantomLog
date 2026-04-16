@@ -5,13 +5,18 @@ import { useNavigate } from 'react-router-dom'
 export default function Invoices() {
   const [invoices, setInvoices] = useState([])
   const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const itemsPerPage = 5
   const navigate = useNavigate()
 
-  useEffect(() => {
-  const fetchInvoices = async () => {
+  const fetchInvoices = async (page = 1) => {
+    setLoading(true)
     try {
-      const res = await getInvoices()
-      setInvoices(res.data)
+      const res = await getInvoices({ page: page, per_page: itemsPerPage })
+      // Laravel paginate devuelve { data: [...], last_page: X }
+      setInvoices(res.data.data || [])
+      setTotalPages(res.data.last_page || 1)
     } catch (err) {
       console.error(err)
     } finally {
@@ -19,8 +24,9 @@ export default function Invoices() {
     }
   }
 
-  fetchInvoices()
-}, [])
+  useEffect(() => {
+    fetchInvoices(currentPage)
+  }, [currentPage])
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
@@ -96,6 +102,31 @@ export default function Invoices() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Controles de paginación */}
+      {!loading && totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '60px', marginBottom: '40px' }}>
+          <button 
+            disabled={currentPage === 1}
+            onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
+            style={{
+              background: 'transparent', color: currentPage === 1 ? '#555' : '#c8a96e', border: `1px solid ${currentPage === 1 ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+            }}>
+            Página Anterior
+          </button>
+          <span style={{ fontSize: '18px', fontFamily: "'IM Fell English', serif", color: '#ffaa00' }}>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button 
+            disabled={currentPage === totalPages}
+            onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo(0, 0); }}
+            style={{
+              background: 'transparent', color: currentPage === totalPages ? '#555' : '#c8a96e', border: `1px solid ${currentPage === totalPages ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+            }}>
+            Siguiente Página
+          </button>
         </div>
       )}
     </div>

@@ -10,7 +10,7 @@ export default function Cart() {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const { addToast } = useToast()
-  const { fetchGlobalCart } = useCart()
+  const { fetchGlobalCart, setCartCount } = useCart()
   const [updatingState, setUpdatingState] = useState({}) // { [id]: 'add' | 'sub' | 'rem' }
 
   //no recargamos la página entera, solo lo necesario
@@ -75,7 +75,12 @@ export default function Cart() {
 
       // Sincronizamos con la respuesta real del servidor (para totales y stock)
       setCartData(res.data);
-      await fetchGlobalCart(); 
+      
+      // Sincronización local rápida del contador en el Header
+      if (res.data && res.data.items) {
+        const totalItems = res.data.items.reduce((acc, item) => acc + item.quantity, 0);
+        setCartCount(totalItems);
+      }
     } catch (e) {
       console.error(e);
       await fetchCart(true); 

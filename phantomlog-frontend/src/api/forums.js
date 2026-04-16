@@ -1,6 +1,6 @@
 import api from './axios'
 
-export const getForums      = ()              => api.get('/forums')
+export const getForums      = (params = {}) => api.get('/forums', { params })
 export const getForum       = (id)            => api.get(`/forums/${id}`)
 export const createForum    = (data)          => api.post('/forums', data)
 export const updateForum    = (id, data)      => api.put(`/forums/${id}`, data)

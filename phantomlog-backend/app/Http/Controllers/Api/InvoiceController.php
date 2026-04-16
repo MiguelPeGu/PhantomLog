@@ -14,7 +14,7 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         return response()->json(
-            $request->user()->invoices()->with('details')->latest()->get()
+            $request->user()->invoices()->with('details')->latest()->paginate($request->input('per_page', 5))
         );
     }
 

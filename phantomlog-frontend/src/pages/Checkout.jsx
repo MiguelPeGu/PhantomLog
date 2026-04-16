@@ -76,15 +76,17 @@ export default function Checkout() {
         items
       })
       
-      await clearCart()
-      await fetchGlobalCart()
       addToast("El contrato fue sellado con éxito.", "info")
       
-      // Activar animación fantasma durante 5 segundos
+      // Activar animación fantasma inmediatamente tras el éxito del API
       setGhostLoading(true)
+
+      // Limpiamos el carrito en segundo plano para no hacer esperar al usuario
+      clearCart().then(() => fetchGlobalCart())
+
       setTimeout(() => {
         navigate(`/success/${resp.data.id}`)
-      }, 5000)
+      }, 3000)
 
     } catch (err) {
       console.error(err)

@@ -10,20 +10,42 @@ export default function Forums() {
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState({ title: '', description: '', image: null })
   
+  const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const itemsPerPage = 9
+
   const { user } = useAuth()
-  const { showToast } = useToast()
+  const { addToast } = useToast()
 
   useEffect(() => {
-    fetchForums()
-  }, [])
+    const delayDebounceFn = setTimeout(() => {
+      fetchForums(currentPage)
+    }, 400)
+    return () => clearTimeout(delayDebounceFn)
+  }, [search, currentPage])
 
-  const fetchForums = async () => {
+  // Reiniciar página cuando se busca
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search])
+
+  const fetchForums = async (page = 1) => {
+    setLoading(true)
     try {
-      const res = await getForums()
-      setForums(res.data)
+      const res = await getForums({
+        search: search,
+        page: page,
+        per_page: itemsPerPage
+      })
+      // Laravel paginate devuelve { data: [...], last_page: X }
+      setForums(res.data.data || [])
+      setTotalPages(res.data.last_page || 1)
     } catch (error) {
       console.error(error)
-      showToast('Error al cargar los foros', 'error')
+      addToast('Error al cargar los foros', 'error')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -57,7 +79,7 @@ export default function Forums() {
       setForums([optimisticForum, ...forums])
       setShowModal(false)
       setFormData({ title: '', description: '', image: null })
-      showToast('Foro creado exitosamente', 'success')
+      addToast('Foro creado exitosamente', 'success')
       
       const base64Image = await fileToBase64(formData.image)
       const payload = {
@@ -67,19 +89,17 @@ export default function Forums() {
       }
 
       await createForum(payload)
-      fetchForums() // Sync con backend real
+      fetchForums(1) // Sync con backend real
     } catch (error) {
       console.error(error)
       const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message
-      const errorDetails = JSON.stringify(error.response?.data?.errors || {})
-      showToast(`Error: ${errorMsg} ${errorDetails}`, 'error')
-      fetchForums() // Revert changes si falla
+      addToast(`Error: ${errorMsg}`, 'error')
+      fetchForums(currentPage) // Revert changes si falla
     }
   }
 
-  const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : ''
-
-  const filteredForums = forums.filter(f => normalizeText(f.title).includes(normalizeText(search)))
+  // No necesitamos filtrar en cliente ya que lo hace el servidor
+  const displayForums = forums
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
@@ -123,63 +143,97 @@ export default function Forums() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {filteredForums.map(forum => {
-          const isTemp = String(forum.id).includes('temp');
-          const cardContent = (
-            <div style={{
-              background: 'rgba(15, 8, 18, 0.65)',
-              border: '1px solid rgba(200, 169, 110, 0.15)',
-              padding: '20px',
-              display: 'flex',
-              gap: '20px',
-              alignItems: 'center',
-              transition: 'all 0.4s',
-              opacity: isTemp ? 0.6 : 1,
-              filter: isTemp ? 'grayscale(0.5)' : 'none',
-              cursor: isTemp ? 'progress' : 'pointer',
-            }}
-            onMouseOver={e => {
-              if (isTemp) return;
-              e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.6)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 5px 15px rgba(200, 169, 110, 0.05)';
-            }}
-            onMouseOut={e => {
-              if (isTemp) return;
-              e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.15)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}>
-              {forum.image && (
-                <img 
-                  src={forum.image.startsWith('blob:') || forum.image.startsWith('http') ? forum.image : `http://localhost:8000/storage/${forum.image}`} 
-                  alt={forum.title}
-                  style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(200, 169, 110, 0.3)' }}
-                />
-              )}
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#e8c98e' }}>{forum.title} {isTemp && <span style={{fontSize: '12px', fontStyle: 'italic', color: '#ff4d4d'}}>(Creando...)</span>}</h3>
-                <div style={{ fontSize: '13px', color: '#e0cfa5', marginBottom: '8px' }}>
-                  {forum.description.substring(0, 100)}...
+        {loading ? (
+          <p style={{ textAlign: 'center', color: '#c8a96e', margin: '40px 0' }}>Sintonizando frecuencias de red...</p>
+        ) : (
+          <>
+            {displayForums.map(forum => {
+              const isTemp = String(forum.id).includes('temp');
+              const cardContent = (
+                <div style={{
+                  background: 'rgba(15, 8, 18, 0.65)',
+                  border: '1px solid rgba(200, 169, 110, 0.15)',
+                  padding: '20px',
+                  display: 'flex',
+                  gap: '20px',
+                  alignItems: 'center',
+                  transition: 'all 0.4s',
+                  opacity: isTemp ? 0.6 : 1,
+                  filter: isTemp ? 'grayscale(0.5)' : 'none',
+                  cursor: isTemp ? 'progress' : 'pointer',
+                }}
+                onMouseOver={e => {
+                  if (isTemp) return;
+                  e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.6)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 5px 15px rgba(200, 169, 110, 0.05)';
+                }}
+                onMouseOut={e => {
+                  if (isTemp) return;
+                  e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.15)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}>
+                  {forum.image && (
+                    <img 
+                      src={forum.image.startsWith('blob:') || forum.image.startsWith('http') ? forum.image : `http://localhost:8000/storage/${forum.image}`} 
+                      alt={forum.title}
+                      style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(200, 169, 110, 0.3)' }}
+                    />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#e8c98e' }}>{forum.title} {isTemp && <span style={{fontSize: '12px', fontStyle: 'italic', color: '#ff4d4d'}}>(Creando...)</span>}</h3>
+                    <div style={{ fontSize: '13px', color: '#e0cfa5', marginBottom: '8px' }}>
+                      {forum.description.substring(0, 100)}...
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', display: 'flex', gap: '16px' }}>
+                      <span>Creado por: <strong style={{ color: 'rgba(200, 169, 110, 0.8)' }}>{forum.user?.username || 'Gnomo'}</strong></span>
+                      <span>Reportes: {forum.reports_count || 0}</span>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '12px', color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', display: 'flex', gap: '16px' }}>
-                  <span>Creado por: <strong style={{ color: 'rgba(200, 169, 110, 0.8)' }}>{forum.user?.username || 'Gnomo'}</strong></span>
-                  <span>Reportes: {forum.reports_count || 0}</span>
-                </div>
-              </div>
-            </div>
-          );
+              );
 
-          return isTemp ? (
-            <div key={forum.id} style={{ pointerEvents: 'none' }}>
-              {cardContent}
-            </div>
-          ) : (
-            <Link key={forum.id} to={`/forums/${forum.id}`} style={{ textDecoration: 'none' }}>
-              {cardContent}
-            </Link>
-          )
-        })}
+              return isTemp ? (
+                <div key={forum.id} style={{ pointerEvents: 'none' }}>
+                  {cardContent}
+                </div>
+              ) : (
+                <Link key={forum.id} to={`/forums/${forum.id}`} style={{ textDecoration: 'none' }}>
+                  {cardContent}
+                </Link>
+              )
+            })}
+            
+            {/* Controles de Paginación */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '40px', marginBottom: '20px' }}>
+                <button 
+                  disabled={currentPage === 1}
+                  onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
+                  style={{
+                    background: 'transparent', color: currentPage === 1 ? '#555' : '#c8a96e', border: `1px solid ${currentPage === 1 ? '#555' : '#c8a96e'}`, padding: '8px 16px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '18px'
+                  }}>
+                  Anterior
+                </button>
+                <span style={{ fontSize: '16px', fontFamily: "'IM Fell English', serif", color: '#ffaa00' }}>
+                  Página {currentPage} de {totalPages}
+                </span>
+                <button 
+                  disabled={currentPage === totalPages}
+                  onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo(0, 0); }}
+                  style={{
+                    background: 'transparent', color: currentPage === totalPages ? '#555' : '#c8a96e', border: `1px solid ${currentPage === totalPages ? '#555' : '#c8a96e'}`, padding: '8px 16px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '18px'
+                  }}>
+                  Siguiente
+                </button>
+              </div>
+            )}
+            {displayForums.length === 0 && (
+              <p style={{ textAlign: 'center', color: '#c8a96e55', marginTop: '40px' }}>No hay ecos registrados en esta frecuencia.</p>
+            )}
+          </>
+        )}
       </div>
 
       {showModal && (

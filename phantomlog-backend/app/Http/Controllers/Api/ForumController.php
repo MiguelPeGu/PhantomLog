@@ -8,10 +8,18 @@ use Illuminate\Http\Request;
 
 class ForumController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Forum::with('user')->withCount('reports');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $term = $request->search;
+            $query->where('title', 'like', '%' . $term . '%')
+                  ->orWhere('description', 'like', '%' . $term . '%');
+        }
+
         return response()->json(
-            Forum::with('user')->withCount('reports')->latest()->get()
+            $query->latest()->paginate($request->input('per_page', 9))
         );
     }
 

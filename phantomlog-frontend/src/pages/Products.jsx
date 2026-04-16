@@ -14,10 +14,10 @@ export default function Products() {
   const { addToast } = useToast()
   //permite navegar entre páginas sin recargar
   const navigate = useNavigate()
-  //trae la función fetchGlobalCart del contexto del carrito
-  const { fetchGlobalCart } = useCart()
-  //página actual de la paginación y número de items que hay en cada una
+  //trae las funciones del contexto del carrito
+  const { fetchGlobalCart, setCartCount } = useCart()
   const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 9
 
   //buscador y ordenamiento
@@ -26,14 +26,22 @@ export default function Products() {
 
   const [addingId, setAddingId] = useState(null)
 
-  const getProductsFiltered = async () => {
+  const getProductsFiltered = async (page = 1) => {
     setLoading(true)
     try {
-      //intenta obtener el producto con los filtros
-      const res = await getProducts({ search: searchTerm, sort: sortBy })
-      setProducts(res.data)
+      //intenta obtener el producto con los filtros y página
+      const res = await getProducts({ 
+        search: searchTerm, 
+        sort: sortBy,
+        page: page,
+        per_page: itemsPerPage 
+      })
+      // Laravel paginate devuelve { data: [...], last_page: X, ... }
+      setProducts(res.data.data || [])
+      setTotalPages(res.data.last_page || 1)
     } catch (e) {
       console.error(e)
+      setProducts([])
     } finally {
       //sale del loading
       setLoading(false)
@@ -41,13 +49,13 @@ export default function Products() {
   }
 
   useEffect(() => {
-    //espera 400ms antes de buscar
+    //espera 400ms antes de buscar para evitar peticiones excesivas
     const delayDebounceFn = setTimeout(() => {
-      getProductsFiltered()
+      getProductsFiltered(currentPage)
     }, 400)
     //limpia el timeout
     return () => clearTimeout(delayDebounceFn)
-  }, [searchTerm, sortBy])
+  }, [searchTerm, sortBy, currentPage])
 
   // Reinicia la página a 1 cuando cambian los filtros
   useEffect(() => {
@@ -61,11 +69,20 @@ export default function Products() {
       return;
     }
     setAddingId(productId)
+    
+    // IU Optimista: Feedback visual inmediato
+    addToast("Invocando objeto...", "info")
+
     try {
       //intenta agregar el producto al carrito
-      await addToCart(productId, 1)
+      const res = await addToCart(productId, 1)
       addToast("Objeto guardado en tu contenedor (Carrito).", "info")
-      await fetchGlobalCart() // Refresca la burbuja roja del carrito arriba en la UI
+      
+      // Sincronización local rápida del contador
+      if (res.data && res.data.items) {
+        const totalItems = res.data.items.reduce((acc, item) => acc + item.quantity, 0);
+        setCartCount(totalItems);
+      }
     } catch (e) {
       console.error(e)
       addToast(e.response?.data?.message || "Error al intentar sellar el objeto en tu contenedor.", "error")
@@ -135,8 +152,8 @@ export default function Products() {
           <div style={{
             display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px'
           }}>
-            {/* Muestra los productos y corta los que no son de la página actual */}
-            {products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(product => (
+            {/* Muestra los productos recibidos del servidor */}
+            {products.map(product => (
               <div key={product.id} style={{
               background: 'rgba(8, 4, 10, 0.85)',
               border: '1px solid rgba(200, 169, 110, 0.3)',
@@ -215,7 +232,7 @@ export default function Products() {
           </div>
 
           {/* Controles de paginación */}
-          {products.length > itemsPerPage && (
+          {totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '60px', marginBottom: '40px' }}>
               <button 
                 disabled={currentPage === 1}
@@ -226,13 +243,13 @@ export default function Products() {
                 Página Anterior
               </button>
               <span style={{ fontSize: '18px', fontFamily: "'IM Fell English', serif", color: '#ffaa00' }}>
-                Página {currentPage} de {Math.ceil(products.length / itemsPerPage)}
+                Página {currentPage} de {totalPages}
               </span>
               <button 
-                disabled={currentPage === Math.ceil(products.length / itemsPerPage)}
-                onClick={() => { setCurrentPage(prev => Math.min(prev + 1, Math.ceil(products.length / itemsPerPage))); window.scrollTo(0, 0); }}
+                disabled={currentPage === totalPages}
+                onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo(0, 0); }}
                 style={{
-                  background: 'transparent', color: currentPage === Math.ceil(products.length / itemsPerPage) ? '#555' : '#c8a96e', border: `1px solid ${currentPage === Math.ceil(products.length / itemsPerPage) ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === Math.ceil(products.length / itemsPerPage) ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+                  background: 'transparent', color: currentPage === totalPages ? '#555' : '#c8a96e', border: `1px solid ${currentPage === totalPages ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
                 }}>
                 Siguiente Página
               </button>

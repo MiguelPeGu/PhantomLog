@@ -40,7 +40,7 @@ class ProductController extends Controller
             $query->latest();
         }
 
-        return response()->json($query->get());
+        return response()->json($query->paginate($request->input('per_page', 9)));
     }
 
     public function store(Request $request)

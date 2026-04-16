@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { me, login as apiLogin, logout as apiLogout } from '../api/auth'
+import Loader from '../components/Loader'
 
 const AuthContext = createContext(null)
 
@@ -32,7 +33,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {!loading && children}
+      {loading ? <Loader /> : children}
     </AuthContext.Provider>
   )
 }
