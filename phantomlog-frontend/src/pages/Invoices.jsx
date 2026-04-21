@@ -1,32 +1,25 @@
 import { useEffect, useState } from 'react'
-import { getInvoices } from '../api/invoices'
 import { useNavigate } from 'react-router-dom'
+import { useData } from '../context/DataProvider'
 
 export default function Invoices() {
-  const [invoices, setInvoices] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const {
+    invoices,
+    loadingInvoices: loading,
+    invoicesPagination,
+    refreshInvoices
+  } = useData()
+
+  const [currentPage, setCurrentPage] = useState(invoicesPagination.currentPage)
   const itemsPerPage = 5
   const navigate = useNavigate()
 
-  const fetchInvoices = async (page = 1) => {
-    setLoading(true)
-    try {
-      const res = await getInvoices({ page: page, per_page: itemsPerPage })
-      // Laravel paginate devuelve { data: [...], last_page: X }
-      setInvoices(res.data.data || [])
-      setTotalPages(res.data.last_page || 1)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    fetchInvoices(currentPage)
-  }, [currentPage])
+    refreshInvoices({ page: currentPage, per_page: itemsPerPage })
+  }, [currentPage, refreshInvoices])
+
+  const { totalPages } = invoicesPagination
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
@@ -44,10 +37,10 @@ export default function Invoices() {
          </button>
       </div>
 
-      {loading ? (
+      {loading && invoices.length === 0 ? (
         <p style={{ textAlign: 'center', color: '#c8a96e' }}>Invocando contratos del pasado...</p>
       ) : invoices.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#c8a96e' }}>No exisen ritos consagrados en tu historia.</p>
+        <p style={{ textAlign: 'center', color: '#c8a96e' }}>No existen ritos consagrados en tu historia.</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {invoices.map(invoice => (
@@ -64,7 +57,7 @@ export default function Invoices() {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
                   <h2 style={{ fontFamily: "'IM Fell English', serif", fontSize: '24px', color: '#e8c98e', margin: 0 }}>
-                    Contrato #{invoice.n_invoice}
+                    Contrato #{invoice.id}
                   </h2>
                   <span style={{ 
                     fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em',
@@ -105,7 +98,6 @@ export default function Invoices() {
         </div>
       )}
 
-      {/* Controles de paginación */}
       {!loading && totalPages > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '60px', marginBottom: '40px' }}>
           <button 

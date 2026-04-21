@@ -1,84 +1,56 @@
 import { useEffect, useState } from 'react'
-import { getProducts } from '../api/products'
 import { addToCart } from '../api/cart'
 import { useToast } from '../context/ToastContext'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useData } from '../context/DataProvider'
 
 export default function Products() {
-  //empieza la lista de productos vacía
-  const [products, setProducts] = useState([])
-  //crea la pantalla de carga al inicio
-  const [loading, setLoading] = useState(true)
-  //crea los mensajes emergentes
+  const { 
+    products, 
+    loadingProducts: loading, 
+    productsPagination, 
+    refreshProducts 
+  } = useData()
+  
   const { addToast } = useToast()
-  //permite navegar entre páginas sin recargar
   const navigate = useNavigate()
-  //trae las funciones del contexto del carrito
   const { fetchGlobalCart, setCartCount } = useCart()
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const itemsPerPage = 9
-
-  //buscador y ordenamiento
+  
+  const [currentPage, setCurrentPage] = useState(productsPagination.currentPage)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('latest')
-
   const [addingId, setAddingId] = useState(null)
 
-  const getProductsFiltered = async (page = 1) => {
-    setLoading(true)
-    try {
-      //intenta obtener el producto con los filtros y página
-      const res = await getProducts({ 
-        search: searchTerm, 
-        sort: sortBy,
-        page: page,
-        per_page: itemsPerPage 
-      })
-      // Laravel paginate devuelve { data: [...], last_page: X, ... }
-      setProducts(res.data.data || [])
-      setTotalPages(res.data.last_page || 1)
-    } catch (e) {
-      console.error(e)
-      setProducts([])
-    } finally {
-      //sale del loading
-      setLoading(false)
-    }
-  }
+  const itemsPerPage = 9
 
   useEffect(() => {
-    //espera 400ms antes de buscar para evitar peticiones excesivas
     const delayDebounceFn = setTimeout(() => {
-      getProductsFiltered(currentPage)
+      refreshProducts({ 
+        search: searchTerm, 
+        sort: sortBy,
+        page: currentPage,
+        per_page: itemsPerPage 
+      })
     }, 400)
-    //limpia el timeout
     return () => clearTimeout(delayDebounceFn)
-  }, [searchTerm, sortBy, currentPage])
+  }, [searchTerm, sortBy, currentPage, refreshProducts])
 
-  // Reinicia la página a 1 cuando cambian los filtros
   useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm, sortBy])
-  //función que maneja la compra del producto
+
   const handleBuy = async (productId, stock) => {
-    //si el stock es menor o igual a 0, muestra un mensaje de error
     if (stock <= 0) {
       addToast("Las sombras se han llevado este artefacto. (Sin stock)", "error")
       return;
     }
     setAddingId(productId)
-    
-    // IU Optimista: Feedback visual inmediato
     addToast("Invocando objeto...", "info")
 
     try {
-      //intenta agregar el producto al carrito
       const res = await addToCart(productId, 1)
       addToast("Objeto guardado en tu contenedor (Carrito).", "info")
-      
-      // Sincronización local rápida del contador
       if (res.data && res.data.items) {
         const totalItems = res.data.items.reduce((acc, item) => acc + item.quantity, 0);
         setCartCount(totalItems);
@@ -91,6 +63,8 @@ export default function Products() {
     }
   }
 
+  const { totalPages } = productsPagination
+
   return (
     <div style={{ maxWidth: '100%', padding: '0 40px', color: '#c8a96e', boxSizing: 'border-box' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
@@ -102,7 +76,6 @@ export default function Products() {
         </p>
       </header>
 
-      {/* Filtros: Buscador y Ordenación */}
       <div style={{
         display: 'flex', gap: '20px', marginBottom: '40px', justifyContent: 'center', flexWrap: 'wrap'
       }}>
@@ -145,14 +118,13 @@ export default function Products() {
         </select>
       </div>
 
-      {loading ? (
+      {loading && products.length === 0 ? (
         <p style={{ textAlign: 'center' }}>Aguardando revelación...</p>
       ) : (
         <>
           <div style={{
             display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px'
           }}>
-            {/* Muestra los productos recibidos del servidor */}
             {products.map(product => (
               <div key={product.id} style={{
               background: 'rgba(8, 4, 10, 0.85)',
@@ -231,7 +203,6 @@ export default function Products() {
             ))}
           </div>
 
-          {/* Controles de paginación */}
           {totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '60px', marginBottom: '40px' }}>
               <button 
@@ -255,7 +226,7 @@ export default function Products() {
               </button>
             </div>
           )}
-          {products.length === 0 && (
+          {products.length === 0 && !loading && (
             <p style={{ textAlign: 'center', color: '#888' }}>El sensor EMF no capta ninguna reliquia con esos parámetros.</p>
           )}
         </>

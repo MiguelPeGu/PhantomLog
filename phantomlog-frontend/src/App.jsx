@@ -1,7 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { CartProvider } from './context/CartContext'
+import { DataProvider } from './context/DataProvider'
 import PrivateRoute from './components/PrivateRoute'
 import PhantomLayout from './components/PhantomLayout'
 
@@ -21,39 +22,42 @@ import Checkout       from './pages/Checkout'
 import Invoices       from './pages/Invoices'
 import SuccessInvoice from './pages/SuccessInvoice'
 
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    element: <PrivateRoute><PhantomLayout /></PrivateRoute>,
+    children: [
+      { path: "forums", element: <Forums /> },
+      { path: "forums/:id", element: <ForumDetail /> },
+      { path: "forums/:id/reports/:reportId", element: <ReportDetail /> },
+      { path: "expeditions", element: <Expeditions /> },
+      { path: "expeditions/:id", element: <ExpeditionDetail /> },
+      { path: "phantoms", element: <Phantoms /> },
+      { path: "products", element: <Products /> },
+      { path: "products/:id", element: <ProductDetail /> },
+      { path: "cart", element: <Cart /> },
+      { path: "checkout", element: <Checkout /> },
+      { path: "success/:id", element: <SuccessInvoice /> },
+      { path: "invoices", element: <Invoices /> },
+    ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
+  },
+])
+
 export default function App() {
-  return (
-    <ToastProvider>
-      <AuthProvider>
-        <CartProvider>
-          <BrowserRouter>
-          <Routes>
-          {/* Página de inicio — pública */}
-          <Route path="/"         element={<Home />} />
-          <Route path="/login"    element={<Login />} />
-          <Route path="/register" element={<Register />} />
-
-          {/* Páginas privadas */}
-          <Route element={<PrivateRoute><PhantomLayout /></PrivateRoute>}>
-            <Route path="/forums"          element={<Forums />} />
-            <Route path="/forums/:id"      element={<ForumDetail />} />
-            <Route path="/forums/:id/reports/:reportId" element={<ReportDetail />} />
-            <Route path="/expeditions"     element={<Expeditions />} />
-            <Route path="/expeditions/:id" element={<ExpeditionDetail />} />
-            <Route path="/phantoms"        element={<Phantoms />} />
-            <Route path="/products"        element={<Products />} />
-            <Route path="/products/:id"    element={<ProductDetail />} />
-            <Route path="/cart"            element={<Cart />} />
-            <Route path="/checkout"        element={<Checkout />} />
-            <Route path="/success/:id"     element={<SuccessInvoice />} />
-            <Route path="/invoices"        element={<Invoices />} />
-          </Route>
-
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        </BrowserRouter>
-        </CartProvider>
-      </AuthProvider>
-    </ToastProvider>
-  )
+  return null; // The app is handled by RouterProvider in main.jsx
 }

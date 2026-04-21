@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { useToast } from '../context/ToastContext'
 
 export default function PhantomLayout() {
   const canvasRef = useRef(null)
@@ -9,6 +10,7 @@ export default function PhantomLayout() {
   const navigate = useNavigate()
   const { logout, user } = useAuth()
   const { cartCount } = useCart()
+  const { addToast } = useToast()
   const [showContent, setShowContent] = useState(false)
 
   // Canvas fog
@@ -48,13 +50,18 @@ export default function PhantomLayout() {
   useEffect(() => { setShowContent(true) }, [])
 
   const handleLogout = async () => {
-    try {
-      if (logout) await logout()
-    } catch {
-      // ignore
-    } finally {
-      navigate('/login')
-    }
+    addToast("Sellando el expediente y borrando rastros...", "info")
+    setShowContent(false) // Desvanecer contenido antes de salir
+    
+    setTimeout(async () => {
+      try {
+        if (logout) await logout()
+      } catch {
+        // ignore
+      } finally {
+        navigate('/login')
+      }
+    }, 800)
   }
 
   const navLinks = [

@@ -1,18 +1,23 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { getForums, createForum } from '../api/forums'
+import { createForum } from '../api/forums'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useData } from '../context/DataProvider'
 
 export default function Forums() {
-  const [forums, setForums] = useState([])
+  const { 
+    forums, 
+    loadingForums: loading, 
+    forumsPagination, 
+    refreshForums 
+  } = useData()
+  
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState({ title: '', description: '', image: null })
   
-  const [loading, setLoading] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(forumsPagination.currentPage)
   const itemsPerPage = 9
 
   const { user } = useAuth()
@@ -20,34 +25,18 @@ export default function Forums() {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      fetchForums(currentPage)
+      refreshForums({
+        search: search,
+        page: currentPage,
+        per_page: itemsPerPage
+      })
     }, 400)
     return () => clearTimeout(delayDebounceFn)
-  }, [search, currentPage])
+  }, [search, currentPage, refreshForums])
 
-  // Reiniciar página cuando se busca
   useEffect(() => {
     setCurrentPage(1)
   }, [search])
-
-  const fetchForums = async (page = 1) => {
-    setLoading(true)
-    try {
-      const res = await getForums({
-        search: search,
-        page: page,
-        per_page: itemsPerPage
-      })
-      // Laravel paginate devuelve { data: [...], last_page: X }
-      setForums(res.data.data || [])
-      setTotalPages(res.data.last_page || 1)
-    } catch (error) {
-      console.error(error)
-      addToast('Error al cargar los foros', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const fileToBase64 = (file) => new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -59,27 +48,15 @@ export default function Forums() {
   const handleCreateForum = async (e) => {
     e.preventDefault()
     if (!formData.image) {
-      showToast('La imagen es obligatoria', 'error')
+      addToast('La imagen es obligatoria', 'error')
       return
     }
 
     try {
-      // Optimistic Update URL locally
       const objectUrl = URL.createObjectURL(formData.image)
-      const optimisticForum = {
-        id: `temp-${Date.now()}`,
-        title: formData.title,
-        description: formData.description,
-        image: objectUrl,
-        user: user,
-        reports_count: 0,
-        createdAt: new Date().toISOString()
-      }
-
-      setForums([optimisticForum, ...forums])
+      
       setShowModal(false)
-      setFormData({ title: '', description: '', image: null })
-      addToast('Foro creado exitosamente', 'success')
+      addToast('Registrando expediente...', 'info')
       
       const base64Image = await fileToBase64(formData.image)
       const payload = {
@@ -89,17 +66,17 @@ export default function Forums() {
       }
 
       await createForum(payload)
-      fetchForums(1) // Sync con backend real
+      addToast('Foro creado exitosamente', 'success')
+      setFormData({ title: '', description: '', image: null })
+      refreshForums({ page: 1, per_page: itemsPerPage })
     } catch (error) {
       console.error(error)
       const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message
       addToast(`Error: ${errorMsg}`, 'error')
-      fetchForums(currentPage) // Revert changes si falla
     }
   }
 
-  // No necesitamos filtrar en cliente ya que lo hace el servidor
-  const displayForums = forums
+  const { totalPages } = forumsPagination
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
@@ -143,13 +120,12 @@ export default function Forums() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {loading ? (
+        {loading && forums.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#c8a96e', margin: '40px 0' }}>Sintonizando frecuencias de red...</p>
         ) : (
           <>
-            {displayForums.map(forum => {
-              const isTemp = String(forum.id).includes('temp');
-              const cardContent = (
+            {forums.map(forum => (
+              <Link key={forum.id} to={`/forums/${forum.id}`} style={{ textDecoration: 'none' }}>
                 <div style={{
                   background: 'rgba(15, 8, 18, 0.65)',
                   border: '1px solid rgba(200, 169, 110, 0.15)',
@@ -158,18 +134,14 @@ export default function Forums() {
                   gap: '20px',
                   alignItems: 'center',
                   transition: 'all 0.4s',
-                  opacity: isTemp ? 0.6 : 1,
-                  filter: isTemp ? 'grayscale(0.5)' : 'none',
-                  cursor: isTemp ? 'progress' : 'pointer',
+                  cursor: 'pointer',
                 }}
                 onMouseOver={e => {
-                  if (isTemp) return;
                   e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.6)';
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = '0 5px 15px rgba(200, 169, 110, 0.05)';
                 }}
                 onMouseOut={e => {
-                  if (isTemp) return;
                   e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.15)';
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
@@ -188,30 +160,19 @@ export default function Forums() {
                     />
                   )}
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#e8c98e' }}>{forum.title} {isTemp && <span style={{fontSize: '12px', fontStyle: 'italic', color: '#ff4d4d'}}>(Creando...)</span>}</h3>
+                    <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#e8c98e' }}>{forum.title}</h3>
                     <div style={{ fontSize: '13px', color: '#e0cfa5', marginBottom: '8px' }}>
                       {forum.description.substring(0, 100)}...
                     </div>
                     <div style={{ fontSize: '12px', color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', display: 'flex', gap: '16px' }}>
-                      <span>Creado por: <strong style={{ color: 'rgba(200, 169, 110, 0.8)' }}>{forum.user?.username || 'Gnomo'}</strong></span>
+                      <span>Creado por: <strong style={{ color: 'rgba(200, 169, 110, 0.8)' }}>{forum.user?.username || 'Investigador'}</strong></span>
                       <span>Reportes: {forum.reports_count || 0}</span>
                     </div>
                   </div>
                 </div>
-              );
-
-              return isTemp ? (
-                <div key={forum.id} style={{ pointerEvents: 'none' }}>
-                  {cardContent}
-                </div>
-              ) : (
-                <Link key={forum.id} to={`/forums/${forum.id}`} style={{ textDecoration: 'none' }}>
-                  {cardContent}
-                </Link>
-              )
-            })}
+              </Link>
+            ))}
             
-            {/* Controles de Paginación */}
             {totalPages > 1 && (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '40px', marginBottom: '20px' }}>
                 <button 
@@ -235,12 +196,14 @@ export default function Forums() {
                 </button>
               </div>
             )}
-            {displayForums.length === 0 && (
+            {forums.length === 0 && !loading && (
               <p style={{ textAlign: 'center', color: '#c8a96e55', marginTop: '40px' }}>No hay ecos registrados en esta frecuencia.</p>
             )}
           </>
         )}
-      </div>      {showModal && (
+      </div>
+
+      {showModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000,
@@ -258,7 +221,6 @@ export default function Forums() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Ornamentation */}
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '2px', background: 'linear-gradient(90deg, transparent, rgba(200,169,110,0.5), transparent)' }}></div>
             
             <h2 style={{ 
