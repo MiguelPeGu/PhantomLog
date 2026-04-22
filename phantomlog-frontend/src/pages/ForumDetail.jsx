@@ -6,347 +6,266 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import ShimmerImage from '../components/ShimmerImage'
 
-function ReportCard({ forumId, report, onAction }) {
-  const { user } = useAuth()
-  const isAuthor = user && String(user.id) === String(report.user_id)
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <Link 
-        to={`/forums/${forumId}/reports/${report.id}`}
-        style={{
-          background: 'rgba(15, 8, 18, 0.45)', 
-          border: '1px solid rgba(200, 169, 110, 0.15)', 
-          padding: '20px', 
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          cursor: 'pointer',
-          transition: 'all 0.3s',
-          textDecoration: 'none'
-        }}
-        onMouseOver={e => { e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.6)'; e.currentTarget.style.background = 'rgba(15, 8, 18, 0.6)'; }}
-        onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(200, 169, 110, 0.15)'; e.currentTarget.style.background = 'rgba(15, 8, 18, 0.45)'; }}
-      >
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          {report.image && (
-            <div style={{ width: '60px', height: '60px', flexShrink: 0 }}>
-              <ShimmerImage 
-                src={
-                  report.image.startsWith('blob:') || report.image.startsWith('http') 
-                    ? report.image 
-                    : report.image.startsWith('images/') 
-                      ? `http://localhost:8000/${report.image}` 
-                      : `http://localhost:8000/storage/${report.image}`
-                } 
-                alt="Evidencia"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(200, 169, 110, 0.2)' }}
-              />
-            </div>
-          )}
-          <div>
-            <h4 style={{ margin: '0 0 4px 0', fontSize: '18px', color: '#e8c98e' }}>{report.title}</h4>
-            <div style={{ fontSize: '12px', color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic' }}>
-              Registrado por {report.user?.username || 'Gomita'} • {new Date(report.created_at).toLocaleDateString()}
-            </div>
-          </div>
-        </div>
-        <div style={{color: 'rgba(180, 50, 40, 0.7)', fontSize: '14px', fontFamily: "var(--heading)", fontWeight: 'bold'}}>
-          Analizar Expediente →
-        </div>
-      </Link>
-      
-      {isAuthor && (
-        <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px', zIndex: 10 }}>
-          <button onClick={() => onAction('edit', report)} style={{ background: '#222', border: '1px solid #c8a96e', color: '#c8a96e', cursor: 'pointer', padding: '2px 8px', fontSize: '10px', borderRadius: '3px' }}>Editar</button>
-          <button onClick={() => onAction('delete', report.id)} style={{ background: '#222', border: '1px solid #ff4d4f', color: '#ff4d4f', cursor: 'pointer', padding: '2px 8px', fontSize: '10px', borderRadius: '3px' }}>Borrar</button>
-        </div>
-      )}
-    </div>
-  )
-}
-
 export default function ForumDetail() {
   const { id } = useParams()
   const [forum, setForum] = useState(null)
   const [reports, setReports] = useState([])
-  const [reportsPage, setReportsPage] = useState(1)
-  const [reportsLastPage, setReportsLastPage] = useState(1)
-  const [loadingReports, setLoadingReports] = useState(false)
-  
-  const [showReportModal, setShowReportModal] = useState(false)
-  const [reportData, setReportData] = useState({ title: '', description: '', image: null })
-  const [isBlocking, setIsBlocking] = useState(false)
-  const [countdown, setCountdown] = useState(0)
-  
   const { user } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
 
-  const [showForumEditModal, setShowForumEditModal] = useState(false)
-  const [forumFormData, setForumFormData] = useState({ title: '', description: '', image: null })
-
+  const [showForumModal, setShowForumModal] = useState(false)
+  const [forumData, setForumData] = useState({ title: '', description: '' })
+  
+  const [showReportModal, setShowReportModal] = useState(false)
   const [isEditingReport, setIsEditingReport] = useState(false)
   const [currentReportId, setCurrentReportId] = useState(null)
+  const [reportData, setReportData] = useState({ title: '', description: '', image: null })
+  
+  const [isCreatingReport, setIsCreatingReport] = useState(false)
+  const [countdown, setCountdown] = useState(0)
 
   useEffect(() => {
     fetchForum()
-    fetchReports(1)
+    fetchReports()
   }, [id])
 
   const fetchForum = async () => {
     try {
       const res = await getForum(id)
       setForum(res.data)
-    } catch (error) {
-      console.error(error)
-      addToast('Error cargando foro', 'error')
-    }
+      setForumData({ title: res.data.title, description: res.data.description })
+    } catch (error) { addToast('Error al cargar foro', 'error') }
   }
 
-  const fetchReports = async (pageNumber) => {
-    setLoadingReports(true)
+  const fetchReports = async () => {
     try {
-      const res = await getReports(id, { page: pageNumber, per_page: 5 })
-      setReports(res.data.data)
-      setReportsLastPage(res.data.last_page)
-      setReportsPage(res.data.current_page)
-    } catch (error) {
-      console.error(error)
-      addToast('Error al cargar reportes', 'error')
-    } finally {
-      setLoadingReports(false)
-    }
-  }
-
-  const fileToBase64 = (file) => new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = error => reject(error)
-  })
-
-  const handleCreateReport = async (e) => {
-    e.preventDefault()
-    if (!reportData.title || !reportData.description) return;
-
-    try {
-      addToast(isEditingReport ? 'Actualizando evidencia...' : 'Enviando reporte paranormal...', 'info')
-
-      const payload = {
-        title: reportData.title,
-        description: reportData.description,
-      }
-      if (reportData.image) payload.image = await fileToBase64(reportData.image)
-
-      if (isEditingReport) {
-        await updateReport(forum.id, currentReportId, payload)
-        addToast('Reporte actualizado', 'success')
-      } else {
-        await createReport(forum.id, payload)
-        addToast('Reporte creado', 'success')
-      }
-      
-      setShowReportModal(false)
-      setReportData({ title: '', description: '', image: null })
-      setIsEditingReport(false)
-      setCurrentReportId(null)
-      fetchReports(1)
-    } catch (error) {
-      console.error(error)
-      addToast('Error al guardar reporte', 'error')
-    }
-  }
-
-  const handleDeleteReport = async (reportId) => {
-    if (!window.confirm('¿Eliminar este hallazgo?')) return
-    try {
-      await deleteReport(forum.id, reportId)
-      addToast('Evidencia borrada', 'success')
-      fetchReports(1)
-    } catch (error) {
-      addToast('Error al borrar reporte', 'error')
-    }
-  }
-
-  const openEditReport = (report) => {
-    setReportData({ title: report.title, description: report.description, image: null })
-    setIsEditingReport(true)
-    setCurrentReportId(report.id)
-    setShowReportModal(true)
-  }
-
-  const handleForumAction = async (action) => {
-    if (action === 'delete') {
-      if (!window.confirm('¿Borrar este foro y todos sus reportes permanentemente?')) return
-      try {
-        await deleteForum(forum.id)
-        addToast('Foro eliminado', 'success')
-        navigate('/forums')
-      } catch (error) {
-        addToast('Error al borrar foro', 'error')
-      }
-    } else if (action === 'edit') {
-      setForumFormData({ title: forum.title, description: forum.description, image: null })
-      setShowForumEditModal(true)
-    }
+      const res = await getReports(id)
+      setReports(res.data.data || res.data)
+    } catch (error) { console.error(error) }
   }
 
   const handleUpdateForum = async (e) => {
     e.preventDefault()
     try {
-      const payload = { title: forumFormData.title, description: forumFormData.description }
-      if (forumFormData.image) payload.image = await fileToBase64(forumFormData.image)
-      await updateForum(forum.id, payload)
+      await updateForum(id, forumData)
       addToast('Foro actualizado', 'success')
-      setShowForumEditModal(false)
+      setShowForumModal(false)
       fetchForum()
-    } catch (error) {
-      addToast('Error al actualizar foro', 'error')
+    } catch (error) { addToast('Error al actualizar', 'error') }
+  }
+
+  const handleDeleteForum = async () => {
+    if (!window.confirm('¿Borrar este foro y todos sus reportes?')) return
+    try {
+      await deleteForum(id)
+      addToast('Foro eliminado', 'success')
+      navigate('/forums')
+    } catch (error) { addToast('Error al eliminar', 'error') }
+  }
+
+  const handleReportSubmit = async (e) => {
+    e.preventDefault()
+    if (isCreatingReport) return;
+
+    try {
+      if (isEditingReport) {
+        await updateReport(id, currentReportId, { title: reportData.title, description: reportData.description })
+        addToast('Reporte actualizado', 'success')
+        setShowReportModal(false)
+        fetchReports()
+      } else {
+        setIsCreatingReport(true)
+        setCountdown(3)
+        
+        const reader = new FileReader()
+        reader.readAsDataURL(reportData.image)
+        reader.onload = async () => {
+          try {
+            await createReport(id, { title: reportData.title, description: reportData.description, image: reader.result })
+            
+            // Usamos un bucle controlado para el countdown en lugar de un intervalo que puede duplicarse
+            for (let i = 3; i > 0; i--) {
+              setCountdown(i)
+              await new Promise(r => setTimeout(r, 1000))
+            }
+            
+            setIsCreatingReport(false)
+            setShowReportModal(false)
+            fetchReports()
+            addToast('Reporte creado', 'success')
+          } catch (err) {
+            setIsCreatingReport(false)
+            if (err.response?.data?.errors) {
+              const errors = err.response.data.errors
+              const firstError = Object.values(errors)[0][0]
+              addToast(firstError, "error")
+            } else {
+              addToast(err.response?.data?.message || "Error al crear reporte", "error")
+            }
+          }
+        }
+      }
+    } catch (error) { 
+      setIsCreatingReport(false)
+      addToast('Error en la comunicación', 'error') 
     }
   }
 
-  if (!forum) return <div style={{ color: '#c8a96e', padding: '40px', textAlign: 'center' }}>Cargando expediente misterioso...</div>
+  const handleDeleteReport = async (reportId) => {
+    if (!window.confirm('¿Borrar reporte?')) return
+    try {
+      await deleteReport(id, reportId)
+      addToast('Reporte eliminado', 'success')
+      fetchReports()
+    } catch (error) { addToast('Error al eliminar', 'error') }
+  }
 
-  const isCreator = user && user.id === forum.user_id
+  if (!forum) {
+    return (
+      <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#0f0', padding: '20px' }}>
+        <div style={{ height: '40px', background: '#111', width: '150px', marginBottom: '30px' }}></div>
+        <div style={{ display: 'flex', gap: '40px' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ height: '60px', background: '#111', width: '80%', marginBottom: '20px' }}></div>
+            <div style={{ height: '200px', background: '#111', width: '100%' }}></div>
+          </div>
+          <div style={{ flex: 1, height: '400px', background: '#111' }}></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '40px' }}>
-      <Link to="/forums" style={{ color: 'rgba(200, 169, 110, 0.5)', textDecoration: 'none', display: 'inline-block', marginBottom: '24px', transition: 'color 0.3s' }} onMouseOver={e=>e.target.style.color='#c8a96e'} onMouseOut={e=>e.target.style.color='rgba(200, 169, 110, 0.5)'}>← Volver a los Carpetas Centrales</Link>
-
-      <div style={{ background: 'rgba(10, 5, 12, 0.85)', border: '1px solid rgba(200, 169, 110, 0.3)', padding: '32px', marginBottom: '32px', boxShadow: '0 0 40px rgba(0,0,0,0.5)', position: 'relative' }}>
-        {isCreator && (
-          <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '10px' }}>
-            <button onClick={() => handleForumAction('edit')} style={{ background: 'transparent', border: '1px solid #c8a96e', color: '#c8a96e', cursor: 'pointer', padding: '5px 15px', borderRadius: '4px' }}>Editar Foro</button>
-            <button onClick={() => handleForumAction('delete')} style={{ background: 'transparent', border: '1px solid #ff4d4f', color: '#ff4d4f', cursor: 'pointer', padding: '5px 15px', borderRadius: '4px' }}>Borrar Foro</button>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#0f0', padding: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', borderBottom: '1px solid #040', paddingBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={() => navigate('/forums')} 
+            style={{ 
+              background: 'none', border: '1px solid #0f0', color: '#0f0', 
+              padding: '8px 15px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' 
+            }}
+          >
+            🡄 FOROS
+          </button>
+        </div>
+        {user && String(user.id) === String(forum?.user_id) && (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={() => setShowForumModal(true)} style={{ background: '#000', border: '1px solid #0f0', color: '#0f0', padding: '8px 15px', cursor: 'pointer' }}>EDITAR FORO</button>
+            <button onClick={handleDeleteForum} style={{ background: '#000', border: '1px solid #f00', color: '#f00', padding: '8px 15px', cursor: 'pointer' }}>ELIMINAR FORO</button>
           </div>
         )}
-        <h1 style={{ fontFamily: "var(--heading)", fontSize: '42px', color: '#c8a96e', margin: '0 0 16px 0', textShadow: '0 0 15px rgba(200,169,110,0.2)' }}>{forum.title}</h1>
+      </div>
+
+      <div style={{ display: 'flex', gap: '40px', marginBottom: '60px', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h1 style={{ color: '#f00', fontSize: '48px', margin: '0 0 20px 0' }}>{forum.title}</h1>
+          <p style={{ color: '#060', marginBottom: '30px' }}>
+            EXPEDICIÓN INICIADA POR <span style={{ color: '#0f0' }}>{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
+          </p>
+          <div style={{ fontSize: '18px', lineHeight: '1.6', background: '#080808', padding: '20px', borderLeft: '3px solid #f00' }}>
+            {forum.description}
+          </div>
+        </div>
         {forum.image && (
-          <div style={{ width: '100%', height: '400px', marginBottom: '32px', border: '1px solid rgba(200, 169, 110, 0.2)', boxShadow: '0 10px 30px rgba(0,0,0,0.8)', overflow: 'hidden' }}>
+          <div style={{ flex: 1, minWidth: '300px', border: '1px solid #060', background: '#000', padding: '10px' }}>
             <ShimmerImage 
               src={
-                forum.image.startsWith('blob:') || forum.image.startsWith('http') 
-                  ? forum.image 
-                  : forum.image.startsWith('images/') 
-                    ? `http://localhost:8000/${forum.image}` 
+                forum.image?.startsWith('http') || forum.image?.startsWith('blob:')
+                  ? forum.image
+                  : forum.image?.startsWith('images/')
+                    ? `http://localhost:8000/${forum.image}`
                     : `http://localhost:8000/storage/${forum.image}`
               } 
-              alt={forum.title} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              alt={forum.title}
+              style={{ width: '100%', height: 'auto', maxHeight: '500px', objectFit: 'contain' }}
             />
           </div>
         )}
-        <div style={{ display: 'flex', gap: '24px', fontSize: '13px', color: 'rgba(200, 169, 110, 0.4)', fontStyle: 'italic', marginBottom: '24px', borderBottom: '1px solid rgba(200, 169, 110, 0.1)', paddingBottom: '16px' }}>
-          <span>Liderado por <strong style={{color: '#f0d090'}}>{forum.user?.username || 'Gomita'}</strong></span>
-          <span>Apertura: {new Date(forum.created_at).toLocaleDateString()}</span>
+      </div>
+
+      <div style={{ marginTop: '60px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+          <h2 style={{ color: '#f00', fontSize: '32px', margin: 0 }}>REPORTES DE CAMPO</h2>
+          {user && String(user.id) === String(forum.user_id) && (
+            <button onClick={() => { setIsEditingReport(false); setReportData({title: '', description: '', image: null}); setShowReportModal(true); }} style={{ padding: '10px 30px', fontSize: '16px', fontWeight: 'bold' }}>+ NUEVO REPORTE</button>
+          )}
         </div>
-        <p style={{ lineHeight: '1.8', fontSize: '18px', color: '#e0cfa5', margin: 0 }}>{forum.description}</p>
-      </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid rgba(200, 169, 110, 0.2)', paddingBottom: '12px' }}>
-        <h3 style={{ fontFamily: "var(--heading)", fontSize: '28px', color: 'rgba(200, 169, 110, 0.8)', margin: 0 }}>Expedientes de Reporte</h3>
-        {isCreator && (
-          <button 
-            disabled={isBlocking}
-            onClick={() => setShowReportModal(true)} 
-            style={{ 
-              background: isBlocking ? 'rgba(50, 50, 50, 0.2)' : 'rgba(180, 50, 40, 0.1)', 
-              border: `1px solid ${isBlocking ? 'rgba(100, 100, 100, 0.3)' : 'rgba(180, 50, 40, 0.6)'}`, 
-              color: isBlocking ? 'rgba(200, 169, 110, 0.3)' : '#f0d090', 
-              padding: '10px 24px', 
-              cursor: isBlocking ? 'not-allowed' : 'crosshair', 
-              fontFamily: "var(--sans)",
-              transition: 'all 0.3s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-            onMouseOver={e => !isBlocking && (e.target.style.background = 'rgba(180, 50, 40, 0.3)')}
-            onMouseOut={e => !isBlocking && (e.target.style.background = 'rgba(180, 50, 40, 0.1)')}
-          >
-            {isBlocking ? `Sincronizando Archivo (${countdown}s)` : '+ Anexar Evidencia'}
-          </button>
-        )}
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {loadingReports ? (
-          <p style={{ textAlign: 'center', color: '#c8a96e', padding: '20px' }}>Interfiriendo con la señal...</p>
-        ) : (
-          <>
-            {reports.length > 0 ? (
-              reports.map(rep => (
-                <ReportCard 
-                  key={rep.id} 
-                  forumId={forum.id} 
-                  report={rep} 
-                  onAction={(type, data) => type === 'edit' ? openEditReport(data) : handleDeleteReport(data)} 
-                />
-              ))
-            ) : (
-              <p style={{ color: 'rgba(200,169,110,0.5)', textAlign: 'center', marginTop: '20px', fontStyle: 'italic' }}>Todavía no hay hallazgos fotográficos o escritos para este expediente.</p>
-            )}
-
-            {/* Pagination */}
-            {reportsLastPage > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '30px' }}>
-                <button 
-                  disabled={reportsPage === 1}
-                  onClick={() => fetchReports(reportsPage - 1)}
-                  style={{ background: 'transparent', border: '1px solid rgba(200,169,110,0.3)', color: reportsPage === 1 ? '#444' : '#c8a96e', padding: '6px 15px', cursor: reportsPage === 1 ? 'default' : 'pointer' }}
-                >Anterior</button>
-                <span style={{ color: '#c8a96e', fontSize: '14px' }}>{reportsPage} de {reportsLastPage}</span>
-                <button 
-                  disabled={reportsPage === reportsLastPage}
-                  onClick={() => fetchReports(reportsPage + 1)}
-                  style={{ background: 'transparent', border: '1px solid rgba(200,169,110,0.3)', color: reportsPage === reportsLastPage ? '#444' : '#c8a96e', padding: '6px 15px', cursor: reportsPage === reportsLastPage ? 'default' : 'pointer' }}
-                >Siguiente</button>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
+          {reports.length === 0 ? (
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#060', padding: '100px', border: '1px dashed #040' }}>NO SE HAN REGISTRADO EVIDENCIAS TODAVÍA.</div>
+          ) : (
+            reports.map(r => (
+              <div key={r.id} style={{ background: '#000', border: '1px solid #060', padding: '20px', display: 'flex', flexDirection: 'column' }}>
+                <Link to={`/forums/${id}/reports/${r.id}`} style={{ textDecoration: 'none', flex: 1 }}>
+                  <div style={{ height: '150px', background: '#111', marginBottom: '15px', border: '1px solid #040' }}>
+                    <ShimmerImage 
+                      src={
+                        r.image?.startsWith('http') || r.image?.startsWith('blob:')
+                          ? r.image
+                          : r.image?.startsWith('images/')
+                            ? `http://localhost:8000/${r.image}`
+                            : `http://localhost:8000/storage/${r.image}`
+                      } 
+                      alt={r.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                  <h3 style={{ color: '#f00', margin: '0 0 10px 0' }}>{r.title}</h3>
+                  <p style={{ fontSize: '13px', color: '#0f0', opacity: 0.7 }}>{r.description.substring(0, 100)}...</p>
+                </Link>
+                {user && String(user.id) === String(r.user_id) && (
+                  <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                    <button onClick={() => { setCurrentReportId(r.id); setReportData({title: r.title, description: r.description}); setIsEditingReport(true); setShowReportModal(true); }} style={{ flex: 1, fontSize: '12px' }}>EDITAR</button>
+                    <button onClick={() => handleDeleteReport(r.id)} style={{ flex: 1, fontSize: '12px', color: '#f00', borderColor: '#f00' }}>BORRAR</button>
+                  </div>
+                )}
               </div>
-            )}
-          </>
-        )}
+            ))
+          )}
+        </div>
       </div>
 
-      {showReportModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(5px)' }}>
-          <form onSubmit={handleCreateReport} style={{ background: 'rgba(15, 8, 18, 0.98)', border: '1px solid rgba(180, 50, 40, 0.4)', padding: '40px', width: '500px', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 0 50px rgba(180, 50, 40, 0.2)' }}>
-            <h2 style={{ fontFamily: "var(--heading)", color: '#ff4d4f', margin: '0 0 10px 0', fontSize: '32px' }}>{isEditingReport ? 'Editar Evidencia' : 'Anexar Evidencia'}</h2>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ color: '#c8a96e', fontSize: '14px' }}>Título</label>
-              <input required value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} style={{ background: '#000', border: '1px solid #c8a96e', color: '#fff', padding: '10px' }} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ color: '#c8a96e', fontSize: '14px' }}>Descripción</label>
-              <textarea required value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ background: '#000', border: '1px solid #c8a96e', color: '#fff', padding: '10px', height: '120px' }} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ color: '#c8a96e', fontSize: '14px' }}>Imagen (Opcional)</label>
-              <input type="file" onChange={e => setReportData({...reportData, image: e.target.files[0]})} />
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button type="submit" style={{ flex: 1, background: '#822', color: '#fff', border: 'none', padding: '12px', cursor: 'pointer' }}>Guardar</button>
-              <button type="button" onClick={() => setShowReportModal(false)} style={{ flex: 1, background: '#333', color: '#fff', border: 'none', padding: '12px', cursor: 'pointer' }}>Cerrar</button>
+      {showForumModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <form onSubmit={handleUpdateForum} style={{ background: '#000', border: '1px solid #f00', padding: '40px', width: '100%', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <h2 style={{ color: '#f00', margin: 0 }}>MODIFICAR EXPEDICIÓN</h2>
+            <input required value={forumData.title} onChange={e => setForumData({...forumData, title: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '15px' }} />
+            <textarea required value={forumData.description} onChange={e => setForumData({...forumData, description: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '15px', minHeight: '200px' }} />
+            <div style={{ display: 'flex', gap: '20px' }}>
+              <button type="submit" style={{ flex: 1, padding: '15px' }}>ACTUALIZAR ARCHIVO</button>
+              <button type="button" onClick={() => setShowForumModal(false)} style={{ flex: 1, padding: '15px', color: '#f00', borderColor: '#f00' }}>ABORTAR</button>
             </div>
           </form>
         </div>
       )}
 
-      {showForumEditModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(5px)' }}>
-          <form onSubmit={handleUpdateForum} style={{ background: 'rgba(15, 8, 18, 0.98)', border: '1px solid #c8a96e', padding: '40px', width: '500px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h2 style={{ color: '#c8a96e' }}>Editar Foro</h2>
-            <input required placeholder="Título" value={forumFormData.title} onChange={e => setForumFormData({...forumFormData, title: e.target.value})} style={{ background: '#000', border: '1px solid #c8a96e', color: '#fff', padding: '10px' }} />
-            <textarea required placeholder="Descripción" value={forumFormData.description} onChange={e => setForumFormData({...forumFormData, description: e.target.value})} style={{ background: '#000', border: '1px solid #c8a96e', color: '#fff', padding: '10px', height: '100px' }} />
-            <input type="file" onChange={e => setForumFormData({...forumFormData, image: e.target.files[0]})} />
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button type="submit" style={{ flex: 1, background: '#c8a96e', color: '#000', border: 'none', padding: '12px' }}>Actualizar</button>
-              <button type="button" onClick={() => setShowForumEditModal(false)} style={{ flex: 1, background: '#333', color: '#fff', border: 'none', padding: '12px' }}>Cerrar</button>
-            </div>
+      {showReportModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <form onSubmit={handleReportSubmit} style={{ background: '#000', border: '1px solid #f00', padding: '40px', width: '100%', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <h2 style={{ color: '#f00', margin: 0 }}>{isEditingReport ? 'MODIFICAR EVIDENCIA' : 'REGISTRAR EVIDENCIA'}</h2>
+            
+            {isCreatingReport ? (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <p style={{ color: '#0f0', fontSize: '20px', letterSpacing: '2px' }}>SELLANDO REPORTE EN EL ARCHIVO CENTRAL...</p>
+                <div style={{ fontSize: '64px', color: '#f00', margin: '30px 0' }}>{countdown}</div>
+                <div style={{ width: '100%', height: '4px', background: '#111' }}>
+                  <div style={{ width: `${(countdown/3)*100}%`, height: '100%', background: '#f00', transition: 'width 1s linear' }}></div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <input required placeholder="TITULO" value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '15px' }} />
+                <textarea required placeholder="DESCRIPCIÓN DE LOS HECHOS..." value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '15px', minHeight: '200px' }} />
+                {!isEditingReport && <input type="file" required onChange={e => setReportData({...reportData, image: e.target.files[0]})} style={{ color: '#0f0' }} />}
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <button type="submit" style={{ flex: 1, padding: '15px' }}>{isEditingReport ? 'ACTUALIZAR' : 'REGISTRAR'}</button>
+                  <button type="button" onClick={() => setShowReportModal(false)} style={{ flex: 1, padding: '15px', color: '#f00', borderColor: '#f00' }}>CANCELAR</button>
+                </div>
+              </>
+            )}
           </form>
         </div>
       )}

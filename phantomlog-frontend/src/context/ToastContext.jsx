@@ -32,23 +32,26 @@ export function ToastProvider({ children }) {
       }}>
         {toasts.map((toast) => (
           <div key={toast.id} style={{
-            background: toast.type === 'error' ? 'rgba(180, 50, 40, 0.9)' : 'rgba(8, 4, 10, 0.9)',
-            border: `1px solid ${toast.type === 'error' ? '#ff6b5a' : '#c8a96e'}`,
-            color: toast.type === 'error' ? '#fff' : '#c8a96e',
-            padding: '12px 24px',
-            fontFamily: "var(--sans)",
-            fontSize: '18px',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
-            transition: 'all 0.3s ease',
-            animation: 'fadeIn 0.3s ease forwards'
+            background: '#f00',
+            border: '2px solid #000',
+            color: '#0f0',
+            padding: '15px 30px',
+            fontFamily: 'monospace',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            boxShadow: '0 0 20px rgba(255, 0, 0, 0.5)',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            animation: 'toastGlitch 0.3s ease forwards'
           }}>
             {toast.message}
           </div>
         ))}
         <style>{`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+          @keyframes toastGlitch {
+            0% { opacity: 0; transform: translateX(50px) skewX(-20deg); }
+            70% { transform: translateX(-5px) skewX(10deg); }
+            100% { opacity: 1; transform: translateX(0) skewX(0); }
           }
         `}</style>
       </div>

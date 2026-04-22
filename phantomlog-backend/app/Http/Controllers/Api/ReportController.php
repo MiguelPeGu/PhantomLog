@@ -19,9 +19,11 @@ class ReportController extends Controller
     public function store(Request $request, Forum $forum)
     {
         $data = $request->validate([
-            'title'       => 'required|string|max:255',
+            'title'       => 'required|string|max:255|unique:reports,title',
             'description' => 'required|string',
             'image'       => 'nullable|string',
+        ], [
+            'title.unique' => 'Ya existe una evidencia registrada con ese título en los archivos.'
         ]);
 
         if (!empty($request->image)) {

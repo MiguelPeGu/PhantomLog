@@ -3,122 +3,54 @@ import { useNavigate } from 'react-router-dom'
 import { useData } from '../context/DataProvider'
 
 export default function Invoices() {
-  const {
-    invoices,
-    loadingInvoices: loading,
-    invoicesPagination,
-    refreshInvoices
-  } = useData()
-
-  const [currentPage, setCurrentPage] = useState(invoicesPagination.currentPage)
-  const itemsPerPage = 5
+  const { invoices, loadingInvoices: loading, invoicesPagination, refreshInvoices } = useData()
+  const [currentPage, setCurrentPage] = useState(1)
   const navigate = useNavigate()
 
   useEffect(() => {
-    refreshInvoices({ page: currentPage, per_page: itemsPerPage })
+    refreshInvoices({ page: currentPage, per_page: 5 })
   }, [currentPage, refreshInvoices])
 
   const { totalPages } = invoicesPagination
 
-  return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "var(--sans)", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
-          Contratos y Honorarios
-        </h1>
-        <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
-          El registro de encargos. Cada pacto tiene su costo en sangre (PAGADO).
-        </p>
-      </header>
-      
-      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-         <button onClick={() => navigate('/products')} style={{ background: 'transparent', color: '#ffaa00', border: '1px solid #ffaa00', padding: '10px 20px', cursor: 'pointer', fontFamily: "var(--sans)", fontSize: '20px' }}>
-           Regresar a la Armería
-         </button>
-      </div>
+  if (loading && invoices.length === 0) return <div style={{ color: '#0f0', textAlign: 'center', marginTop: '50px' }}>INVOCANDO CONTRATOS...</div>
 
-      {loading && invoices.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#c8a96e' }}>Invocando contratos del pasado...</p>
-      ) : invoices.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#c8a96e' }}>No existen ritos consagrados en tu historia.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {invoices.map(invoice => (
-            <div key={invoice.id} style={{
-              background: 'rgba(8, 4, 10, 0.85)',
-              border: '1px solid rgba(200, 169, 110, 0.3)',
-              borderLeft: '4px solid #28a745',
-              padding: '24px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)'
+  return (
+    <div style={{ padding: '20px', color: '#0f0' }}>
+      <header style={{ marginBottom: '40px', textAlign: 'center' }}>
+        <h1 style={{ color: '#f00', fontSize: '48px', margin: '0' }}>HISTORIAL DE PACTOS</h1>
+        <p style={{ color: '#060' }}>Registro de transacciones selladas en el archivo.</p>
+      </header>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px', margin: '0 auto' }}>
+        {invoices.length === 0 ? (
+          <div style={{ textAlign: 'center', border: '1px dashed #f00', padding: '40px' }}>NO EXISTEN PACTOS SELLADOS.</div>
+        ) : (
+          invoices.map(i => (
+            <div key={i.id} style={{ 
+              border: '1px solid #060', borderLeft: '5px solid #0f0', 
+              padding: '20px', background: '#000', 
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center' 
             }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                  <h2 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', margin: 0 }}>
-                    Contrato #{invoice.id}
-                  </h2>
-                  <span style={{ 
-                    fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em',
-                    padding: '4px 8px', borderRadius: '4px',
-                    background: 'rgba(40, 167, 69, 0.1)',
-                    color: '#28a745',
-                    border: '1px solid #28a745',
-                  }}>
-                    Sagrado / Pagado
-                  </span>
-                </div>
-                <div style={{ color: 'rgba(200, 169, 110, 0.6)', fontSize: '13px', display: 'flex', gap: '24px', marginBottom: '12px' }}>
-                  <span><strong>Identidad:</strong> {invoice.first_name} {invoice.last_name} ({invoice.dni})</span>
-                  <span><strong>Sello Mortal:</strong> {new Date(invoice.created_at).toLocaleDateString()}</span>
-                  <span><strong>Vía de Tributo:</strong> {invoice.payment_method ? invoice.payment_method.toUpperCase() : 'DESCONOCIDO'}</span>
-                </div>
-                
-                <div style={{ color: '#c8a96e', fontSize: '14px', lineHeight: '1.5', margin: 0, marginTop: '10px', background: 'rgba(0,0,0,0.5)', padding: '10px' }}>
-                   {invoice.details && invoice.details.map((d, i) => (
-                      <div key={i}> - {d.quantity}x {d.title} (Impuesto Divino: {d.tax}%) | ${Number(d.price).toFixed(2)} unit. </div>
-                   ))}
-                </div>
+              <div>
+                <h2 style={{ color: '#f00', margin: '0 0 5px 0' }}>CONTRATO #{i.n_invoice || i.id}</h2>
+                <p style={{ margin: '0', fontSize: '14px' }}>FECHA: {new Date(i.created_at).toLocaleString()}</p>
+                <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: '#060' }}>METODO: {i.payment_method?.toUpperCase()}</p>
               </div>
-              <div style={{ paddingLeft: '32px', textAlign: 'right' }}>
-                <span style={{ color: '#e8c98e', fontFamily: "var(--sans)", fontSize: '32px' }}>
-                  ${Number(invoice.total).toFixed(2)}
-                </span>
-                <div style={{ marginTop: '10px' }}>
-                  <button onClick={() => navigate(`/success/${invoice.id}`)} style={{
-                      background: 'transparent', color: '#e8c98e', border: '1px solid #e8c98e', padding: '5px 10px', cursor: 'pointer', fontFamily: "var(--sans)", fontSize: '14px'
-                  }}>
-                    Ver Recibo Imperial
-                  </button>
-                </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0f0', marginBottom: '10px' }}>${i.total}</div>
+                <button onClick={() => navigate(`/success/${i.id}`)}>VER DETALLE</button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
 
-      {!loading && totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '60px', marginBottom: '40px' }}>
-          <button 
-            disabled={currentPage === 1}
-            onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
-            style={{
-              background: 'transparent', color: currentPage === 1 ? '#555' : '#c8a96e', border: `1px solid ${currentPage === 1 ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontFamily: "var(--sans)", fontSize: '20px'
-            }}>
-            Página Anterior
-          </button>
-          <span style={{ fontSize: '18px', fontFamily: "var(--sans)", color: '#ffaa00' }}>
-            Página {currentPage} de {totalPages}
-          </span>
-          <button 
-            disabled={currentPage === totalPages}
-            onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo(0, 0); }}
-            style={{
-              background: 'transparent', color: currentPage === totalPages ? '#555' : '#c8a96e', border: `1px solid ${currentPage === totalPages ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontFamily: "var(--sans)", fontSize: '20px'
-            }}>
-            Siguiente Página
-          </button>
+      {totalPages > 1 && (
+        <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
+          <button disabled={currentPage === 1} onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}>🡄 ANTERIOR</button>
+          <span style={{ color: '#f00', fontWeight: 'bold' }}>PÁGINA {currentPage} DE {totalPages}</span>
+          <button disabled={currentPage === totalPages} onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}>SIGUIENTE 🡆</button>
         </div>
       )}
     </div>

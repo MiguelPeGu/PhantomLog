@@ -24,7 +24,10 @@ export function DataProvider({ children }) {
     setLoadingProducts(true)
     try {
       const res = await getProducts(params)
-      setProducts(res.data.data || [])
+      console.log('DEBUG: API Products Response:', res.data)
+      const data = res.data.data || res.data
+      console.log('DEBUG: Extracted products array:', data)
+      setProducts(Array.isArray(data) ? data : [])
       setProductsPagination({
         currentPage: res.data.current_page || 1,
         totalPages: res.data.last_page || 1
@@ -40,7 +43,8 @@ export function DataProvider({ children }) {
     setLoadingForums(true)
     try {
       const res = await getForums(params)
-      setForums(res.data.data || [])
+      const data = res.data.data || res.data
+      setForums(Array.isArray(data) ? data : [])
       setForumsPagination({
         currentPage: res.data.current_page || 1,
         totalPages: res.data.last_page || 1
@@ -56,7 +60,8 @@ export function DataProvider({ children }) {
     setLoadingInvoices(true)
     try {
       const res = await getInvoices(params)
-      setInvoices(res.data.data || [])
+      const data = res.data.data || res.data
+      setInvoices(Array.isArray(data) ? data : [])
       setInvoicesPagination({
         currentPage: res.data.current_page || 1,
         totalPages: res.data.last_page || 1

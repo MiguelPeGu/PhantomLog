@@ -17,19 +17,12 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
-    dni: '',
-    first_name: '',
-    last_name: '',
-    address: '',
-    mobile: '',
-    card: '',
-    expiry: '',
-    cvv: ''
+    dni: '', first_name: '', last_name: '', address: '',
+    mobile: '', card: '', expiry: '', cvv: ''
   })
   const [paymentMethod, setPaymentMethod] = useState('credito')
 
   useEffect(() => {
-    // Auto-fill from user context if available
     if (user) {
       setFormData(prev => ({
         ...prev,
@@ -43,16 +36,10 @@ export default function Checkout() {
   }, [user])
 
   useEffect(() => {
-    getCart()
-      .then(res => {
-        if (!res.data.items || res.data.items.length === 0) {
-          navigate('/products')
-        } else {
-          setCartData(res.data)
-        }
-      })
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false))
+    getCart().then(res => {
+      if (!res.data.items?.length) navigate('/products')
+      else setCartData(res.data)
+    }).finally(() => setLoading(false))
   }, [navigate])
 
   const handleProcess = async (e) => {
@@ -60,59 +47,34 @@ export default function Checkout() {
     if (isSubmitting) return;
     setIsSubmitting(true)
     
-    // Map items to match what API expects: { product_id, quantity }
-    const items = cartData.items.map(item => ({
-      product_id: item.product.id,
-      quantity: item.quantity
-    }))
-
     try {
       const resp = await createInvoice({
-        dni: formData.dni,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        address: formData.address,
+        ...formData,
         payment_method: paymentMethod,
-        items
+        items: cartData.items.map(item => ({ product_id: item.product.id, quantity: item.quantity }))
       })
       
-      addToast("El contrato fue sellado con éxito.", "info")
-      
       setGhostLoading(true)
-
-      clearCart().then(() => fetchGlobalCart())
-
-      setTimeout(() => {
-        navigate(`/success/${resp.data.id}`)
-      }, 3000)
-
+      await clearCart()
+      await fetchGlobalCart()
+      setTimeout(() => navigate(`/success/${resp.data.id}`), 3000)
     } catch (err) {
-      console.error(err)
       setIsSubmitting(false)
-      addToast("Las sombras oscurecieron el trámite. Ocurrió un error al procesar el pago.", "error")
+      addToast("Error al procesar el pacto.", "error")
     }
   }
 
-  if (loading || !cartData) return <p style={{ textAlign: 'center', color: '#c8a96e' }}>Sincronizando contrato...</p>
+  if (loading || !cartData) return <div style={{ color: '#0f0', textAlign: 'center', marginTop: '50px' }}>SINCRONIZANDO PACTO...</div>
 
   if (ghostLoading) {
     return (
-      <div style={{ textAlign: 'center', color: '#e8c98e', margin: '100px auto' }}>
-        <h2 style={{ fontFamily: "var(--sans)", fontSize: '32px' }}>Formalizando el Contrato en el Más Allá...</h2>
-        <div style={{ fontSize: '100px', animation: 'float 2s ease-in-out infinite, fade 5s forwards', display: 'inline-block' }}>
-          👻
-        </div>
+      <div style={{ textAlign: 'center', color: '#0f0', marginTop: '100px' }}>
+        <h1 style={{ color: '#f00', fontSize: '32px' }}>FORMALIZANDO EL CONTRATO...</h1>
+        <div style={{ fontSize: '120px', animation: 'float 2s infinite' }}>👻</div>
         <style>{`
           @keyframes float {
-            0% { transform: translateY(0px); }
+            0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-30px); }
-            100% { transform: translateY(0px); }
-          }
-          @keyframes fade {
-            0% { opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; }
           }
         `}</style>
       </div>
@@ -120,93 +82,85 @@ export default function Checkout() {
   }
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', color: '#c8a96e' }}>
-      <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "var(--sans)", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
-          Sellar Contrato (Checkout)
-        </h1>
-        <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
-          Finaliza la ceremonia de intercambio. Consagra el rito de pago.
-        </p>
+    <div style={{ maxWidth: '1100px', margin: '0 auto', color: '#0f0', padding: '20px' }}>
+      <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <h1 style={{ color: '#f00', fontSize: '48px', margin: 0 }}>SELLAR PACTO (CHECKOUT)</h1>
+        <p style={{ color: '#060' }}>Finaliza la ceremonia de intercambio.</p>
       </header>
 
-      <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-        <div style={{ flex: '2', background: 'rgba(8, 4, 10, 0.85)', border: '1px solid rgba(200, 169, 110, 0.3)', padding: '24px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)' }}>
-          <h2 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Datos de Identidad (Secreto Mágico)</h2>
-          <form onSubmit={handleProcess} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            
-            <label style={{ fontSize: '14px', color: '#e8c98e' }}>Documento de Identidad (Grito/DNI)</label>
-            <input required value={formData.dni} onChange={e => setFormData({...formData, dni: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid #c8a96e', color: '#fff', padding: '10px' }} />
-            
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '14px', color: '#e8c98e' }}>Nombre de Sangre</label>
-                <input required value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid #c8a96e', color: '#fff', padding: '10px' }} />
+      <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
+        {/* Formulario */}
+        <div style={{ flex: '2', background: '#000', border: '1px solid #060', padding: '30px' }}>
+          <h2 style={{ color: '#f00', marginBottom: '20px' }}>IDENTIDAD DEL INVOCADOR</h2>
+          <form onSubmit={handleProcess} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <label>DNI / DOCUMENTO</label>
+                <input required value={formData.dni} onChange={e => setFormData({...formData, dni: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px' }} />
               </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '14px', color: '#e8c98e' }}>Apellido Herrante</label>
-                <input required value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid #c8a96e', color: '#fff', padding: '10px' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <label>TELÉFONO</label>
+                <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px' }} />
               </div>
             </div>
 
-            <label style={{ fontSize: '14px', color: '#e8c98e' }}>Morada Final (Dirección de Envío)</label>
-            <input required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid #c8a96e', color: '#fff', padding: '10px' }} />
-
-            <label style={{ fontSize: '14px', color: '#e8c98e' }}>Teléfono Móvil (Contacto de Sangre)</label>
-            <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid #c8a96e', color: '#fff', padding: '10px' }} />
-            
-            <div style={{ borderTop: '1px solid rgba(200, 169, 110, 0.3)', marginTop: '10px', paddingTop: '20px' }}>
-               <h2 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Ofrenda Monetaria</h2>
-               
-               <label style={{ fontSize: '14px', color: '#e8c98e' }}>Método de Invocación (Pago)</label>
-               <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} style={{ background: 'rgba(0,0,0,0.5)', border: '1px dashed #c8a96e', color: '#fff', padding: '10px', width: '100%', marginBottom: '16px', fontFamily: "var(--sans)", fontSize: '16px' }}>
-                 <option value="credito">Tarjeta de Crédito</option>
-                 <option value="debito">Tarjeta de Débito</option>
-                 <option value="bizum">Bizum</option>
-               </select>
-
-               {paymentMethod === 'bizum' ? (
-                 <p style={{ color: '#ffaa00', fontStyle: 'italic', fontSize: '15px' }}>
-                   * (Se usará el teléfono móvil seleccionado para continuar con el pago)
-                 </p>
-               ) : (
-                 <>
-                   <label style={{ fontSize: '14px', color: '#e8c98e' }}>Número de Tarjeta</label>
-                   <input placeholder="XXXX-XXXX-XXXX-XXXX" required value={formData.card} onChange={e => setFormData({...formData, card: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px dashed #c8a96e', color: '#fff', padding: '10px', width: '100%', marginBottom: '16px' }} />
-                   
-                   <div style={{ display: 'flex', gap: '16px' }}>
-                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                       <label style={{ fontSize: '14px', color: '#e8c98e' }}>Fecha de Caducidad</label>
-                       <input placeholder="MM/AA" required value={formData.expiry} onChange={e => setFormData({...formData, expiry: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px dashed #c8a96e', color: '#fff', padding: '10px' }} />
-                     </div>
-                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                       <label style={{ fontSize: '14px', color: '#e8c98e' }}>CVV</label>
-                       <input placeholder="123" required value={formData.cvv} onChange={e => setFormData({...formData, cvv: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px dashed #c8a96e', color: '#fff', padding: '10px' }} />
-                     </div>
-                   </div>
-                 </>
-               )}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <label>NOMBRE</label>
+                <input required value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <label>APELLIDOS</label>
+                <input required value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px' }} />
+              </div>
             </div>
 
-            <button type="submit" disabled={isSubmitting} style={{
-              background: isSubmitting ? '#555' : '#ffaa00', color: '#000', border: 'none', padding: '15px 20px', cursor: isSubmitting ? 'wait' : 'pointer', fontFamily: "var(--sans)", fontSize: '20px', fontWeight: 'bold', marginTop: '20px'
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <label>DIRECCIÓN DE ENTREGA</label>
+              <input required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px' }} />
+            </div>
+
+            <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #040' }}>
+              <h2 style={{ color: '#f00', marginBottom: '20px' }}>OFRENDA MONETARIA</h2>
+              <label>MÉTODO DE PAGO</label>
+              <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} style={{ width: '100%', background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px', marginBottom: '20px' }}>
+                <option value="credito">Tarjeta de Crédito</option>
+                <option value="debito">Tarjeta de Débito</option>
+                <option value="bizum">Bizum</option>
+              </select>
+
+              {paymentMethod !== 'bizum' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <input placeholder="Nº TARJETA (XXXX XXXX XXXX XXXX)" required value={formData.card} onChange={e => setFormData({...formData, card: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px' }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <input placeholder="MM/AA" required value={formData.expiry} onChange={e => setFormData({...formData, expiry: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px' }} />
+                    <input placeholder="CVV" required value={formData.cvv} onChange={e => setFormData({...formData, cvv: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '10px' }} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button type="submit" disabled={isSubmitting} style={{ 
+              marginTop: '20px', padding: '15px', fontSize: '20px', fontWeight: 'bold', 
+              background: isSubmitting ? '#200' : '#f00', color: '#fff', border: 'none', cursor: 'pointer' 
             }}>
-              {isSubmitting ? 'Procesando...' : `Consagrar Compra: $${Number(cartData.totalWithTax).toFixed(2)}`}
+              {isSubmitting ? 'PROCESANDO...' : `CONSECRAR PAGO: $${cartData.totalWithTax}`}
             </button>
           </form>
         </div>
 
-        <div style={{ flex: '1', background: 'rgba(8, 4, 10, 0.85)', border: '1px solid rgba(200, 169, 110, 0.3)', padding: '24px' }}>
-          <h2 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Resumen del Ritual</h2>
-          {cartData.items.map((item, idx) => (
-             <div key={idx} style={{ borderBottom: '1px solid rgba(200, 169, 110, 0.2)', paddingBottom: '10px', marginBottom: '10px' }}>
-                <div style={{ color: '#e8c98e' }}>{item.quantity}x {item.product.title}</div>
-                <div style={{ fontSize: '14px', color: '#c8a96e', textAlign: 'right' }}>${(item.product.price * item.quantity).toFixed(2)}</div>
-             </div>
+        {/* Sidebar Resumen */}
+        <div style={{ flex: '1', background: '#000', border: '1px solid #060', padding: '30px', height: 'fit-content' }}>
+          <h2 style={{ color: '#f00', marginBottom: '20px' }}>RESUMEN DEL RITUAL</h2>
+          {cartData.items.map(item => (
+            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #040', paddingBottom: '10px', marginBottom: '10px' }}>
+              <span>{item.quantity}x {item.product.title}</span>
+              <span style={{ color: '#f00' }}>${(item.product.price * item.quantity).toFixed(2)}</span>
+            </div>
           ))}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontWeight: 'bold', fontSize: '18px', color: '#ffaa00' }}>
-            <span>Tributo Final</span>
-            <span>${Number(cartData.totalWithTax).toFixed(2)}</span>
+          <div style={{ marginTop: '20px', textAlign: 'right' }}>
+            <p style={{ margin: 0 }}>SUBTOTAL: ${cartData.totalWithoutTax}</p>
+            <h3 style={{ color: '#0f0', fontSize: '24px', marginTop: '10px' }}>TOTAL: ${cartData.totalWithTax}</h3>
           </div>
         </div>
       </div>
