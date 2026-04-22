@@ -36,7 +36,7 @@ export function ToastProvider({ children }) {
             border: `1px solid ${toast.type === 'error' ? '#ff6b5a' : '#c8a96e'}`,
             color: toast.type === 'error' ? '#fff' : '#c8a96e',
             padding: '12px 24px',
-            fontFamily: "'IM Fell English', serif",
+            fontFamily: "var(--sans)",
             fontSize: '18px',
             boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
             transition: 'all 0.3s ease',

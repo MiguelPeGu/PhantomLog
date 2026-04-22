@@ -27,7 +27,7 @@ export default function Register() {
     try {
       await register(form)
       await login(form.email, form.password)
-      navigate('/forums')
+      navigate('/dashboard')
     } catch (err) {
       if (err.response?.data?.errors) {
         setErrors(err.response.data.errors)
@@ -50,7 +50,7 @@ export default function Register() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: 'IM Fell English', serif;
+          font-family: var(--sans);
           color: #c8a96e;
           padding: 20px;
         }
@@ -72,7 +72,8 @@ export default function Register() {
         }
 
         .register-title {
-          font-family: 'UnifrakturMaguntia', serif;
+          font-family: var(--heading);
+          font-weight: 700;
           font-size: 38px;
           margin: 0;
           color: #c8a96e;
@@ -115,7 +116,7 @@ export default function Register() {
           border: 1px solid rgba(200, 169, 110, 0.2);
           color: #c8a96e;
           padding: 10px 12px;
-          font-family: 'IM Fell English', serif;
+          font-family: var(--sans);
           font-size: 15px;
           outline: none;
           transition: border-color 0.3s;
@@ -149,7 +150,8 @@ export default function Register() {
           border: 1px solid #c8a96e;
           color: #c8a96e;
           padding: 12px;
-          font-family: 'IM Fell English', serif;
+          font-family: var(--heading);
+          font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.2em;
           cursor: pointer;

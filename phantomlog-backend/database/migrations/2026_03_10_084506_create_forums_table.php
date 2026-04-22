@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('forums', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string("title", 30)->unique();
+            $table->string("title", 30);
             $table->string("description");
             $table->string("image");
             $table->foreignUuid('user_id')->nullable()->constrained()->nullOnDelete();

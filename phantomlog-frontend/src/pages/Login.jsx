@@ -17,7 +17,7 @@ export default function Login() {
     setLoading(true)
     try {
       await login(email, password)
-      navigate('/forums')
+      navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Identidad no reconocida en nuestros archivos.')
     } finally {
@@ -56,7 +56,7 @@ export default function Login() {
           border: 1px solid rgba(200, 169, 110, 0.2);
           padding: 12px 16px;
           color: #e8c98e;
-          font-family: 'IM Fell English', serif;
+          font-family: var(--sans);
           font-size: 16px;
           outline: none;
           transition: all 0.3s;
@@ -75,7 +75,8 @@ export default function Login() {
           background: transparent;
           border: 1px solid #c8a96e;
           color: #c8a96e;
-          font-family: 'IM Fell English', serif;
+          font-family: var(--heading);
+          font-weight: 600;
           font-size: 18px;
           letter-spacing: 2px;
           text-transform: uppercase;
@@ -170,7 +171,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '20px',
-    fontFamily: "'IM Fell English', serif",
+    fontFamily: "var(--sans)",
     color: '#c8a96e',
     background: 'radial-gradient(circle at center, #1a101a 0%, #080508 100%)',
   },
@@ -187,7 +188,8 @@ const styles = {
     marginBottom: '35px',
   },
   title: {
-    fontFamily: "'UnifrakturMaguntia', serif",
+    fontFamily: "var(--heading)",
+    fontWeight: 700,
     fontSize: '48px',
     margin: '0',
     color: '#c8a96e',

@@ -68,7 +68,7 @@ export default function Products() {
   return (
     <div style={{ maxWidth: '100%', padding: '0 40px', color: '#c8a96e', boxSizing: 'border-box' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'IM Fell English', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
+        <h1 style={{ fontFamily: "var(--sans)", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
           Armería Esotérica
         </h1>
         <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
@@ -89,7 +89,7 @@ export default function Products() {
             border: '1px solid rgba(200, 169, 110, 0.3)',
             color: '#c8a96e',
             padding: '12px 20px',
-            fontFamily: "'IM Fell English', serif",
+            fontFamily: "var(--sans)",
             fontSize: '18px',
             width: '100%',
             maxWidth: '400px',
@@ -105,7 +105,7 @@ export default function Products() {
             border: '1px solid rgba(200, 169, 110, 0.3)',
             color: '#c8a96e',
             padding: '12px 20px',
-            fontFamily: "'IM Fell English', serif",
+            fontFamily: "var(--sans)",
             fontSize: '18px',
             outline: 'none',
             cursor: 'pointer'
@@ -146,7 +146,7 @@ export default function Products() {
                 {product.image ? (
                   <img src={product.image} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <span style={{ fontSize: '48px', color: 'rgba(200, 169, 110, 0.1)', fontFamily: "'IM Fell English', serif" }}>
+                  <span style={{ fontSize: '48px', color: 'rgba(200, 169, 110, 0.1)', fontFamily: "var(--sans)" }}>
                     No hay imagen disponible
                   </span>
                 )}
@@ -154,10 +154,10 @@ export default function Products() {
 
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h2 onClick={() => navigate(`/products/${product.id}`)} style={{ fontFamily: "'IM Fell English', serif", fontSize: '28px', color: '#e8c98e', margin: '0 0 8px 0', cursor: 'pointer', lineHeight: '1.2' }}>
+                  <h2 onClick={() => navigate(`/products/${product.id}`)} style={{ fontFamily: "var(--sans)", fontSize: '28px', color: '#e8c98e', margin: '0 0 8px 0', cursor: 'pointer', lineHeight: '1.2' }}>
                     {product.title}
                   </h2>
-                  <span style={{ color: '#ffaa00', fontFamily: "'IM Fell English', serif", fontSize: '20px' }}>
+                  <span style={{ color: '#ffaa00', fontFamily: "var(--sans)", fontSize: '20px' }}>
                     ${Number(product.price).toFixed(2)}
                   </span>
                 </div>
@@ -175,7 +175,7 @@ export default function Products() {
                     border: '1px solid #e8c98e',
                     padding: '8px 16px',
                     cursor: 'pointer',
-                    fontFamily: "'IM Fell English', serif",
+                    fontFamily: "var(--sans)",
                     fontSize: '18px'
                   }}>
                     Inspeccionar
@@ -188,7 +188,7 @@ export default function Products() {
                     border: product.stock <= 0 ? '1px solid #555' : '1px solid #ffaa00',
                     padding: '8px 16px',
                     cursor: product.stock <= 0 ? 'not-allowed' : 'pointer',
-                    fontFamily: "'IM Fell English', serif",
+                    fontFamily: "var(--sans)",
                     fontSize: '18px'
                   }}>
                     {product.stock <= 0 
@@ -209,18 +209,18 @@ export default function Products() {
                 disabled={currentPage === 1}
                 onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
                 style={{
-                  background: 'transparent', color: currentPage === 1 ? '#555' : '#c8a96e', border: `1px solid ${currentPage === 1 ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+                  background: 'transparent', color: currentPage === 1 ? '#555' : '#c8a96e', border: `1px solid ${currentPage === 1 ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontFamily: "var(--sans)", fontSize: '20px'
                 }}>
                 Página Anterior
               </button>
-              <span style={{ fontSize: '18px', fontFamily: "'IM Fell English', serif", color: '#ffaa00' }}>
+              <span style={{ fontSize: '18px', fontFamily: "var(--sans)", color: '#ffaa00' }}>
                 Página {currentPage} de {totalPages}
               </span>
               <button 
                 disabled={currentPage === totalPages}
                 onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo(0, 0); }}
                 style={{
-                  background: 'transparent', color: currentPage === totalPages ? '#555' : '#c8a96e', border: `1px solid ${currentPage === totalPages ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+                  background: 'transparent', color: currentPage === totalPages ? '#555' : '#c8a96e', border: `1px solid ${currentPage === totalPages ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontFamily: "var(--sans)", fontSize: '20px'
                 }}>
                 Siguiente Página
               </button>

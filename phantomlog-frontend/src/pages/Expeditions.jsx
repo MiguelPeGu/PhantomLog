@@ -11,7 +11,7 @@ export default function Expeditions() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
+        <h1 style={{ fontFamily: "var(--heading)", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
           Registro de Expediciones
         </h1>
         <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
@@ -53,7 +53,7 @@ export default function Expeditions() {
                 {exp.status}
               </div>
 
-              <h2 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '24px', color: '#e8c98e', marginTop: '16px', marginBottom: '8px' }}>
+              <h2 style={{ fontFamily: "var(--heading)", fontSize: '24px', color: '#e8c98e', marginTop: '16px', marginBottom: '8px' }}>
                 {exp.name}
               </h2>
               

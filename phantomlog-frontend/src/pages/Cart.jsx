@@ -102,7 +102,7 @@ export default function Cart() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', color: '#c8a96e' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'IM Fell English', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
+        <h1 style={{ fontFamily: "var(--sans)", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
           El Contenedor (Carrito)
         </h1>
         <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
@@ -115,7 +115,7 @@ export default function Cart() {
           <p>Tu contenedor está vacío de ecos.</p>
           <button onClick={() => navigate('/products')} style={{
             background: 'transparent', color: '#ffaa00', border: '1px solid #ffaa00', padding: '10px 20px', cursor: 'pointer',
-            fontFamily: "'IM Fell English', serif", fontSize: '20px', marginTop: '20px'
+            fontFamily: "var(--sans)", fontSize: '20px', marginTop: '20px'
           }}>
             Regresar a la Armería
           </button>
@@ -127,7 +127,7 @@ export default function Cart() {
             return (
               <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(200, 169, 110, 0.2)', padding: '16px 0' }}>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontFamily: "'IM Fell English', serif", fontSize: '24px', color: '#e8c98e', margin: '0 0 4px 0' }}>
+                  <h3 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', margin: '0 0 4px 0' }}>
                     {product.title}
                   </h3>
                   <p style={{ margin: 0, fontSize: '14px', color: '#c8a96e' }}>Costo Base: ${Number(product.price).toFixed(2)}</p>
@@ -162,7 +162,7 @@ export default function Cart() {
                       border: `1px solid ${updatingState[product.id] ? '#555' : '#ff4444'}`,
                       padding: '5px 20px',
                       cursor: updatingState[product.id] ? 'default' : 'pointer',
-                      fontFamily: "'IM Fell English', serif",
+                      fontFamily: "var(--sans)",
                       minWidth: '130px' // Para que el botón no cambie de tamaño al cambiar el texto
                     }}>
                       {updatingState[product.id] === 'rem' ? 'Descartando...' : 
@@ -176,16 +176,16 @@ export default function Cart() {
 
           <div style={{ marginTop: '30px', borderTop: '2px solid rgba(200, 169, 110, 0.5)', paddingTop: '20px', textAlign: 'right' }}>
             <p style={{ fontSize: '16px' }}>Valor de Ofrenda (Sin Impuestos): ${Number(cartData.totalWithoutTax).toFixed(2)}</p>
-            <p style={{ fontSize: '24px', fontFamily: "'IM Fell English', serif", color: '#ffaa00' }}>Invocación Final (Total): ${Number(cartData.totalWithTax).toFixed(2)}</p>
+            <p style={{ fontSize: '24px', fontFamily: "var(--sans)", color: '#ffaa00' }}>Invocación Final (Total): ${Number(cartData.totalWithTax).toFixed(2)}</p>
 
             <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
               <button onClick={() => navigate('/products')} style={{
-                background: 'transparent', color: '#c8a96e', border: '1px solid #c8a96e', padding: '10px 20px', cursor: 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+                background: 'transparent', color: '#c8a96e', border: '1px solid #c8a96e', padding: '10px 20px', cursor: 'pointer', fontFamily: "var(--sans)", fontSize: '20px'
               }}>
                 Continuar Observando
               </button>
               <button onClick={() => navigate('/checkout')} style={{
-                background: '#ffaa00', color: '#000', border: 'none', padding: '10px 20px', cursor: 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px', fontWeight: 'bold'
+                background: '#ffaa00', color: '#000', border: 'none', padding: '10px 20px', cursor: 'pointer', fontFamily: "var(--sans)", fontSize: '20px', fontWeight: 'bold'
               }}>
                 Sellar Contrato (Checkout)
               </button>

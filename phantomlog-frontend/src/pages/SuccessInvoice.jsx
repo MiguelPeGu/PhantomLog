@@ -27,7 +27,7 @@ export default function SuccessInvoice() {
   if (!invoice) return null
 
   return (
-    <div style={{ maxWidth: '800px', margin: '40px auto', background: '#eaddc5', color: '#1a1412', padding: '40px', fontFamily: "'IM Fell English', serif", boxShadow: '0 0 20px rgba(0,0,0,0.8)' }}>
+    <div style={{ maxWidth: '800px', margin: '40px auto', background: '#eaddc5', color: '#1a1412', padding: '40px', fontFamily: "var(--sans)", boxShadow: '0 0 20px rgba(0,0,0,0.8)' }}>
       <div style={{ textAlign: 'center', borderBottom: '2px dashed #1a1412', paddingBottom: '20px', marginBottom: '30px' }}>
         <h1 style={{ fontSize: '40px', margin: '0 0 10px 0' }}>Armería Esotérica - Extracto de Compra</h1>
         <p style={{ margin: 0, fontStyle: 'italic' }}>El contrato ha sido sellado satisfactoriamente.</p>
@@ -73,12 +73,12 @@ export default function SuccessInvoice() {
 
       <div style={{ textAlign: 'center', gap: '20px', display: 'flex', justifyContent: 'center' }} className="no-print">
         <button onClick={() => window.print()} style={{
-          background: '#1a1412', color: '#eaddc5', border: 'none', padding: '10px 20px', cursor: 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px', fontWeight: 'bold'
+          background: '#1a1412', color: '#eaddc5', border: 'none', padding: '10px 20px', cursor: 'pointer', fontFamily: "var(--sans)", fontSize: '20px', fontWeight: 'bold'
         }}>
           Imprimir Pergamino (Factura)
         </button>
         <button onClick={() => navigate('/products')} style={{
-          background: 'transparent', color: '#1a1412', border: '2px solid #1a1412', padding: '10px 20px', cursor: 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px', fontWeight: 'bold'
+          background: 'transparent', color: '#1a1412', border: '2px solid #1a1412', padding: '10px 20px', cursor: 'pointer', fontFamily: "var(--sans)", fontSize: '20px', fontWeight: 'bold'
         }}>
           Volver a la Armería
         </button>

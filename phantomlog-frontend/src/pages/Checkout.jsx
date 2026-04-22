@@ -78,10 +78,8 @@ export default function Checkout() {
       
       addToast("El contrato fue sellado con éxito.", "info")
       
-      // Activar animación fantasma inmediatamente tras el éxito del API
       setGhostLoading(true)
 
-      // Limpiamos el carrito en segundo plano para no hacer esperar al usuario
       clearCart().then(() => fetchGlobalCart())
 
       setTimeout(() => {
@@ -100,7 +98,7 @@ export default function Checkout() {
   if (ghostLoading) {
     return (
       <div style={{ textAlign: 'center', color: '#e8c98e', margin: '100px auto' }}>
-        <h2 style={{ fontFamily: "'IM Fell English', serif", fontSize: '32px' }}>Formalizando el Contrato en el Más Allá...</h2>
+        <h2 style={{ fontFamily: "var(--sans)", fontSize: '32px' }}>Formalizando el Contrato en el Más Allá...</h2>
         <div style={{ fontSize: '100px', animation: 'float 2s ease-in-out infinite, fade 5s forwards', display: 'inline-block' }}>
           👻
         </div>
@@ -124,7 +122,7 @@ export default function Checkout() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', color: '#c8a96e' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'IM Fell English', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
+        <h1 style={{ fontFamily: "var(--sans)", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
           Sellar Contrato (Checkout)
         </h1>
         <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
@@ -134,7 +132,7 @@ export default function Checkout() {
 
       <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
         <div style={{ flex: '2', background: 'rgba(8, 4, 10, 0.85)', border: '1px solid rgba(200, 169, 110, 0.3)', padding: '24px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)' }}>
-          <h2 style={{ fontFamily: "'IM Fell English', serif", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Datos de Identidad (Secreto Mágico)</h2>
+          <h2 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Datos de Identidad (Secreto Mágico)</h2>
           <form onSubmit={handleProcess} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             <label style={{ fontSize: '14px', color: '#e8c98e' }}>Documento de Identidad (Grito/DNI)</label>
@@ -158,10 +156,10 @@ export default function Checkout() {
             <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid #c8a96e', color: '#fff', padding: '10px' }} />
             
             <div style={{ borderTop: '1px solid rgba(200, 169, 110, 0.3)', marginTop: '10px', paddingTop: '20px' }}>
-               <h2 style={{ fontFamily: "'IM Fell English', serif", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Ofrenda Monetaria</h2>
+               <h2 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Ofrenda Monetaria</h2>
                
                <label style={{ fontSize: '14px', color: '#e8c98e' }}>Método de Invocación (Pago)</label>
-               <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} style={{ background: 'rgba(0,0,0,0.5)', border: '1px dashed #c8a96e', color: '#fff', padding: '10px', width: '100%', marginBottom: '16px', fontFamily: "'IM Fell English', serif", fontSize: '16px' }}>
+               <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} style={{ background: 'rgba(0,0,0,0.5)', border: '1px dashed #c8a96e', color: '#fff', padding: '10px', width: '100%', marginBottom: '16px', fontFamily: "var(--sans)", fontSize: '16px' }}>
                  <option value="credito">Tarjeta de Crédito</option>
                  <option value="debito">Tarjeta de Débito</option>
                  <option value="bizum">Bizum</option>
@@ -191,7 +189,7 @@ export default function Checkout() {
             </div>
 
             <button type="submit" disabled={isSubmitting} style={{
-              background: isSubmitting ? '#555' : '#ffaa00', color: '#000', border: 'none', padding: '15px 20px', cursor: isSubmitting ? 'wait' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px', fontWeight: 'bold', marginTop: '20px'
+              background: isSubmitting ? '#555' : '#ffaa00', color: '#000', border: 'none', padding: '15px 20px', cursor: isSubmitting ? 'wait' : 'pointer', fontFamily: "var(--sans)", fontSize: '20px', fontWeight: 'bold', marginTop: '20px'
             }}>
               {isSubmitting ? 'Procesando...' : `Consagrar Compra: $${Number(cartData.totalWithTax).toFixed(2)}`}
             </button>
@@ -199,7 +197,7 @@ export default function Checkout() {
         </div>
 
         <div style={{ flex: '1', background: 'rgba(8, 4, 10, 0.85)', border: '1px solid rgba(200, 169, 110, 0.3)', padding: '24px' }}>
-          <h2 style={{ fontFamily: "'IM Fell English', serif", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Resumen del Ritual</h2>
+          <h2 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', marginBottom: '20px' }}>Resumen del Ritual</h2>
           {cartData.items.map((item, idx) => (
              <div key={idx} style={{ borderBottom: '1px solid rgba(200, 169, 110, 0.2)', paddingBottom: '10px', marginBottom: '10px' }}>
                 <div style={{ color: '#e8c98e' }}>{item.quantity}x {item.product.title}</div>

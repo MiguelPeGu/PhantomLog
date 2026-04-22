@@ -41,7 +41,7 @@ export default function ExpeditionDetail() {
           ESTADO: {mockExpedition.status}
         </div>
 
-        <h1 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '42px', color: '#c8a96e', margin: '0 0 16px 0' }}>
+        <h1 style={{ fontFamily: "var(--heading)", fontSize: '42px', color: '#c8a96e', margin: '0 0 16px 0' }}>
           {mockExpedition.name}
         </h1>
 
@@ -59,7 +59,7 @@ export default function ExpeditionDetail() {
         </div>
 
         <div>
-          <h3 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '28px', color: '#c8a96e', borderBottom: '1px solid rgba(200, 169, 110, 0.2)', paddingBottom: '8px' }}>
+          <h3 style={{ fontFamily: "var(--heading)", fontSize: '28px', color: '#c8a96e', borderBottom: '1px solid rgba(200, 169, 110, 0.2)', paddingBottom: '8px' }}>
             Bitácora de Observación
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>

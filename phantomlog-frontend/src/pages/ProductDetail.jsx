@@ -56,7 +56,7 @@ export default function ProductDetail() {
   if (!product) return null
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '40px auto', color: '#c8a96e', fontFamily: "'IM Fell English', serif" }}>
+    <div style={{ maxWidth: '1200px', margin: '40px auto', color: '#c8a96e', fontFamily: "var(--sans)" }}>
       
       <button onClick={() => navigate('/products')} style={{
         background: 'transparent',
@@ -64,7 +64,7 @@ export default function ProductDetail() {
         border: 'none',
         padding: '0',
         cursor: 'pointer',
-        fontFamily: "'IM Fell English', serif",
+        fontFamily: "var(--sans)",
         fontSize: '18px',
         marginBottom: '20px',
         textDecoration: 'underline'
@@ -156,7 +156,7 @@ export default function ProductDetail() {
                 border: '1px solid #ffaa00',
                 padding: '15px 20px',
                 cursor: 'pointer',
-                fontFamily: "'IM Fell English', serif",
+                fontFamily: "var(--sans)",
                 fontSize: '20px',
                 fontWeight: 'bold',
                 transition: 'background 0.3s'

@@ -1,10 +1,11 @@
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { CartProvider } from './context/CartContext'
 import { DataProvider } from './context/DataProvider'
 import PrivateRoute from './components/PrivateRoute'
 import PhantomLayout from './components/PhantomLayout'
+import LoadingTrigger from './components/LoadingTrigger'
 
 import Home           from './pages/Home'
 import Login          from './pages/Login'
@@ -21,41 +22,53 @@ import Cart           from './pages/Cart'
 import Checkout       from './pages/Checkout'
 import Invoices       from './pages/Invoices'
 import SuccessInvoice from './pages/SuccessInvoice'
+import Dashboard      from './pages/Dashboard'
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/register",
-    element: <Register />,
-  },
-  {
-    element: <PrivateRoute><PhantomLayout /></PrivateRoute>,
+    element: (
+      <>
+        <LoadingTrigger />
+        <Outlet />
+      </>
+    ),
     children: [
-      { path: "forums", element: <Forums /> },
-      { path: "forums/:id", element: <ForumDetail /> },
-      { path: "forums/:id/reports/:reportId", element: <ReportDetail /> },
-      { path: "expeditions", element: <Expeditions /> },
-      { path: "expeditions/:id", element: <ExpeditionDetail /> },
-      { path: "phantoms", element: <Phantoms /> },
-      { path: "products", element: <Products /> },
-      { path: "products/:id", element: <ProductDetail /> },
-      { path: "cart", element: <Cart /> },
-      { path: "checkout", element: <Checkout /> },
-      { path: "success/:id", element: <SuccessInvoice /> },
-      { path: "invoices", element: <Invoices /> },
-    ],
-  },
-  {
-    path: "*",
-    element: <Navigate to="/" replace />,
-  },
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
+      },
+      {
+        element: <PrivateRoute><PhantomLayout /></PrivateRoute>,
+        children: [
+          { path: "forums", element: <Forums /> },
+          { path: "forums/:id", element: <ForumDetail /> },
+          { path: "forums/:id/reports/:reportId", element: <ReportDetail /> },
+          { path: "expeditions", element: <Expeditions /> },
+          { path: "expeditions/:id", element: <ExpeditionDetail /> },
+          { path: "phantoms", element: <Phantoms /> },
+          { path: "products", element: <Products /> },
+          { path: "products/:id", element: <ProductDetail /> },
+          { path: "cart", element: <Cart /> },
+          { path: "checkout", element: <Checkout /> },
+          { path: "success/:id", element: <SuccessInvoice /> },
+           { path: "invoices", element: <Invoices /> },
+           { path: "dashboard", element: <Dashboard /> },
+         ],
+      },
+      {
+        path: "*",
+        element: <Navigate to="/" replace />,
+      },
+    ]
+  }
 ])
 
 export default function App() {

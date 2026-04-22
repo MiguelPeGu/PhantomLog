@@ -23,7 +23,7 @@ export default function Invoices() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'IM Fell English', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
+        <h1 style={{ fontFamily: "var(--sans)", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
           Contratos y Honorarios
         </h1>
         <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
@@ -32,7 +32,7 @@ export default function Invoices() {
       </header>
       
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-         <button onClick={() => navigate('/products')} style={{ background: 'transparent', color: '#ffaa00', border: '1px solid #ffaa00', padding: '10px 20px', cursor: 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px' }}>
+         <button onClick={() => navigate('/products')} style={{ background: 'transparent', color: '#ffaa00', border: '1px solid #ffaa00', padding: '10px 20px', cursor: 'pointer', fontFamily: "var(--sans)", fontSize: '20px' }}>
            Regresar a la Armería
          </button>
       </div>
@@ -56,7 +56,7 @@ export default function Invoices() {
             }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                  <h2 style={{ fontFamily: "'IM Fell English', serif", fontSize: '24px', color: '#e8c98e', margin: 0 }}>
+                  <h2 style={{ fontFamily: "var(--sans)", fontSize: '24px', color: '#e8c98e', margin: 0 }}>
                     Contrato #{invoice.id}
                   </h2>
                   <span style={{ 
@@ -82,12 +82,12 @@ export default function Invoices() {
                 </div>
               </div>
               <div style={{ paddingLeft: '32px', textAlign: 'right' }}>
-                <span style={{ color: '#e8c98e', fontFamily: "'IM Fell English', serif", fontSize: '32px' }}>
+                <span style={{ color: '#e8c98e', fontFamily: "var(--sans)", fontSize: '32px' }}>
                   ${Number(invoice.total).toFixed(2)}
                 </span>
                 <div style={{ marginTop: '10px' }}>
                   <button onClick={() => navigate(`/success/${invoice.id}`)} style={{
-                      background: 'transparent', color: '#e8c98e', border: '1px solid #e8c98e', padding: '5px 10px', cursor: 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '14px'
+                      background: 'transparent', color: '#e8c98e', border: '1px solid #e8c98e', padding: '5px 10px', cursor: 'pointer', fontFamily: "var(--sans)", fontSize: '14px'
                   }}>
                     Ver Recibo Imperial
                   </button>
@@ -104,18 +104,18 @@ export default function Invoices() {
             disabled={currentPage === 1}
             onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
             style={{
-              background: 'transparent', color: currentPage === 1 ? '#555' : '#c8a96e', border: `1px solid ${currentPage === 1 ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+              background: 'transparent', color: currentPage === 1 ? '#555' : '#c8a96e', border: `1px solid ${currentPage === 1 ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontFamily: "var(--sans)", fontSize: '20px'
             }}>
             Página Anterior
           </button>
-          <span style={{ fontSize: '18px', fontFamily: "'IM Fell English', serif", color: '#ffaa00' }}>
+          <span style={{ fontSize: '18px', fontFamily: "var(--sans)", color: '#ffaa00' }}>
             Página {currentPage} de {totalPages}
           </span>
           <button 
             disabled={currentPage === totalPages}
             onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo(0, 0); }}
             style={{
-              background: 'transparent', color: currentPage === totalPages ? '#555' : '#c8a96e', border: `1px solid ${currentPage === totalPages ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontFamily: "'IM Fell English', serif", fontSize: '20px'
+              background: 'transparent', color: currentPage === totalPages ? '#555' : '#c8a96e', border: `1px solid ${currentPage === totalPages ? '#555' : '#c8a96e'}`, padding: '10px 20px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontFamily: "var(--sans)", fontSize: '20px'
             }}>
             Siguiente Página
           </button>

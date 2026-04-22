@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap');
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -11,8 +13,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --heading: 'Outfit', system-ui, -apple-system, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -148,4 +150,22 @@ button:active {
   background-color: #ffaa00 !important;
   color: #000 !important;
   transform: scale(0.85);
+}
+.shimmer-effect {
+  background: #1a151a;
+  background-image: linear-gradient(
+    to right, 
+    #1a151a 0%, 
+    #3a2a3a 20%, 
+    #1a151a 40%, 
+    #1a151a 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 800px 100%;
+  animation: shimmer-animation 2s linear infinite forwards;
+}
+
+@keyframes shimmer-animation {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
 }

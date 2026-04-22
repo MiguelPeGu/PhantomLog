@@ -17,7 +17,7 @@
 
 .glitch {
   position: relative;
-  font-family: 'IM Fell English', serif; /* Manteniendo la tipografía del proyecto */
+  font-family: var(--sans); /* Manteniendo la tipografía del proyecto */
   font-size: 50px; /* Un poco más grande para el logo central */
   font-weight: 700;
   line-height: 1.2;

@@ -13,7 +13,6 @@ export default function PhantomLayout() {
   const { addToast } = useToast()
   const [showContent, setShowContent] = useState(false)
 
-  // Canvas fog
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -72,20 +71,27 @@ export default function PhantomLayout() {
     { name: 'Facturas', path: '/invoices' },
   ]
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+
+  const handleNavClick = (path) => {
+    setIsMenuOpen(false)
+    navigate(path)
+  }
+
   return (
     <div style={{
       minHeight: '100vh',
       background: '#050305',
       color: '#c8a96e',
-      fontFamily: "'IM Fell English', 'Palatino Linotype', Georgia, serif",
+      fontFamily: "var(--sans)",
       position: 'relative',
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column'
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=UnifrakturMaguntia&display=swap');
-
         @keyframes scanline {
           0% { top:-2%; } 100% { top:102%; }
         }
@@ -96,69 +102,136 @@ export default function PhantomLayout() {
         
         .phantom-nav {
           position: relative;
-          z-index: 50;
+          z-index: 100;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 16px 32px;
-          background: rgba(8, 4, 10, 0.85);
-          border-bottom: 1px solid rgba(200, 169, 110, 0.15);
-          backdrop-filter: blur(8px);
+          padding: 20px 40px;
+          background: rgba(8, 4, 10, 0.9);
+          border-bottom: 1px solid rgba(200, 169, 110, 0.1);
+          backdrop-filter: blur(12px);
         }
 
         .nav-logo {
-          font-family: 'UnifrakturMaguntia', serif;
-          font-size: 24px;
+          font-family: var(--heading);
+          font-weight: 700;
+          font-size: 28px;
           color: #c8a96e;
           text-decoration: none;
           text-shadow: 0 0 15px rgba(200, 169, 110, 0.4);
+          z-index: 101;
         }
 
-        .nav-links {
+        /* Hamburger Button */
+        .hamburger {
+          width: 30px;
+          height: 20px;
           display: flex;
-          gap: 24px;
-        }
-
-        .nav-link {
-          color: rgba(200, 169, 110, 0.6);
-          text-decoration: none;
-          font-size: 14px;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          transition: all 0.3s ease;
-          position: relative;
-          padding-bottom: 4px;
-        }
-
-        .nav-link:hover, .nav-link.active {
-          color: #f0d090;
-          text-shadow: 0 0 8px rgba(200, 169, 110, 0.5);
-        }
-
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          bottom: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(to right, transparent, rgba(200, 169, 110, 0.8), transparent);
-          transform: scaleX(0);
+          flex-direction: column;
+          justify-content: space-between;
+          cursor: pointer;
+          z-index: 101;
           transition: transform 0.3s ease;
         }
-        .nav-link:hover::after, .nav-link.active::after {
-          transform: scaleX(1);
+
+        .hamburger:hover {
+          transform: scale(1.1);
+        }
+
+        .hamburger span {
+          display: block;
+          width: 100%;
+          height: 2px;
+          background: #c8a96e;
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 0 5px rgba(200, 169, 110, 0.3);
+        }
+
+        .hamburger.open span:nth-child(1) {
+          transform: translateY(9px) rotate(45deg);
+        }
+        .hamburger.open span:nth-child(2) {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        .hamburger.open span:nth-child(3) {
+          transform: translateY(-9px) rotate(-45deg);
+        }
+
+        /* Menu Overlay */
+        .menu-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(5, 3, 5, 0.98);
+          z-index: 90;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+          backdrop-filter: blur(20px);
+        }
+
+        .menu-overlay.open {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .menu-links {
+          display: flex;
+          flex-direction: column;
+          gap: 30px;
+          text-align: center;
+          transform: translateY(30px);
+          transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .menu-overlay.open .menu-links {
+          transform: translateY(0);
+        }
+
+        .menu-link {
+          font-family: var(--heading);
+          font-weight: 600;
+          font-size: 42px;
+          color: rgba(200, 169, 110, 0.4);
+          text-decoration: none;
+          transition: all 0.4s ease;
+          letter-spacing: 2px;
+          position: relative;
+        }
+
+        .menu-link:hover, .menu-link.active {
+          color: #c8a96e;
+          text-shadow: 0 0 25px rgba(200, 169, 110, 0.5);
+          transform: scale(1.1);
+        }
+
+        .menu-link::after {
+          content: '—';
+          position: absolute;
+          left: -40px;
+          opacity: 0;
+          transition: all 0.3s;
+        }
+        .menu-link:hover::after {
+          opacity: 1;
+          left: -30px;
         }
 
         .logout-btn {
           background: transparent;
           border: 1px solid rgba(180, 50, 40, 0.4);
           color: rgba(180, 50, 40, 0.8);
-          font-family: 'IM Fell English', serif;
-          font-size: 12px;
+          font-family: var(--sans);
+          font-size: 14px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          padding: 6px 16px;
+          padding: 8px 24px;
           cursor: crosshair;
           transition: all 0.3s ease;
+          margin-top: 20px;
         }
 
         .logout-btn:hover {
@@ -182,20 +255,11 @@ export default function PhantomLayout() {
           opacity: 1;
         }
 
-        /* Custom Scrollbar for the main wrapper */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: rgba(5, 3, 5, 0.9);
-        }
-        ::-webkit-scrollbar-thumb {
-          background: rgba(200, 169, 110, 0.2);
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(200, 169, 110, 0.4);
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(5, 3, 5, 0.9); }
+        ::-webkit-scrollbar-thumb { background: rgba(200, 169, 110, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(200, 169, 110, 0.4); }
       `}</style>
 
       {/* Background Elements */}
@@ -223,22 +287,10 @@ export default function PhantomLayout() {
 
       {/* Navbar */}
       <nav className="phantom-nav">
-        <Link to="/forums" className="nav-logo">PhantomLog</Link>
+        <Link to="/dashboard" className="nav-logo">PhantomLog</Link>
         
-        <div className="nav-links">
-          {navLinks.map(link => (
-            <Link 
-              key={link.path} 
-              to={link.path} 
-              className={`nav-link ${location.pathname.startsWith(link.path) ? 'active' : ''}`}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </div>
-
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <Link to="/cart" className="nav-link" style={{ position: 'relative', display: 'flex', alignItems: 'center', color: '#c8a96e' }}>
+        <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+            <Link to="/cart" className="nav-link" style={{ position: 'relative', display: 'flex', alignItems: 'center', color: '#c8a96e', zIndex: 101 }}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '28px', height: '28px' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
               </svg>
@@ -265,11 +317,34 @@ export default function PhantomLayout() {
                 </span>
               )}
             </Link>
-            <button onClick={handleLogout} className="logout-btn">
-              Abandonar
-            </button>
+
+            <div className={`hamburger ${isMenuOpen ? 'open' : ''}`} onClick={toggleMenu}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
         </div>
       </nav>
+
+      {/* Menu Overlay */}
+      <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`}>
+        <div className="menu-links">
+          <button onClick={() => handleNavClick('/dashboard')} className={`menu-link ${location.pathname === '/dashboard' ? 'active' : ''}`} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>Inicio</button>
+          {navLinks.map(link => (
+            <button 
+              key={link.path} 
+              onClick={() => handleNavClick(link.path)}
+              className={`menu-link ${location.pathname.startsWith(link.path) ? 'active' : ''}`}
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              {link.name}
+            </button>
+          ))}
+          <button onClick={handleLogout} className="logout-btn">
+            Abandonar Archivo
+          </button>
+        </div>
+      </div>
 
       {/* Main Content Area */}
       <main className={`phantom-content ${showContent ? 'visible' : ''}`}>

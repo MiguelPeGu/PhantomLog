@@ -9,7 +9,7 @@ export default function Phantoms() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
+        <h1 style={{ fontFamily: "var(--heading)", fontSize: '48px', margin: '0 0 8px 0', color: '#c8a96e' }}>
           El Bestiario
         </h1>
         <p style={{ color: 'rgba(200, 169, 110, 0.5)', fontStyle: 'italic', letterSpacing: '0.1em' }}>
@@ -37,13 +37,13 @@ export default function Phantoms() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: 'inset 0 0 10px rgba(0,0,0,1)'
             }}>
-              <span style={{ fontSize: '48px', color: 'rgba(200, 169, 110, 0.1)', fontFamily: "'UnifrakturMaguntia', serif" }}>
+              <span style={{ fontSize: '48px', color: 'rgba(200, 169, 110, 0.1)', fontFamily: "var(--heading)" }}>
                 ?
               </span>
             </div>
 
             <div style={{ flex: 1 }}>
-              <h2 style={{ fontFamily: "'UnifrakturMaguntia', serif", fontSize: '28px', color: '#e8c98e', margin: '0 0 4px 0' }}>
+              <h2 style={{ fontFamily: "var(--heading)", fontSize: '28px', color: '#e8c98e', margin: '0 0 4px 0' }}>
                 {phantom.type}
               </h2>
               <div style={{ display: 'flex', gap: '16px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>

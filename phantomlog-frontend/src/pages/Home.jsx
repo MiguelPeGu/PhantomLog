@@ -137,7 +137,7 @@ export default function Home() {
       minHeight: '100vh',
       background: '#050305',
       color: '#c8a96e',
-      fontFamily: "'IM Fell English', 'Palatino Linotype', Georgia, serif",
+      fontFamily: "var(--sans)",
       overflow: 'hidden',
       position: 'relative',
       cursor: 'crosshair',
@@ -196,7 +196,8 @@ export default function Home() {
           background: transparent;
           border: 1px solid rgba(200,169,110,0.35);
           color: #c8a96e;
-          font-family: 'IM Fell English', serif;
+          font-family: var(--heading);
+          font-weight: 600;
           font-size: 13px;
           letter-spacing: 0.22em;
           text-transform: uppercase;
@@ -228,7 +229,7 @@ export default function Home() {
           background: transparent;
           border: none;
           color: rgba(200,169,110,0.4);
-          font-family: 'IM Fell English', serif;
+          font-family: var(--sans);
           font-size: 12px;
           letter-spacing: 0.18em;
           text-transform: uppercase;
@@ -349,7 +350,8 @@ export default function Home() {
 
         {/* Fraktur title */}
         <div style={{
-          fontFamily: "'UnifrakturMaguntia', serif",
+          fontFamily: "var(--heading)",
+          fontWeight: 700,
           fontSize: 'clamp(52px, 9vw, 96px)',
           letterSpacing: '0.04em',
           color: '#c8a96e',
@@ -370,7 +372,7 @@ export default function Home() {
           color: 'rgba(200,169,110,0.45)',
           marginBottom: 48,
           animation: 'fadeInUp 1.4s 0.3s ease both',
-          fontFamily: "'IM Fell English', serif",
+          fontFamily: "var(--sans)",
           fontStyle: 'italic',
         }}>
           Registro de lo que no debería existir
@@ -445,7 +447,7 @@ export default function Home() {
           fontSize: '10px',
           letterSpacing: '0.3em',
           color: 'rgba(200,169,110,0.18)',
-          fontFamily: "'IM Fell English', serif",
+          fontFamily: "var(--sans)",
           animation: 'fadeIn 2.5s 1.2s ease both',
           opacity: 0,
         }}>
