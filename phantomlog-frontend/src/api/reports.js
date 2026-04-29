@@ -5,3 +5,6 @@ export const getReport    = (forumId, id)     => api.get(`/forums/${forumId}/rep
 export const createReport = (forumId, data)   => api.post(`/forums/${forumId}/reports`, data)
 export const updateReport = (forumId, id, data) => api.put(`/forums/${forumId}/reports/${id}`, data)
 export const deleteReport = (forumId, id)     => api.delete(`/forums/${forumId}/reports/${id}`)
+
+export const voteReport    = (id, value) => api.post(`/reports/${id}/vote`, { value })
+export const getReportVote = (id)        => api.get(`/reports/${id}/vote`)

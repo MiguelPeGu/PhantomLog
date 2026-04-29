@@ -1,81 +1,167 @@
-import { useParams, Link } from 'react-router-dom'
-
-const mockExpedition = {
-  id: 104,
-  name: 'Hospital Abandonado de Linda Vista',
-  date: 'En curso...',
-  status: 'Pérdida de señal',
-  members: ['Valerie K.', 'Marcus T.', 'Elena V.', 'Jacob R.', 'Investigator_09'],
-  log: [
-    { time: '22:00', note: 'Equipo insertado con éxito en el ala pediátrica.' },
-    { time: '23:15', note: 'Caída de temperatura masiva registrada. Los radios tienen interferencia.' },
-    { time: '01:45', note: 'Marcus reporta escuchar niños llorando. Grabadoras activadas.' },
-    { time: '02:30', note: 'Señal de video perdida en cámara 4. Último fotograma muestra anomalía negra de 2.5 metros.' },
-    { time: '02:33', note: '-- PÉRDIDA DE SEÑAL TOTAL --' },
-  ]
-}
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { getExpedition, toggleJoin, deleteExpedition } from '../api/expeditions'
+import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 export default function ExpeditionDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { addToast } = useToast()
+  
+  const [expedition, setExpedition] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [isJoined, setIsJoined] = useState(false)
+
+  useEffect(() => {
+    fetchExpedition()
+  }, [id])
+
+  const fetchExpedition = async () => {
+    try {
+      const res = await getExpedition(id)
+      setExpedition(res.data)
+      if (user) {
+        const joined = res.data.participants.some(p => String(p.id) === String(user.id))
+        setIsJoined(joined)
+      }
+    } catch (e) {
+      addToast('Error al cargar la expedición', 'error')
+      navigate('/expeditions')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleJoin = async () => {
+    if (!user) {
+      addToast('Debes iniciar sesión para unirte', 'info')
+      return
+    }
+    try {
+      const res = await toggleJoin(id)
+      setIsJoined(res.data.is_joined)
+      addToast(res.data.is_joined ? 'REGISTRADO EN LA INCURSIÓN' : 'BAJA TRAMITADA', 'success')
+      fetchExpedition()
+    } catch (e) {
+      const msg = e.response?.data?.message || 'Error al procesar registro'
+      addToast(msg.toUpperCase(), 'error')
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm('¿ELIMINAR ESTA EXPEDICIÓN?')) return
+    try {
+      await deleteExpedition(id)
+      addToast('INCURSIÓN ABORTADA', 'success')
+      navigate('/expeditions')
+    } catch (e) { addToast('Error al eliminar', 'error') }
+  }
+
+  if (loading) return <div style={{ padding: '100px', color: '#0f0', textAlign: 'center' }}>ESCANEANDO FRECUENCIAS...</div>
+  if (!expedition) return null
+
+  const isClosed = new Date(expedition.date) < new Date()
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '40px' }}>
-      <Link to="/expeditions" style={{
-        textDecoration: 'none', color: 'rgba(200, 169, 110, 0.5)', fontSize: '14px', marginBottom: '24px', display: 'inline-block'
-      }}>
-        ← Volver a Expediciones
-      </Link>
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <button 
+          onClick={() => navigate('/expeditions')} 
+          style={{ background: 'none', border: '1px solid #0f0', color: '#0f0', padding: '8px 15px', cursor: 'pointer' }}
+        >
+          🡄 VOLVER AL CALENDARIO
+        </button>
+        {user && String(user.id) === String(expedition.user_id) && (
+          <button onClick={handleDelete} style={{ background: '#000', border: '1px solid #f00', color: '#f00', padding: '8px 15px', cursor: 'pointer' }}>
+            ELIMINAR INCURSIÓN
+          </button>
+        )}
+      </div>
 
-      <div style={{
-        background: 'rgba(10, 5, 12, 0.85)',
-        border: '1px solid rgba(200, 30, 20, 0.6)',
-        padding: '32px',
-        marginBottom: '32px',
-        boxShadow: '0 0 30px rgba(200, 30, 20, 0.1) inset'
+      <div style={{ 
+        border: `2px solid ${isClosed ? '#f00' : '#060'}`, 
+        background: '#000', 
+        padding: '40px',
+        position: 'relative',
+        boxShadow: isClosed ? '0 0 50px rgba(255,0,0,0.1)' : 'none'
       }}>
-        <div style={{
-          background: 'rgba(200, 30, 20, 0.2)', color: '#ff4d4d', display: 'inline-block',
-          padding: '4px 12px', fontSize: '12px', letterSpacing: '0.2em', textTransform: 'uppercase',
-          marginBottom: '16px', border: '1px solid rgba(200, 30, 20, 0.8)'
-        }}>
-          ESTADO: {mockExpedition.status}
+        {/* Header Section */}
+        <div style={{ borderBottom: '1px solid #111', paddingBottom: '30px', marginBottom: '30px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+            <div>
+              <h1 style={{ color: '#f00', fontSize: '48px', margin: 0, letterSpacing: '4px' }}>{expedition.name.toUpperCase()}</h1>
+              <p style={{ color: '#060', fontSize: '14px', margin: '10px 0 0 0' }}>UBICACIÓN: <span style={{ color: '#0f0' }}>{expedition.location.toUpperCase()}</span></p>
+            </div>
+            <div style={{ 
+              background: isClosed ? '#400' : '#040', 
+              color: '#fff', 
+              padding: '10px 20px', 
+              fontWeight: 'bold',
+              letterSpacing: '2px',
+              border: `1px solid ${isClosed ? '#f00' : '#0f0'}`
+            }}>
+              {isClosed ? 'ESTADO: FINALIZADA' : 'ESTADO: RECLUTANDO'}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '30px', color: '#0f0', fontSize: '16px' }}>
+            <div>FECHA: {new Date(expedition.date).toLocaleDateString()}</div>
+            <div>HORA: {new Date(expedition.date).toLocaleTimeString()}</div>
+            <div>AUTOR: {expedition.user?.username.toUpperCase()}</div>
+          </div>
         </div>
 
-        <h1 style={{ fontFamily: "var(--heading)", fontSize: '42px', color: '#c8a96e', margin: '0 0 16px 0' }}>
-          {mockExpedition.name}
-        </h1>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', paddingBottom: '24px', borderBottom: '1px solid rgba(200, 169, 110, 0.2)', marginBottom: '24px' }}>
+        {/* Info & Participants Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '40px' }}>
           <div>
-            <h4 style={{ color: 'rgba(200, 169, 110, 0.6)', margin: '0 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Integrantes</h4>
-            <ul style={{ margin: 0, paddingLeft: '20px', color: '#f0d090' }}>
-              {mockExpedition.members.map((m, i) => <li key={i}>{m}</li>)}
-            </ul>
-          </div>
-          <div>
-            <h4 style={{ color: 'rgba(200, 169, 110, 0.6)', margin: '0 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Cronología</h4>
-            <p style={{ margin: 0, color: '#f0d090' }}>Inicio: {mockExpedition.date}</p>
-          </div>
-        </div>
-
-        <div>
-          <h3 style={{ fontFamily: "var(--heading)", fontSize: '28px', color: '#c8a96e', borderBottom: '1px solid rgba(200, 169, 110, 0.2)', paddingBottom: '8px' }}>
-            Bitácora de Observación
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-            {mockExpedition.log.map((entry, idx) => (
-              <div key={idx} style={{
-                background: entry.note.includes('PÉRDIDA') ? 'rgba(200, 30, 20, 0.2)' : 'rgba(15, 8, 18, 0.5)',
-                borderLeft: entry.note.includes('PÉRDIDA') ? '2px solid #ff4d4d' : '2px solid rgba(200, 169, 110, 0.5)',
-                padding: '12px 16px',
-                fontFamily: "'Courier New', Courier, monospace",
-                fontSize: '14px',
-                color: entry.note.includes('PÉRDIDA') ? '#ff4d4d' : '#e0cfa5'
-              }}>
-                <strong style={{ color: 'rgba(200, 169, 110, 0.7)', marginRight: '16px' }}>[{entry.time}]</strong>
-                {entry.note}
+            <h3 style={{ color: '#f00', borderBottom: '1px solid #200', paddingBottom: '10px' }}>OBJETIVOS DE LA MISIÓN</h3>
+            <p style={{ color: '#0f0', lineHeight: '1.6', fontSize: '18px' }}>{expedition.description}</p>
+            
+            <div style={{ marginTop: '30px', padding: '20px', background: '#080808', border: '1px solid #111' }}>
+              <h4 style={{ color: '#060', margin: '0 0 10px 0' }}>ENTIDAD DETECTADA</h4>
+              <div style={{ color: '#f00', fontSize: '24px', fontWeight: 'bold' }}>
+                {expedition.phantom?.name.toUpperCase() || 'DESCONOCIDO'}
               </div>
-            ))}
+            </div>
+
+            {!isClosed && (
+              <button 
+                onClick={handleJoin}
+                style={{ 
+                  marginTop: '40px', 
+                  width: '100%', 
+                  padding: '20px', 
+                  fontSize: '20px', 
+                  background: isJoined ? '#000' : '#f00',
+                  color: isJoined ? '#f00' : '#000',
+                  border: isJoined ? '2px solid #f00' : 'none',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                {isJoined ? 'ABANDONAR EXPEDICIÓN' : 'CONFIRMAR ASISTENCIA'}
+              </button>
+            )}
+          </div>
+
+          <div style={{ borderLeft: '1px solid #111', paddingLeft: '40px' }}>
+            <h3 style={{ color: '#f00', borderBottom: '1px solid #200', paddingBottom: '10px' }}>OPERATIVOS ({expedition.participants_count})</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
+              {expedition.participants?.length === 0 ? (
+                <p style={{ color: '#040' }}>NADIE SE HA ATREVIDO TODAVÍA.</p>
+              ) : (
+                expedition.participants.map(p => (
+                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: 'rgba(0,255,0,0.02)', border: '1px solid #111' }}>
+                    <div style={{ width: '30px', height: '30px', background: '#0f0', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>
+                      {p.username[0].toUpperCase()}
+                    </div>
+                    <span style={{ color: '#0f0', fontSize: '14px' }}>{p.username.toUpperCase()}</span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>

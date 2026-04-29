@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { register } from '../api/auth'
@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext'
 
 export default function Register() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { user, login } = useAuth()
   const { addToast } = useToast()
   const [form, setForm] = useState({
     dni: '', username: '', firstname: '', lastname: '',
@@ -15,6 +15,12 @@ export default function Register() {
   })
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard')
+    }
+  }, [user, navigate])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -22,10 +28,13 @@ export default function Register() {
       await register(form)
       await login(form.email, form.password)
       addToast('CUENTA CREADA CON ÉXITO', 'success')
-      navigate('/dashboard')
     } catch (err) { 
-      const errorMsg = err.response?.data?.message || 'ERROR EN EL REGISTRO'
-      addToast(errorMsg, 'error')
+      let errorMsg = err.response?.data?.message || 'ERROR EN EL REGISTRO'
+      if (err.response?.data?.errors) {
+        const firstError = Object.values(err.response.data.errors)[0][0]
+        errorMsg = firstError
+      }
+      addToast(errorMsg.toUpperCase(), 'error')
     } finally {
       setLoading(false)
     }
@@ -55,7 +64,7 @@ export default function Register() {
         zIndex: 1
       }}>
         <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-          <h1 style={{ color: '#f00', margin: 0, fontSize: '36px', letterSpacing: '4px' }}>NUEVO REGISTRO</h1>
+          <h1 style={{ color: '#f00', margin: 0, fontSize: '30px', letterSpacing: '3px' }}>NUEVO REGISTRO</h1>
           <p style={{ color: '#060', fontSize: '12px' }}>CONSIENTE SU ENTRADA EN EL SISTEMA</p>
         </div>
 
@@ -130,8 +139,8 @@ export default function Register() {
                 style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '12px' }}
               />
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ flex: '1 1 140px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 <label style={{ color: '#0f0', fontSize: '11px', fontWeight: 'bold' }}>CONTRASEÑA</label>
                 <input 
                   type="password" 
@@ -141,8 +150,8 @@ export default function Register() {
                   style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '12px' }}
                 />
               </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <label style={{ color: '#0f0', fontSize: '11px', fontWeight: 'bold' }}>CONFIRMAR</label>
+              <div style={{ flex: '1 1 140px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <label style={{ color: '#0f0', fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>CONFIRMAR CONTRASEÑA</label>
                 <input 
                   type="password" 
                   placeholder="****" 

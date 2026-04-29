@@ -60,4 +60,28 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+
+    public function update(Request $request)
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'username'   => 'sometimes|string|unique:users,username,' . $user->id,
+            'firstname'  => 'sometimes|string',
+            'lastname'   => 'sometimes|string',
+            'dni'        => 'sometimes|string|unique:users,dni,' . $user->id,
+            'address'    => 'sometimes|string',
+            'postalCode' => 'sometimes|string',
+            'img'        => 'sometimes|string', 
+        ]);
+
+        if ($request->has('password') && $request->password) {
+            $request->validate(['password' => 'string|min:8|confirmed']);
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return response()->json($user);
+    }
 }

@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getForum, deleteForum, updateForum } from '../api/forums'
 import { createReport, getReports, updateReport, deleteReport } from '../api/reports'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/AuthContext' //asi mantiene al usuario logueado?
 import { useToast } from '../context/ToastContext'
 import ShimmerImage from '../components/ShimmerImage'
 
@@ -24,6 +24,7 @@ export default function ForumDetail() {
   
   const [isCreatingReport, setIsCreatingReport] = useState(false)
   const [countdown, setCountdown] = useState(0)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {
     fetchForum()
@@ -41,7 +42,7 @@ export default function ForumDetail() {
   const fetchReports = async () => {
     try {
       const res = await getReports(id)
-      setReports(res.data.data || res.data)
+      setReports(res.data.data || res.data) // por que dos veces data
     } catch (error) { console.error(error) }
   }
 
@@ -52,7 +53,7 @@ export default function ForumDetail() {
       addToast('Foro actualizado', 'success')
       setShowForumModal(false)
       fetchForum()
-    } catch (error) { addToast('Error al actualizar', 'error') }
+    } catch (error) { addToast('Error al actualizar', 'error') }ñ
   }
 
   const handleDeleteForum = async () => {
@@ -83,9 +84,7 @@ export default function ForumDetail() {
         reader.onload = async () => {
           try {
             await createReport(id, { title: reportData.title, description: reportData.description, image: reader.result })
-            
-            // Usamos un bucle controlado para el countdown en lugar de un intervalo que puede duplicarse
-            for (let i = 3; i > 0; i--) {
+                        for (let i = 3; i > 0; i--) {
               setCountdown(i)
               await new Promise(r => setTimeout(r, 1000))
             }
@@ -161,18 +160,95 @@ export default function ForumDetail() {
       <div style={{ display: 'flex', gap: '40px', marginBottom: '60px', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: '300px' }}>
           <h1 style={{ color: '#f00', fontSize: '48px', margin: '0 0 20px 0' }}>{forum.title}</h1>
-          <p style={{ color: '#060', marginBottom: '30px' }}>
+          <p style={{ color: '#060', marginBottom: '10px' }}>
             EXPEDICIÓN INICIADA POR <span style={{ color: '#0f0' }}>{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
           </p>
-          <div style={{ fontSize: '18px', lineHeight: '1.6', background: '#080808', padding: '20px', borderLeft: '3px solid #f00' }}>
-            {forum.description}
+
+          {/* Credibility Bar */}
+          <div style={{ marginBottom: '25px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#060', marginBottom: '5px', letterSpacing: '1px' }}>
+              <span>DUBIOUS_DATA</span>
+              <span>VERIFIED_ARCHIVE</span>
+            </div>
+            <div style={{ 
+              height: '10px', 
+              width: '100%', 
+              background: 'linear-gradient(90deg, #f00 0%, #333 50%, #0f0 100%)', 
+              position: 'relative',
+              borderRadius: '5px',
+              boxShadow: 'inset 0 0 5px #000'
+            }}>
+              <div style={{ 
+                position: 'absolute', 
+                left: `${Math.min(Math.max((forum.credibility_score + 5) * 10, 0), 100)}%`, //explicacion de por que se hace asi ese calculo
+                top: '50%', 
+                transform: 'translate(-50%, -50%)',
+                transition: 'left 1s ease-in-out',
+                zIndex: 2,
+                filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.8))'
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C8.13 2 5 5.13 5 9V22L7 20L9 22L11 20L13 22L15 20L17 22L19 20L21 22V9C21 5.13 17.87 2 14 2H12Z" fill="white" />
+                  <circle cx="9" cy="9" r="1.5" fill="black" />
+                  <circle cx="15" cy="9" r="1.5" fill="black" />
+                  <path d="M10 13C10 13 11 14 12 14C13 14 14 13 14 13" stroke="black" strokeWidth="1" strokeLinecap="round" />
+                </svg>
+              </div>
+              {/* Center marker */}
+              <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: 'rgba(255,255,255,0.2)', zIndex: 1 }}></div>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '5px', fontSize: '11px', color: forum.credibility_score >= 0 ? '#0f0' : '#f00', fontWeight: 'bold' }}>
+              GLOBAL_CREDIBILITY: {forum.credibility_score > 0 ? `+${forum.credibility_score.toFixed(1)}` : forum.credibility_score.toFixed(1)}
+            </div>
+          </div>
+          <div style={{ 
+            fontSize: '18px', 
+            lineHeight: '1.6', 
+            background: '#080808', 
+            padding: '20px', 
+            borderLeft: '3px solid #f00',
+            minHeight: '120px',
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{
+              display: '-webkit-box',
+              WebkitLineClamp: isExpanded ? 'unset' : '3',
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {forum.description}
+            </div>
+            
+            {forum.description.length > 150 && (
+              <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#f00',
+                  cursor: 'pointer',
+                  padding: '5px 0',
+                  marginTop: '10px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  textAlign: 'left',
+                  textTransform: 'uppercase',
+                  width: 'fit-content'
+                }}
+              >
+                {isExpanded ? '[ MOSTRAR MENOS ]' : '[ MOSTRAR MÁS ]'}
+              </button>
+            )}
           </div>
         </div>
         {forum.image && (
-          <div style={{ flex: 1, minWidth: '300px', border: '1px solid #060', background: '#000', padding: '10px' }}>
+          <div style={{ flex: 1, minWidth: '300px', border: '1px solid #060', background: '#000', padding: '10px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShimmerImage 
               src={
-                forum.image?.startsWith('http') || forum.image?.startsWith('blob:')
+                forum.image?.startsWith('http')
                   ? forum.image
                   : forum.image?.startsWith('images/')
                     ? `http://localhost:8000/${forum.image}`
@@ -203,7 +279,7 @@ export default function ForumDetail() {
                   <div style={{ height: '150px', background: '#111', marginBottom: '15px', border: '1px solid #040' }}>
                     <ShimmerImage 
                       src={
-                        r.image?.startsWith('http') || r.image?.startsWith('blob:')
+                        r.image?.startsWith('http')
                           ? r.image
                           : r.image?.startsWith('images/')
                             ? `http://localhost:8000/${r.image}`

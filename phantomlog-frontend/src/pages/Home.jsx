@@ -58,9 +58,7 @@ export default function Home() {
         left: 0,
         width: '100%',
         height: '100%',
-        backgroundImage: 'url("/boy.png")',
-        // AJUSTE DE SEPARACIÓN: Modifica este backgroundSize (ej: 40% o 50%) 
-        // y el backgroundRepeat ('space' deja espacio entre copias)
+        backgroundImage: 'url("/boy.png")',   
         backgroundSize: '55%', 
         backgroundRepeat: 'space', 
         backgroundPosition: 'center',

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { me, login as apiLogin, logout as apiLogout } from '../api/auth'
+import { me, login as apiLogin, logout as apiLogout, updateProfile as apiUpdateProfile } from '../api/auth'
 import Loader from '../components/Loader'
 
 const AuthContext = createContext(null)
@@ -31,8 +31,13 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  const updateUser = async (data) => {
+    const res = await apiUpdateProfile(data)
+    setUser(res.data)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
       {loading ? <Loader /> : children}
     </AuthContext.Provider>
   )

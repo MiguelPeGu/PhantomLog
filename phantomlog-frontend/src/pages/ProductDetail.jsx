@@ -5,6 +5,8 @@ import { addToCart } from '../api/cart'
 import { useToast } from '../context/ToastContext'
 import { useCart } from '../context/CartContext'
 
+import ShimmerImage from '../components/ShimmerImage'
+
 export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -43,11 +45,13 @@ export default function ProductDetail() {
         🡄 VOLVER AL CATÁLOGO
       </button>
       <div style={{ border: '1px solid #060', padding: '20px', marginTop: '20px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <img 
-          src={product.image?.startsWith('http') ? product.image : `http://localhost:8000/storage/${product.image}`} 
-          alt={product.title} 
-          style={{ width: '300px', height: '300px', objectFit: 'contain', background: '#111' }} 
-        />
+        <div style={{ width: '300px', height: '300px' }}>
+          <ShimmerImage 
+            src={product.image?.startsWith('http') ? product.image : `http://localhost:8000/storage/${product.image}`} 
+            alt={product.title} 
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+          />
+        </div>
         <div style={{ flex: 1 }}>
           <h1 style={{ color: '#f00' }}>{product.title}</h1>
           <p>{product.description}</p>

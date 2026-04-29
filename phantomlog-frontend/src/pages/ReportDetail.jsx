@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { getReport, updateReport, deleteReport } from '../api/reports'
+import { getReport, updateReport, deleteReport, voteReport, getReportVote } from '../api/reports'
 import { getComments, createComment, updateComment, deleteComment } from '../api/comments'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -20,11 +20,13 @@ export default function ReportDetail() {
   
   const [editingCommentId, setEditingCommentId] = useState(null)
   const [editingCommentText, setEditingCommentText] = useState('')
+  const [userVote, setUserVote] = useState(0)
 
   useEffect(() => {
     fetchReport()
     fetchComments()
-  }, [reportId])
+    if (user) fetchUserVote()
+  }, [reportId, user])
 
   const fetchReport = async () => {
     try {
@@ -39,6 +41,57 @@ export default function ReportDetail() {
       const res = await getComments(reportId)
       setComments(res.data.data || res.data)
     } catch (error) { console.error(error) }
+  }
+
+  const fetchUserVote = async () => {
+    try {
+      const res = await getReportVote(reportId)
+      setUserVote(res.data.user_vote)
+    } catch (error) { console.error(error) }
+  }
+
+  const handleVote = async (value) => {
+    if (!user) return addToast('Debes iniciar sesión para votar', 'info')
+    
+    // Optimistic Update
+    const prevVote = userVote
+    const prevScore = report.score
+    
+    let newVote = value
+    let scoreDiff = value
+    
+    if (prevVote === value) {
+      newVote = 0
+      scoreDiff = -value
+    } else if (prevVote !== 0) {
+      // Switching from 1 to -1 or vice versa
+      scoreDiff = value * 2
+    }
+    
+    setUserVote(newVote)
+    setReport({ 
+      ...report, 
+      score: prevScore + scoreDiff,
+      votes_count: prevVote === 0 ? report.votes_count + 1 : (newVote === 0 ? report.votes_count - 1 : report.votes_count)
+    })
+
+    try {
+      const res = await voteReport(reportId, value)
+      // Sync with server response just in case
+      setUserVote(res.data.user_vote)
+      setReport({ ...report, score: res.data.score, votes_count: res.data.votes_count })
+      
+      if (res.data.user_vote === 0) {
+        addToast('VOTO RETIRADO', 'info')
+      } else {
+        addToast(value === 1 ? 'HAS CREÍDO EN EL REPORTE' : 'HAS MARCADO COMO FALSEDAD', 'success')
+      }
+    } catch (error) { 
+      // Revert on error
+      setUserVote(prevVote)
+      setReport({ ...report, score: prevScore })
+      addToast('Error al registrar voto', 'error') 
+    }
   }
 
   const handleReportUpdate = async (e) => {
@@ -139,7 +192,8 @@ export default function ReportDetail() {
       {report.image && (
         <div style={{ 
           border: '2px solid #060', background: '#000', padding: '10px', 
-          marginBottom: '30px', boxShadow: '0 0 30px rgba(255,0,0,0.1)' 
+          marginBottom: '30px', boxShadow: '0 0 30px rgba(255,0,0,0.1)',
+          minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
           <ShimmerImage 
             src={
@@ -157,9 +211,56 @@ export default function ReportDetail() {
 
       <div style={{ 
         background: '#080808', padding: '30px', borderLeft: '4px solid #f00', 
-        fontSize: '18px', lineHeight: '1.8', whiteSpace: 'pre-line', marginBottom: '50px' 
+        fontSize: '18px', lineHeight: '1.8', whiteSpace: 'pre-line', marginBottom: '30px' 
       }}>
         {report.description}
+      </div>
+
+      {/* Votación / Score */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '40px', marginBottom: '50px', background: 'rgba(255,0,0,0.05)', padding: '25px', border: '1px solid #111', borderRadius: '4px' }}>
+        <div style={{ display: 'flex', gap: '30px', borderRight: '1px solid #222', paddingRight: '40px' }}>
+          <div style={{ textAlign: 'center', minWidth: '100px' }}>
+            <div style={{ fontSize: '11px', color: '#060', marginBottom: '5px', letterSpacing: '1px' }}>SCORE_CREDIBILITY</div>
+            <div style={{ fontSize: '36px', fontWeight: 'bold', color: report.score > 0 ? '#0f0' : (report.score < 0 ? '#f00' : '#0f0') }}>
+              {report.score > 0 ? `+${report.score}` : report.score}
+            </div>
+          </div>
+          
+          <div style={{ textAlign: 'center', minWidth: '100px' }}>
+            <div style={{ fontSize: '11px', color: '#060', marginBottom: '5px', letterSpacing: '1px' }}>TOTAL_WITNESSES</div>
+            <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#0f0' }}>{report.votes_count}</div>
+          </div>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <button 
+            className={`vote-btn ${userVote === 1 ? 'active' : ''}`} 
+            style={{ "--i": "#00ff00", "--j": "#004400" }}
+            onClick={() => handleVote(1)}
+          >
+            <span className="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+              </svg>
+            </span>
+            <span className="title">I BELIEVE</span>
+          </button>
+
+          <button 
+            className={`vote-btn ${userVote === -1 ? 'active' : ''}`} 
+            style={{ "--i": "#ff0000", "--j": "#440000" }}
+            onClick={() => handleVote(-1)}
+          >
+            <span className="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+              </svg>
+            </span>
+            <span className="title">LIAR</span>
+          </button>
+        </div>
       </div>
 
       {/* Comentarios */}

@@ -33,7 +33,9 @@ final class Phantom extends Model
         'name',
         'type',
         'description',
-        'location',
+        'strengths',
+        'weaknesses',
+        'evidence',
         'image',
     ];
 
@@ -47,7 +49,9 @@ final class Phantom extends Model
             'name' => 'string',
             'type' => 'string',
             'description' => 'string',
-            'location' => 'string',
+            'strengths' => 'string',
+            'weaknesses' => 'string',
+            'evidence' => 'string',
             'image' => 'string',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',

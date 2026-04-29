@@ -66,4 +66,11 @@ final class Forum extends Model
     {
         return $this->belongsToMany(User::class, 'followers');
     }
+
+    protected $appends = ['credibility_score'];
+
+    public function getCredibilityScoreAttribute()
+    {
+        return (float) $this->reports()->avg('score') ?? 0;
+    }
 }

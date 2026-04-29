@@ -7,7 +7,7 @@ import { useToast } from '../context/ToastContext'
 export default function PhantomLayout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
   const { cartCount } = useCart()
   const { addToast } = useToast()
   const [showContent, setShowContent] = useState(false)
@@ -70,7 +70,33 @@ export default function PhantomLayout() {
           <Link to="/cart" style={{ color: '#0f0', textDecoration: 'none', position: 'relative' }}>
             CARRITO ({cartCount})
           </Link>
-          <button onClick={handleLogout} style={{ background: 'none', border: '1px solid #f00', color: '#f00', padding: '2px 5px', fontSize: '12px' }}>SALIR</button>
+          
+          <Link to="/profile" style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px', 
+            textDecoration: 'none', 
+            borderLeft: '1px solid #111', 
+            paddingLeft: '15px' 
+          }}>
+            <div style={{ 
+              width: '32px', 
+              height: '32px', 
+              borderRadius: '50%', 
+              background: '#040', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              overflow: 'hidden',
+              border: '1px solid #0f0'
+            }}>
+              {user?.img ? (
+                <img src={user.img} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <span style={{ color: '#0f0', fontSize: '14px', fontWeight: 'bold' }}>{user?.username?.[0].toUpperCase()}</span>
+              )}
+            </div>
+          </Link>
         </nav>
       </header>
 

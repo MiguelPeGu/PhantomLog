@@ -71,8 +71,35 @@ final class Report extends Model
         return $this->belongsTo(Forum::class);
     }
 
+    public function votes()
+    {
+        return $this->hasMany(ReportVote::class);
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($report) {
+            // Initial score is 0
+        });
+
+        // We use saved/deleted on the ReportVote model to update the Report score
+    }
+
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function updateScore()
+    {
+        $this->score = $this->votes()->sum('value');
+        $this->save();
+    }
+
+    protected $appends = ['votes_count'];
+
+    public function getVotesCountAttribute()
+    {
+        return $this->votes()->count();
     }
 }

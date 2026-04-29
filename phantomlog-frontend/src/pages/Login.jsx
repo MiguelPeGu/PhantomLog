@@ -1,15 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { user, login } = useAuth()
   const { addToast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard')
+    }
+  }, [user, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -17,9 +23,9 @@ export default function Login() {
     try {
       await login(email, password)
       addToast('ACCESO CONCEDIDO', 'success')
-      navigate('/dashboard')
     } catch (err) { 
-      addToast('CREDENCIALES INVÁLIDAS', 'error')
+      const errorMsg = err.response?.data?.message || 'CREDENCIALES INVÁLIDAS'
+      addToast(errorMsg.toUpperCase(), 'error')
     } finally {
       setLoading(false)
     }
@@ -58,7 +64,7 @@ export default function Login() {
         boxShadow: '0 0 50px rgba(255, 0, 0, 0.1)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-          <h1 style={{ color: '#f00', margin: 0, fontSize: '42px', letterSpacing: '5px' }}>IDENTIFICARSE</h1>
+          <h1 style={{ color: '#f00', margin: 0, fontSize: '32px', letterSpacing: '3px' }}>IDENTIFICARSE</h1>
           <p style={{ color: '#060', fontSize: '12px', marginTop: '5px' }}>INGRESE AL ARCHIVO CENTRAL</p>
         </div>
 

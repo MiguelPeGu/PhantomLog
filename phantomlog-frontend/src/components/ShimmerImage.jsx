@@ -5,7 +5,7 @@ const ShimmerImage = ({ src, alt, style, className = "" }) => {
   const [error, setError] = useState(false)
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: '#121012' }} className={className}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: 'inherit', overflow: 'hidden', background: '#121012' }} className={className}>
       <style>{`
         .shimmer-effect {
           background: #1a151a;

@@ -16,6 +16,7 @@ import ReportDetail   from './pages/ReportDetail'
 import Expeditions    from './pages/Expeditions'
 import ExpeditionDetail from './pages/ExpeditionDetail'
 import Phantoms       from './pages/Phantoms'
+import PhantomDetail  from './pages/PhantomDetail'
 import Products       from './pages/Products'
 import ProductDetail  from './pages/ProductDetail'
 import Cart           from './pages/Cart'
@@ -23,6 +24,7 @@ import Checkout       from './pages/Checkout'
 import Invoices       from './pages/Invoices'
 import SuccessInvoice from './pages/SuccessInvoice'
 import Dashboard      from './pages/Dashboard'
+import Profile        from './pages/Profile'
 
 export const router = createBrowserRouter([
   {
@@ -54,6 +56,7 @@ export const router = createBrowserRouter([
           { path: "expeditions", element: <Expeditions /> },
           { path: "expeditions/:id", element: <ExpeditionDetail /> },
           { path: "phantoms", element: <Phantoms /> },
+          { path: "phantoms/:id", element: <PhantomDetail /> },
           { path: "products", element: <Products /> },
           { path: "products/:id", element: <ProductDetail /> },
           { path: "cart", element: <Cart /> },
@@ -61,6 +64,7 @@ export const router = createBrowserRouter([
           { path: "success/:id", element: <SuccessInvoice /> },
            { path: "invoices", element: <Invoices /> },
            { path: "dashboard", element: <Dashboard /> },
+           { path: "profile", element: <Profile /> },
          ],
       },
       {

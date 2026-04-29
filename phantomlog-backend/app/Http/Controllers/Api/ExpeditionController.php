@@ -11,7 +11,10 @@ class ExpeditionController extends Controller
     public function index()
     {
         return response()->json(
-            Expedition::with(['user', 'phantom'])->withCount('participants')->latest()->get()
+            Expedition::with(['user', 'phantom'])
+                ->withCount('participants')
+                ->latest()
+                ->get()
         );
     }
 
@@ -22,7 +25,7 @@ class ExpeditionController extends Controller
             'name'        => 'required|string|max:255',
             'description' => 'required|string',
             'location'    => 'required|string',
-            'date'        => 'required|date',
+            'date'        => 'required|date|after:now',
         ]);
 
         $expedition = $request->user()->createdExpeditions()->create($data);
@@ -34,6 +37,7 @@ class ExpeditionController extends Controller
     {
         return response()->json(
             $expedition->load(['user', 'phantom', 'participants'])
+                ->loadCount('participants')
         );
     }
 
@@ -48,12 +52,12 @@ class ExpeditionController extends Controller
             'name'        => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
             'location'    => 'sometimes|string',
-            'date'        => 'sometimes|date',
+            'date'        => 'sometimes|date|after:now',
         ]);
 
         $expedition->update($data);
 
-        return response()->json($expedition);
+        return response()->json($expedition->load(['phantom', 'user']));
     }
 
     public function destroy(Request $request, Expedition $expedition)
@@ -70,8 +74,15 @@ class ExpeditionController extends Controller
     // Unirse / salir de una expedición
     public function toggleJoin(Request $request, Expedition $expedition)
     {
+        if ($expedition->date < now()) {
+            return response()->json(['message' => 'El registro para esta expedición ha finalizado.'], 403);
+        }
+
         $request->user()->joinedExpeditions()->toggle($expedition->id);
 
-        return response()->json(['message' => 'Ok']);
+        return response()->json([
+            'message' => 'Ok',
+            'is_joined' => $request->user()->joinedExpeditions()->where('expedition_id', $expedition->id)->exists()
+        ]);
     }
 }

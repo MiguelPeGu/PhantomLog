@@ -17,7 +17,7 @@ export default function LoadingTrigger() {
     const isDetailMatch = detailBases.some(base => path.startsWith(base))
     
     if (isExactMatch || isDetailMatch) {
-      triggerLoading(3000)
+      triggerLoading(1000)
     }
   }, [location.pathname, triggerLoading])
 

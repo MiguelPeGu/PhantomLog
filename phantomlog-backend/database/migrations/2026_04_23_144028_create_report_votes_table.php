@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reports', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('forum_id')->constrained()->cascadeOnDelete();
+        Schema::create('report_votes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignUuid('report_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
-            $table->string("title")->unique();
-            $table->string("description");
-            $table->string("image")->nullable();
-            $table->integer("score")->default(0);
+            $table->integer('value'); // 1 for believe, -1 for liar
+            $table->unique(['report_id', 'user_id']);
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reports');
+        Schema::dropIfExists('report_votes');
     }
 };

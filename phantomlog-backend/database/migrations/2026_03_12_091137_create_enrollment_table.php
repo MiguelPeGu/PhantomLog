@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('expedition_user', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+        Schema::create('enrollment', function (Blueprint $table) {
+            $table->id();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('expedition_id')->constrained()->cascadeOnDelete();
             $table->timestamps();

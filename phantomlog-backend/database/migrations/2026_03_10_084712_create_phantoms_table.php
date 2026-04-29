@@ -15,9 +15,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string("name")->unique();
             $table->string("type");
-            $table->string("description");
-            $table->string("location");
-            $table->string("image");
+            $table->text("description");
+            $table->text("strengths")->nullable();
+            $table->text("weaknesses")->nullable();
+            $table->text("evidence")->nullable();
+            $table->string("image")->nullable();
             $table->timestamps();
         });
     }
