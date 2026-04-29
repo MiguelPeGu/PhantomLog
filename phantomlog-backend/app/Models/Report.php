@@ -96,10 +96,17 @@ final class Report extends Model
         $this->save();
     }
 
-    protected $appends = ['votes_count'];
+    protected $appends = ['votes_count', 'image_url'];
 
     public function getVotesCountAttribute()
     {
         return $this->votes()->count();
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) return null;
+        if (str_starts_with($this->image, 'http')) return $this->image;
+        return asset('storage/' . $this->image);
     }
 }

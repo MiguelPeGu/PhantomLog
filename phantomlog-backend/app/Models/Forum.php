@@ -67,10 +67,17 @@ final class Forum extends Model
         return $this->belongsToMany(User::class, 'followers');
     }
 
-    protected $appends = ['credibility_score'];
+    protected $appends = ['credibility_score', 'image_url'];
 
     public function getCredibilityScoreAttribute()
     {
         return (float) $this->reports()->avg('score') ?? 0;
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) return null;
+        if (str_starts_with($this->image, 'http')) return $this->image;
+        return asset('storage/' . $this->image);
     }
 }

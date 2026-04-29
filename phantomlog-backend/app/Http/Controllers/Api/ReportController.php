@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Forum;
 use App\Models\Report;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ReportController extends Controller
 {
@@ -31,15 +33,12 @@ class ReportController extends Controller
                 $image   = substr($request->image, strpos($request->image, ',') + 1);
                 $type    = strtolower($type[1]);
                 $image   = base64_decode($image);
-                $imgName = \Illuminate\Support\Str::random(40) . '.' . $type;
-                
-                $path = public_path('images/reports');
-                if (!file_exists($path)) {
-                    mkdir($path, 0755, true);
-                }
-                file_put_contents($path . '/' . $imgName, $image);
-                
-                $data['image'] = 'images/reports/' . $imgName;
+                $imgName = Str::random(40) . '.' . $type;
+
+                $storagePath = 'reports/' . $imgName;
+                Storage::disk('public')->put($storagePath, $image);
+
+                $data['image'] = $storagePath;
             } else {
                 return response()->json(['message' => 'Invalid image format.'], 422);
             }

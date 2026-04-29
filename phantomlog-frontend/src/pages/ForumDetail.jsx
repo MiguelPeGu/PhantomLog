@@ -42,7 +42,7 @@ export default function ForumDetail() {
   const fetchReports = async () => {
     try {
       const res = await getReports(id)
-      setReports(res.data.data || res.data) // por que dos veces data
+      setReports(res.data.data || res.data)
     } catch (error) { console.error(error) }
   }
 
@@ -53,7 +53,7 @@ export default function ForumDetail() {
       addToast('Foro actualizado', 'success')
       setShowForumModal(false)
       fetchForum()
-    } catch (error) { addToast('Error al actualizar', 'error') }ñ
+    } catch (error) { addToast('Error al actualizar', 'error') }
   }
 
   const handleDeleteForum = async () => {
@@ -247,13 +247,7 @@ export default function ForumDetail() {
         {forum.image && (
           <div style={{ flex: 1, minWidth: '300px', border: '1px solid #060', background: '#000', padding: '10px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShimmerImage 
-              src={
-                forum.image?.startsWith('http')
-                  ? forum.image
-                  : forum.image?.startsWith('images/')
-                    ? `http://localhost:8000/${forum.image}`
-                    : `http://localhost:8000/storage/${forum.image}`
-              } 
+              src={forum.image_url} 
               alt={forum.title}
               style={{ width: '100%', height: 'auto', maxHeight: '500px', objectFit: 'contain' }}
             />
@@ -278,13 +272,7 @@ export default function ForumDetail() {
                 <Link to={`/forums/${id}/reports/${r.id}`} style={{ textDecoration: 'none', flex: 1 }}>
                   <div style={{ height: '150px', background: '#111', marginBottom: '15px', border: '1px solid #040' }}>
                     <ShimmerImage 
-                      src={
-                        r.image?.startsWith('http')
-                          ? r.image
-                          : r.image?.startsWith('images/')
-                            ? `http://localhost:8000/${r.image}`
-                            : `http://localhost:8000/storage/${r.image}`
-                      } 
+                      src={r.image_url} 
                       alt={r.title}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />

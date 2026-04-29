@@ -85,13 +85,7 @@ export default function Forums() {
                 <div onClick={() => navigate(`/forums/${f.id}`)} style={{ cursor: 'pointer', flex: 1 }}>
                   <div style={{ height: '180px', background: '#111', border: '1px solid #040', marginBottom: '15px' }}>
                     <ShimmerImage 
-                      src={
-                        f.image?.startsWith('http') || f.image?.startsWith('blob:')
-                          ? f.image
-                          : f.image?.startsWith('images/')
-                            ? `http://localhost:8000/${f.image}`
-                            : `http://localhost:8000/storage/${f.image}`
-                      } 
+                      src={f.image_url}
                       alt={f.title}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />

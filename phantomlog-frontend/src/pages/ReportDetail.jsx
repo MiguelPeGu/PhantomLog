@@ -53,7 +53,6 @@ export default function ReportDetail() {
   const handleVote = async (value) => {
     if (!user) return addToast('Debes iniciar sesión para votar', 'info')
     
-    // Optimistic Update
     const prevVote = userVote
     const prevScore = report.score
     
@@ -64,7 +63,6 @@ export default function ReportDetail() {
       newVote = 0
       scoreDiff = -value
     } else if (prevVote !== 0) {
-      // Switching from 1 to -1 or vice versa
       scoreDiff = value * 2
     }
     
@@ -196,13 +194,7 @@ export default function ReportDetail() {
           minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
           <ShimmerImage 
-            src={
-              report.image?.startsWith('http') || report.image?.startsWith('blob:')
-                ? report.image
-                : report.image?.startsWith('images/')
-                  ? `http://localhost:8000/${report.image}`
-                  : `http://localhost:8000/storage/${report.image}`
-            } 
+            src={report.image_url} 
             alt="Evidencia"
             style={{ width: '100%', maxHeight: '600px', objectFit: 'contain' }}
           />
