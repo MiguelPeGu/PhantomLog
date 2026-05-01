@@ -91,7 +91,7 @@ export default function Forums() {
       </div>
 
       {loading && forums.length === 0 ? (
-        <div className="text-center" style={{ padding: '100px' }}>Invocando foros...</div>
+        <div className="text-center" style={{ padding: '100px', color: 'var(--text)' }}>Invocando foros...</div>
       ) : (
         <>
           <div className="grid-3" style={{ opacity: loading ? 0.4 : 1, transition: 'opacity 0.2s' }}>

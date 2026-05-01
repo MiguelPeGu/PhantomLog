@@ -101,7 +101,12 @@ export default function Profile() {
             </div>
             <div className="form-group">
               <label className="form-label" style={{ color: 'var(--text-dim)' }}>EMAIL (NO MODIFICABLE)</label>
-              <input value={user?.email} disabled style={{ background: '#050505', border: '1px solid #111', color: '#030', cursor: 'not-allowed' }} />
+              <input value={user?.email} disabled style={{ 
+                background: 'rgba(0, 119, 255, 0.05)', 
+                border: '1px solid var(--border)', 
+                color: 'var(--accent)', 
+                cursor: 'not-allowed' 
+              }} />
             </div>
           </div>
 

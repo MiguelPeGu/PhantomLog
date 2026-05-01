@@ -45,6 +45,13 @@ final class Invoice extends Model
         'payment_method',
         ];
 
+    protected $appends = ['subtotal'];
+
+    public function getSubtotalAttribute()
+    {
+        return $this->total / (1 + ($this->tax / 100));
+    }
+
     /**
      * @return array<string, string>
      */

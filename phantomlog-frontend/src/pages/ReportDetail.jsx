@@ -221,7 +221,7 @@ export default function ReportDetail() {
         <div className="flex-center" style={{ gap: '20px' }}>
           <button 
             className={`vote-btn ${userVote === 1 ? 'active' : ''}`} 
-            style={{ "--i": "#00ff00", "--j": "#004400" }}
+            style={{ "--i": "var(--believe-color, #00ff00)", "--j": "var(--text-dim)" }}
             onClick={() => handleVote(1)}
           >
             <span className="icon">
@@ -235,7 +235,7 @@ export default function ReportDetail() {
 
           <button 
             className={`vote-btn ${userVote === -1 ? 'active' : ''}`} 
-            style={{ "--i": "#ff0000", "--j": "#440000" }}
+            style={{ "--i": "var(--border-red, #ff0000)", "--j": "var(--accent-dim)" }}
             onClick={() => handleVote(-1)}
           >
             <span className="icon">
@@ -272,7 +272,7 @@ export default function ReportDetail() {
             <p className="text-center" style={{ color: 'var(--text-dim)' }}>NO HAY TRANSMISIONES ADICIONALES.</p>
           ) : (
             comments.map(c => (
-              <div key={c.id} className="horror-card" style={{ padding: '20px', borderLeft: '3px solid var(--border)', background: 'rgba(0,0,0,0.5)' }}>
+              <div key={c.id} className="horror-card" style={{ padding: '20px', borderLeft: '3px solid var(--border)', background: 'var(--card-bg)' }}>
                 <div className="flex-center mb-10" style={{ justifyContent: 'space-between' }}>
                   <span style={{ color: 'var(--accent)', fontWeight: 'bold' }}>{c.user?.username.toUpperCase()}</span>
                   <div className="flex-center" style={{ gap: '10px' }}>

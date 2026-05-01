@@ -13,6 +13,23 @@ export default function PhantomLayout() {
   const { addToast } = useToast()
   const { globalSearch, setGlobalSearch } = useData()
   const [showContent, setShowContent] = useState(false)
+  
+  // Theme Management
+  const [theme, setTheme] = useState(localStorage.getItem('phantom-theme') || 'dark')
+  
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode')
+    } else {
+      document.body.classList.remove('light-mode')
+    }
+  }, [theme])
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(newTheme)
+    localStorage.setItem('phantom-theme', newTheme)
+  }
 
   useEffect(() => { setShowContent(true) }, [])
 
@@ -36,11 +53,22 @@ export default function PhantomLayout() {
   ]
 
   return (
-    <div className="column" style={{ minHeight: '100vh' }}>
+    <div key={theme} className="column" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Header Estilo Amazon/Horror */}
       <header className="main-header" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
-        <div style={{ justifySelf: 'start' }}>
+        <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link to="/dashboard" style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: '24px', letterSpacing: '2px' }}>PHANTOMLOG</Link>
+          <button 
+            onClick={toggleTheme} 
+            className="flex-center" 
+            style={{ 
+              width: '35px', height: '35px', padding: 0, borderRadius: '50%', 
+              fontSize: '18px', border: '1px solid var(--border)' 
+            }}
+            title={theme === 'dark' ? 'Activar modo clínico' : 'Activar modo original'}
+          >
+            {theme === 'dark' ? '🔆' : '🌑'}
+          </button>
         </div>
 
         <div className="header-search-container" style={{ width: '400px' }}>
@@ -136,8 +164,8 @@ export default function PhantomLayout() {
           </div>
           <div className="footer-section">
             <h4 className="footer-title">ESTADO DEL SISTEMA</h4>
-            <p style={{ color: '#0f0' }}>● SERVIDORES: ONLINE</p>
-            <p style={{ color: '#0f0' }}>● CONEXIÓN: ENCRIPTADA</p>
+            <p style={{ color: 'var(--text)' }}>● SERVIDORES: ONLINE</p>
+            <p style={{ color: 'var(--text)' }}>● CONEXIÓN: ENCRIPTADA</p>
             <p style={{ color: 'var(--accent)' }}>● AMENAZAS: ACTIVAS</p>
           </div>
         </div>

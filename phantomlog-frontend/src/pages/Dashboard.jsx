@@ -57,8 +57,8 @@ export default function Dashboard() {
       <div 
         className="flicker-overlay"
         style={{
-          backgroundImage: 'url("/girl.png")',
-          backgroundPosition: '90% -100%',
+          backgroundImage: 'var(--flicker-img)',
+          backgroundPosition: 'var(--flicker-pos)',
           opacity: flickerOpacity,
           transform: `translate(${offset.x}px, ${offset.y}px)`,
           transition: flickerOpacity === 0 ? 'opacity 0.3s' : 'none',

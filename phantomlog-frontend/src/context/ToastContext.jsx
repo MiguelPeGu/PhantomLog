@@ -32,14 +32,14 @@ export function ToastProvider({ children }) {
       }}>
         {toasts.map((toast) => (
           <div key={toast.id} style={{
-            background: '#f00',
-            border: '2px solid #000',
-            color: '#0f0',
+            background: 'var(--accent)',
+            border: `2px solid var(--border-bright)`,
+            color: '#fff',
             padding: '15px 30px',
-            fontFamily: 'monospace',
+            fontFamily: 'var(--mono)',
             fontSize: '16px',
             fontWeight: 'bold',
-            boxShadow: '0 0 20px rgba(255, 0, 0, 0.5)',
+            boxShadow: '0 0 20px var(--shadow-color)',
             textTransform: 'uppercase',
             letterSpacing: '1px',
             animation: 'toastGlitch 0.3s ease forwards'

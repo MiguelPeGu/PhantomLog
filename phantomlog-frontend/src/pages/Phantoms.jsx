@@ -18,7 +18,7 @@ export default function Phantoms() {
             to={`/phantoms/${p.id}`} 
             className="horror-card"
             style={{ 
-              background: 'rgba(0,10,0,0.4)',
+              background: 'var(--card-bg)',
             }}
           >
             <div className="flex-center mb-10" style={{ justifyContent: 'space-between' }}>
@@ -35,7 +35,7 @@ export default function Phantoms() {
               position: 'absolute', 
               bottom: '10px', 
               right: '10px', 
-              color: '#020', 
+              color: 'var(--text-muted)', 
               fontSize: '24px', 
               opacity: 0.2,
               fontWeight: 'bold'

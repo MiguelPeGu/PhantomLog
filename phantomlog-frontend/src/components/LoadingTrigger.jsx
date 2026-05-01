@@ -11,7 +11,7 @@ export default function LoadingTrigger() {
     
     // Define exact paths or patterns to trigger
     const exactTargets = ['/cart']
-    const detailBases = ['/forums/', '/products/', '/expeditions/', '/success/']
+    const detailBases = ['/forums/', '/products/', '/expeditions/', '/success/', '/phantoms/']
 
     const isExactMatch = exactTargets.includes(path)
     const isDetailMatch = detailBases.some(base => path.startsWith(base))

@@ -27,7 +27,7 @@ class CartService
         $currentQuantity = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
         
         if (($currentQuantity + $quantity) > $product->stock) {
-            throw new \Exception("No puedes exceder el límite de existencias de este artefacto sagrado.");
+            throw new \Exception("Stock insuficiente para este artefacto sagrado.");
         }
 
         if (isset($cart[$id])) {

@@ -17,8 +17,18 @@ export default function Products() {
   const [maxPrice, setMaxPrice] = useState('')
   const [activeFilters, setActiveFilters] = useState({ category: 'ALL', minPrice: '', maxPrice: '' })
   const [addingId, setAddingId] = useState(null)
+  const [categories, setCategories] = useState(['ALL'])
 
-  const categories = ['ALL', 'EQUIPO', 'CONSUMIBLES', 'RELIQUIAS', 'PROTECCIÓN']
+  // Extraer categorías dinámicamente del backend si no están definidas
+  useEffect(() => {
+    if (products.length > 0) {
+      const uniqueCats = ['ALL', ...new Set(products.map(p => p.category?.toUpperCase()).filter(Boolean))]
+      // Solo actualizamos si las categorías son diferentes para evitar loops
+      if (uniqueCats.length > categories.length) {
+        setCategories(uniqueCats)
+      }
+    }
+  }, [products, categories.length])
 
   const applyFilters = () => {
     setActiveFilters({ category, minPrice, maxPrice });
@@ -68,7 +78,10 @@ export default function Products() {
       if (res.data?.items) {
         setCartCount(res.data.items.reduce((acc, item) => acc + item.quantity, 0))
       }
-    } catch (e) { addToast("Error al añadir.", "error") }
+    } catch (e) { 
+      const msg = e.response?.data?.message || "Error al añadir.";
+      addToast(msg.toUpperCase(), "error") 
+    }
     finally { setAddingId(null) }
   }
 
@@ -130,7 +143,7 @@ export default function Products() {
         {/* Lista de Productos */}
         <div style={{ flex: 1 }}>
           {loading && products.length === 0 ? (
-            <div className="text-center" style={{ fontSize: '20px', padding: '100px' }}>Invocando objetos...</div>
+            <div className="text-center" style={{ fontSize: '20px', padding: '100px', color: 'var(--text)' }}>Invocando objetos...</div>
           ) : (
             <>
               <div className="grid-3" style={{ opacity: loading ? 0.4 : 1, transition: 'opacity 0.2s' }}>
@@ -157,8 +170,11 @@ export default function Products() {
                       <button 
                         disabled={p.stock <= 0 || addingId === p.id}
                         onClick={() => handleBuy(p.id)} 
-                        className="primary"
-                        style={{ width: '100%', padding: '10px' }}
+                        className="horror-card"
+                        style={{ 
+                          background: 'var(--card-bg)',
+                          width: '100%', padding: '10px', cursor: p.stock <= 0 ? 'not-allowed' : 'pointer'
+                        }}
                       >
                         {addingId === p.id ? 'AÑADIENDO...' : p.stock <= 0 ? 'SIN EXISTENCIAS' : 'ADQUIRIR'}
                       </button>

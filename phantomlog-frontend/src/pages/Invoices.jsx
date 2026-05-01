@@ -13,7 +13,7 @@ export default function Invoices() {
 
   const { totalPages } = invoicesPagination
 
-  if (loading && invoices.length === 0) return <div style={{ color: '#0f0', textAlign: 'center', marginTop: '50px' }}>INVOCANDO CONTRATOS...</div>
+  if (loading && invoices.length === 0) return <div style={{ color: 'var(--text)', textAlign: 'center', marginTop: '50px' }}>INVOCANDO CONTRATOS...</div>
 
   return (
     <div className="page-container">

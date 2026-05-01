@@ -64,11 +64,11 @@ export default function Checkout() {
     }
   }
 
-  if (loading || !cartData) return <div style={{ color: '#0f0', textAlign: 'center', marginTop: '50px' }}>SINCRONIZANDO PACTO...</div>
+  if (loading || !cartData) return <div style={{ color: 'var(--text)', textAlign: 'center', marginTop: '50px' }}>SINCRONIZANDO PACTO...</div>
 
   if (ghostLoading) {
     return (
-      <div style={{ textAlign: 'center', color: '#0f0', marginTop: '100px' }}>
+      <div style={{ textAlign: 'center', color: 'var(--text)', marginTop: '100px' }}>
         <h1 style={{ color: '#f00', fontSize: '32px' }}>FORMALIZANDO EL CONTRATO...</h1>
         <div style={{ fontSize: '120px', animation: 'float 2s infinite' }}>👻</div>
         <style>{`

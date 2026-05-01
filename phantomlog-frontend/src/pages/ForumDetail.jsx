@@ -177,7 +177,7 @@ export default function ForumDetail() {
             <div style={{ 
               height: '10px', 
               width: '100%', 
-              background: 'linear-gradient(90deg, var(--accent) 0%, #333 50%, var(--text) 100%)', 
+              background: 'linear-gradient(90deg, var(--text) 0%, #333 50%, var(--accent) 100%)', 
               position: 'relative',
               borderRadius: '5px',
               boxShadow: 'inset 0 0 5px #000'

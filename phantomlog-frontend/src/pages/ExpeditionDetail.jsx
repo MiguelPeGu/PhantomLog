@@ -60,7 +60,7 @@ export default function ExpeditionDetail() {
     } catch (e) { addToast('Error al eliminar', 'error') }
   }
 
-  if (loading) return <div style={{ padding: '100px', color: '#0f0', textAlign: 'center' }}>ESCANEANDO FRECUENCIAS...</div>
+  if (loading) return <div style={{ padding: '100px', color: 'var(--text)', textAlign: 'center' }}>ESCANEANDO FRECUENCIAS...</div>
   if (!expedition) return null
 
   const isClosed = new Date(expedition.date) < new Date()
@@ -133,7 +133,7 @@ export default function ExpeditionDetail() {
                 <p style={{ color: 'var(--text-dim)' }}>NADIE SE HA ATREVIDO TODAVÍA.</p>
               ) : (
                 expedition.participants.map(p => (
-                  <div key={p.id} className="flex-center" style={{ gap: '12px', padding: '10px', background: 'rgba(0,255,0,0.02)', border: '1px solid var(--border)' }}>
+                  <div key={p.id} className="flex-center" style={{ gap: '12px', padding: '10px', background: 'var(--shadow-color)', border: '1px solid var(--border)' }}>
                     <div className="flex-center" style={{ width: '30px', height: '30px', background: 'var(--text)', color: '#000', fontWeight: 'bold', fontSize: '12px' }}>
                       {p.username[0].toUpperCase()}
                     </div>

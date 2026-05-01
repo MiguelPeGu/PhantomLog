@@ -67,7 +67,8 @@ export default function Cart() {
       }
     } catch (e) {
       await fetchCart(true); 
-      addToast("Error en la sincronización.", "error");
+      const msg = e.response?.data?.message || "Error en la sincronización.";
+      addToast(msg.toUpperCase(), "error");
     } finally {
       setUpdatingState(prev => {
         const next = { ...prev };
@@ -77,7 +78,7 @@ export default function Cart() {
     }
   }
 
-  if (loading) return <div style={{ color: '#0f0', textAlign: 'center', marginTop: '50px' }}>INSPECCIONANDO EL VACÍO...</div>
+  if (loading) return <div style={{ color: 'var(--text)', textAlign: 'center', marginTop: '50px' }}>INSPECCIONANDO EL VACÍO...</div>
 
   const items = cartData?.items || []
 
@@ -111,7 +112,7 @@ export default function Cart() {
               </div>
 
               <div className="flex-center" style={{ gap: '20px' }}>
-                <div className="flex-center" style={{ border: '1px solid var(--border)', background: '#111', opacity: updatingState[item.product.id] ? 0.5 : 1 }}>
+                <div className="flex-center" style={{ border: '1px solid var(--border)', background: 'var(--bg)', opacity: updatingState[item.product.id] ? 0.5 : 1 }}>
                   <button onClick={() => handleUpdate(item.product.id, 'sub')} className="cart-action-btn" style={{ padding: '5px 15px' }}>-</button>
                   <span style={{ padding: '5px 10px', borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)', minWidth: '30px', textAlign: 'center' }}>{item.quantity}</span>
                   <button onClick={() => handleUpdate(item.product.id, 'add')} className="cart-action-btn" style={{ padding: '5px 15px' }}>+</button>

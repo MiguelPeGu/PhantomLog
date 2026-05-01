@@ -14,7 +14,7 @@ export default function SuccessInvoice() {
       .finally(() => setLoading(false))
   }, [id, navigate])
 
-  if (loading) return <div style={{ color: '#0f0', textAlign: 'center', marginTop: '50px' }}>DESENCRIPTANDO FACTURA...</div>
+  if (loading) return <div style={{ color: 'var(--text)', textAlign: 'center', marginTop: '50px' }}>DESENCRIPTANDO FACTURA...</div>
   if (!invoice) return null
 
   return (
@@ -61,11 +61,11 @@ export default function SuccessInvoice() {
           <tbody>
             {invoice.details?.map(d => (
               <tr key={d.id}>
-                <td>{d.product_name || (d.product?.title)}</td>
+                <td>{d.title}</td>
                 <td className="text-center">{d.quantity}</td>
                 <td className="text-right">{Number(d.price).toFixed(2)}€</td>
                 <td className="text-right">{d.tax}%</td>
-                <td className="text-right">{(Number(d.price) * d.quantity * (1 + Number(d.tax)/100)).toFixed(2)}€</td>
+                <td className="text-right">{Number(d.total_with_tax).toFixed(2)}€</td>
               </tr>
             ))}
           </tbody>
@@ -75,15 +75,15 @@ export default function SuccessInvoice() {
           <div style={{ width: '250px' }}>
             <div className="flex-center justify-between mb-10">
               <span>SUBTOTAL:</span>
-              <span>{Number(invoice.subtotal).toFixed(2)}€</span>
+              <span>{Number(invoice.subtotal || 0).toFixed(2)}€</span>
             </div>
             <div className="flex-center justify-between mb-10">
-              <span>IMPUESTOS:</span>
-              <span>{(Number(invoice.total) - Number(invoice.subtotal)).toFixed(2)}€</span>
+              <span>IMPUESTOS ({invoice.tax}%):</span>
+              <span>{(Number(invoice.total || 0) - Number(invoice.subtotal || 0)).toFixed(2)}€</span>
             </div>
             <div className="flex-center justify-between mt-10" style={{ fontSize: '24px', color: 'var(--accent)', fontWeight: 'bold' }}>
               <span>TOTAL:</span>
-              <span>{Number(invoice.total).toFixed(2)}€</span>
+              <span>{Number(invoice.total || 0).toFixed(2)}€</span>
             </div>
           </div>
         </div>

@@ -28,11 +28,14 @@ export default function ProductDetail() {
       await addToCart(product.id, 1)
       await fetchGlobalCart()
       addToast("Añadido", "success")
-    } catch (e) { addToast("Error", "error") }
+    } catch (e) { 
+      const msg = e.response?.data?.message || "Error al añadir";
+      addToast(msg.toUpperCase(), "error") 
+    }
   }
 
   if (notFound) return <NotFound />
-  if (loading) return <div style={{ color: '#0f0' }}>CARGANDO...</div>
+  if (loading) return <div style={{ color: 'var(--text)' }}>CARGANDO...</div>
   if (!product) return null
 
   return (

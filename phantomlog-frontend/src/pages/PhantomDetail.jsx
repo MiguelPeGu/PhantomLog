@@ -29,7 +29,7 @@ export default function PhantomDetail() {
   }
 
   if (notFound) return <NotFound />
-  if (loading) return <div style={{ padding: '100px', color: '#0f0', textAlign: 'center', letterSpacing: '5px' }}>DESENCRIPTANDO ARCHIVO...</div>
+  if (loading) return <div style={{ padding: '100px', color: 'var(--text)', textAlign: 'center', letterSpacing: '5px' }}>DESENCRIPTANDO ARCHIVO...</div>
   if (!phantom) return null
 
   return (
