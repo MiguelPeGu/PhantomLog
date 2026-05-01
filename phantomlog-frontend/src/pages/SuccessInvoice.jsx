@@ -18,92 +18,87 @@ export default function SuccessInvoice() {
   if (!invoice) return null
 
   return (
-    <div style={{ padding: '20px', color: '#0f0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div className="page-container flex-center column">
       <button 
         onClick={() => navigate('/invoices')} 
-        style={{ 
-          background: 'none', border: '1px solid #0f0', color: '#0f0', 
-          padding: '10px 20px', cursor: 'pointer', marginBottom: '30px',
-          alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '10px'
-        }}
+        className="mb-40"
+        style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '10px' }}
       >
         🡄 VOLVER AL HISTORIAL
       </button>
-      <div style={{ 
-        width: '100%', maxWidth: '800px', background: '#000', border: '2px solid #060', 
-        padding: '40px', position: 'relative', boxShadow: '0 0 50px rgba(0, 255, 0, 0.1)' 
-      }}>
-        <header style={{ borderBottom: '2px solid #0f0', paddingBottom: '20px', marginBottom: '30px', textAlign: 'center' }}>
-          <h1 style={{ color: '#f00', fontSize: '42px', margin: 0 }}>PHANTOMLOG CORP.</h1>
-          <p style={{ color: '#060', margin: '5px 0' }}>FACTURA DE TRANSACCIÓN ARCANO-DERECHO</p>
-          <div style={{ position: 'absolute', top: '10px', right: '10px', border: '2px solid #f00', color: '#f00', padding: '5px 10px', borderRadius: '5px', transform: 'rotate(15deg)', fontWeight: 'bold' }}>SELLADO</div>
+      
+      <div className="horror-card max-800" style={{ padding: '40px' }}>
+        <header className="invoice-header">
+          <h1 style={{ fontSize: '42px' }}>PHANTOMLOG CORP.</h1>
+          <p style={{ color: 'var(--text-dim)', margin: '5px 0' }}>FACTURA DE TRANSACCIÓN ARCANO-DERECHO</p>
+          <div className="status-badge closed" style={{ position: 'absolute', top: '10px', right: '10px', transform: 'rotate(15deg)', fontSize: '14px', padding: '5px 15px' }}>SELLADO</div>
         </header>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
+        <div className="flex-center justify-between mb-40 align-start">
           <div>
-            <h3 style={{ color: '#0f0', textDecoration: 'underline' }}>INVOCADOR:</h3>
+            <h3 style={{ textDecoration: 'underline', marginBottom: '10px' }}>INVOCADOR:</h3>
             <p style={{ margin: '5px 0' }}>{invoice.first_name} {invoice.last_name}</p>
             <p style={{ margin: '5px 0' }}>{invoice.address}</p>
             <p style={{ margin: '5px 0' }}>DNI: {invoice.dni}</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <h3 style={{ color: '#0f0' }}>FACTURA #{invoice.n_invoice || invoice.id}</h3>
+            <h3>FACTURA #{invoice.n_invoice || invoice.id}</h3>
             <p style={{ margin: '5px 0' }}>FECHA: {new Date(invoice.created_at).toLocaleDateString()}</p>
             <p style={{ margin: '5px 0' }}>MÉTODO: {invoice.payment_method?.toUpperCase()}</p>
           </div>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+        <table className="invoice-table mb-40">
           <thead>
-            <tr style={{ borderBottom: '1px solid #0f0', color: '#f00' }}>
-              <th style={{ textAlign: 'left', padding: '10px' }}>OBJETO</th>
-              <th style={{ textAlign: 'center', padding: '10px' }}>CANT.</th>
-              <th style={{ textAlign: 'right', padding: '10px' }}>PRECIO</th>
-              <th style={{ textAlign: 'right', padding: '10px' }}>IVA</th>
-              <th style={{ textAlign: 'right', padding: '10px' }}>TOTAL</th>
+            <tr>
+              <th>OBJETO</th>
+              <th className="text-center">CANT.</th>
+              <th className="text-right">PRECIO</th>
+              <th className="text-right">IVA</th>
+              <th className="text-right">TOTAL</th>
             </tr>
           </thead>
           <tbody>
             {invoice.details?.map(d => (
-              <tr key={d.id} style={{ borderBottom: '1px solid #040' }}>
-                <td style={{ padding: '10px' }}>{d.product_name || (d.product?.title)}</td>
-                <td style={{ textAlign: 'center', padding: '10px' }}>{d.quantity}</td>
-                <td style={{ textAlign: 'right', padding: '10px' }}>${d.price}</td>
-                <td style={{ textAlign: 'right', padding: '10px' }}>{d.tax}%</td>
-                <td style={{ textAlign: 'right', padding: '10px' }}>${(d.price * d.quantity * (1 + d.tax/100)).toFixed(2)}</td>
+              <tr key={d.id}>
+                <td>{d.product_name || (d.product?.title)}</td>
+                <td className="text-center">{d.quantity}</td>
+                <td className="text-right">{Number(d.price).toFixed(2)}€</td>
+                <td className="text-right">{d.tax}%</td>
+                <td className="text-right">{(Number(d.price) * d.quantity * (1 + Number(d.tax)/100)).toFixed(2)}€</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '2px solid #0f0', paddingTop: '20px' }}>
+        <div className="flex-center justify-end invoice-footer">
           <div style={{ width: '250px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div className="flex-center justify-between mb-10">
               <span>SUBTOTAL:</span>
-              <span>${invoice.subtotal}</span>
+              <span>{Number(invoice.subtotal).toFixed(2)}€</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div className="flex-center justify-between mb-10">
               <span>IMPUESTOS:</span>
-              <span>${(invoice.total - invoice.subtotal).toFixed(2)}</span>
+              <span>{(Number(invoice.total) - Number(invoice.subtotal)).toFixed(2)}€</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '24px', color: '#f00', fontWeight: 'bold' }}>
+            <div className="flex-center justify-between mt-10" style={{ fontSize: '24px', color: 'var(--accent)', fontWeight: 'bold' }}>
               <span>TOTAL:</span>
-              <span>${invoice.total}</span>
+              <span>{Number(invoice.total).toFixed(2)}€</span>
             </div>
           </div>
         </div>
 
-        <footer style={{ marginTop: '50px', textAlign: 'center', fontSize: '12px', color: '#060' }}>
+        <footer style={{ marginTop: '50px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
           <p>ESTE DOCUMENTO ES UNA PRUEBA DE TU VÍNCULO CON PHANTOMLOG CORP. NO HAY DEVOLUCIONES TRAS EL SELLO.</p>
-          <div style={{ marginTop: '20px', border: '1px solid #040', display: 'inline-block', padding: '10px' }}>
+          <div style={{ marginTop: '20px', border: '1px solid var(--border)', display: 'inline-block', padding: '10px' }}>
             SELLO DE AUTENTICIDAD: {Math.random().toString(36).substring(7).toUpperCase()}
           </div>
         </footer>
       </div>
 
-      <div style={{ marginTop: '30px', display: 'flex', gap: '20px' }}>
-        <button onClick={() => window.print()} style={{ background: 'none', border: '1px solid #0f0', color: '#0f0', padding: '10px 30px' }}>IMPRIMIR ARCHIVO</button>
-        <button onClick={() => navigate('/dashboard')} style={{ padding: '10px 30px' }}>REGRESAR AL DASHBOARD</button>
+      <div className="mt-60 flex-center" style={{ gap: '20px' }}>
+        <button onClick={() => window.print()} className="outline-red" style={{ padding: '10px 30px' }}>IMPRIMIR ARCHIVO</button>
+        <button onClick={() => navigate('/dashboard')} className="primary" style={{ padding: '10px 30px' }}>VOLVER AL INICIO</button>
       </div>
     </div>
   )

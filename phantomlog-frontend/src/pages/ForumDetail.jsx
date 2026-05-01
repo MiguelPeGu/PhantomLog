@@ -5,10 +5,12 @@ import { createReport, getReports, updateReport, deleteReport } from '../api/rep
 import { useAuth } from '../context/AuthContext' //asi mantiene al usuario logueado?
 import { useToast } from '../context/ToastContext'
 import ShimmerImage from '../components/ShimmerImage'
+import NotFound from './NotFound'
 
 export default function ForumDetail() {
   const { id } = useParams()
   const [forum, setForum] = useState(null)
+  const [notFound, setNotFound] = useState(false)
   const [reports, setReports] = useState([])
   const { user } = useAuth()
   const { addToast } = useToast()
@@ -36,7 +38,10 @@ export default function ForumDetail() {
       const res = await getForum(id)
       setForum(res.data)
       setForumData({ title: res.data.title, description: res.data.description })
-    } catch (error) { addToast('Error al cargar foro', 'error') }
+    } catch (error) { 
+      setNotFound(true);
+      addToast('Error al cargar foro', 'error');
+    }
   }
 
   const fetchReports = async () => {
@@ -120,67 +125,66 @@ export default function ForumDetail() {
     } catch (error) { addToast('Error al eliminar', 'error') }
   }
 
+  if (notFound) return <NotFound />
+
   if (!forum) {
     return (
-      <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#0f0', padding: '20px' }}>
-        <div style={{ height: '40px', background: '#111', width: '150px', marginBottom: '30px' }}></div>
-        <div style={{ display: 'flex', gap: '40px' }}>
+      <div className="page-container">
+        <div className="shimmer-effect mb-40" style={{ height: '40px', width: '150px' }}></div>
+        <div className="flex-center" style={{ gap: '40px', alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
-            <div style={{ height: '60px', background: '#111', width: '80%', marginBottom: '20px' }}></div>
-            <div style={{ height: '200px', background: '#111', width: '100%' }}></div>
+            <div className="shimmer-effect mb-10" style={{ height: '60px', width: '80%' }}></div>
+            <div className="shimmer-effect" style={{ height: '200px', width: '100%' }}></div>
           </div>
-          <div style={{ flex: 1, height: '400px', background: '#111' }}></div>
+          <div className="shimmer-effect" style={{ flex: 1, height: '400px' }}></div>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#0f0', padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', borderBottom: '1px solid #040', paddingBottom: '20px' }}>
-        <div style={{ display: 'flex', gap: '10px' }}>
+    <div className="page-container">
+      <div className="flex-center mb-40" style={{ justifyContent: 'space-between', borderBottom: '1px solid var(--text-muted)', paddingBottom: '20px' }}>
+        <div className="flex-center" style={{ gap: '10px' }}>
           <button 
             onClick={() => navigate('/forums')} 
-            style={{ 
-              background: 'none', border: '1px solid #0f0', color: '#0f0', 
-              padding: '8px 15px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' 
-            }}
+            style={{ padding: '8px 15px', display: 'flex', alignItems: 'center', gap: '8px' }}
           >
             🡄 FOROS
           </button>
         </div>
         {user && String(user.id) === String(forum?.user_id) && (
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => setShowForumModal(true)} style={{ background: '#000', border: '1px solid #0f0', color: '#0f0', padding: '8px 15px', cursor: 'pointer' }}>EDITAR FORO</button>
-            <button onClick={handleDeleteForum} style={{ background: '#000', border: '1px solid #f00', color: '#f00', padding: '8px 15px', cursor: 'pointer' }}>ELIMINAR FORO</button>
+          <div className="flex-center" style={{ gap: '10px' }}>
+            <button onClick={() => setShowForumModal(true)} style={{ padding: '8px 15px' }}>EDITAR FORO</button>
+            <button onClick={handleDeleteForum} className="outline-red" style={{ padding: '8px 15px' }}>ELIMINAR FORO</button>
           </div>
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: '40px', marginBottom: '60px', flexWrap: 'wrap' }}>
+      <div className="flex-center mb-60" style={{ gap: '40px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         <div style={{ flex: 1, minWidth: '300px' }}>
-          <h1 style={{ color: '#f00', fontSize: '48px', margin: '0 0 20px 0' }}>{forum.title}</h1>
-          <p style={{ color: '#060', marginBottom: '10px' }}>
-            EXPEDICIÓN INICIADA POR <span style={{ color: '#0f0' }}>{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
+          <h1 style={{ fontSize: '48px', marginBottom: '20px' }}>{forum.title}</h1>
+          <p style={{ color: 'var(--text-dim)', marginBottom: '10px' }}>
+            EXPEDICIÓN INICIADA POR <span style={{ color: 'var(--text)' }}>{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
           </p>
 
           {/* Credibility Bar */}
           <div style={{ marginBottom: '25px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#060', marginBottom: '5px', letterSpacing: '1px' }}>
+            <div className="flex-center" style={{ justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-dim)', marginBottom: '5px', letterSpacing: '1px' }}>
               <span>DUBIOUS_DATA</span>
               <span>VERIFIED_ARCHIVE</span>
             </div>
             <div style={{ 
               height: '10px', 
               width: '100%', 
-              background: 'linear-gradient(90deg, #f00 0%, #333 50%, #0f0 100%)', 
+              background: 'linear-gradient(90deg, var(--accent) 0%, #333 50%, var(--text) 100%)', 
               position: 'relative',
               borderRadius: '5px',
               boxShadow: 'inset 0 0 5px #000'
             }}>
               <div style={{ 
                 position: 'absolute', 
-                left: `${Math.min(Math.max((forum.credibility_score + 5) * 10, 0), 100)}%`, //explicacion de por que se hace asi ese calculo
+                left: `${Math.min(Math.max((forum.credibility_score + 5) * 10, 0), 100)}%`,
                 top: '50%', 
                 transform: 'translate(-50%, -50%)',
                 transition: 'left 1s ease-in-out',
@@ -197,18 +201,17 @@ export default function ForumDetail() {
               {/* Center marker */}
               <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: 'rgba(255,255,255,0.2)', zIndex: 1 }}></div>
             </div>
-            <div style={{ textAlign: 'center', marginTop: '5px', fontSize: '11px', color: forum.credibility_score >= 0 ? '#0f0' : '#f00', fontWeight: 'bold' }}>
+            <div className="text-center mt-10" style={{ fontSize: '11px', color: forum.credibility_score >= 0 ? 'var(--text)' : 'var(--accent)', fontWeight: 'bold' }}>
               GLOBAL_CREDIBILITY: {forum.credibility_score > 0 ? `+${forum.credibility_score.toFixed(1)}` : forum.credibility_score.toFixed(1)}
             </div>
           </div>
-          <div style={{ 
+          
+          <div className="horror-card" style={{ 
             fontSize: '18px', 
             lineHeight: '1.6', 
-            background: '#080808', 
             padding: '20px', 
-            borderLeft: '3px solid #f00',
+            borderLeft: '3px solid var(--accent)',
             minHeight: '120px',
-            position: 'relative',
             display: 'flex',
             flexDirection: 'column'
           }}>
@@ -228,7 +231,7 @@ export default function ForumDetail() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#f00',
+                  color: 'var(--accent)',
                   cursor: 'pointer',
                   padding: '5px 0',
                   marginTop: '10px',
@@ -245,7 +248,7 @@ export default function ForumDetail() {
           </div>
         </div>
         {forum.image && (
-          <div style={{ flex: 1, minWidth: '300px', border: '1px solid #060', background: '#000', padding: '10px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="horror-card" style={{ flex: 1, minWidth: '300px', padding: '10px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShimmerImage 
               src={forum.image_url} 
               alt={forum.title}
@@ -255,35 +258,35 @@ export default function ForumDetail() {
         )}
       </div>
 
-      <div style={{ marginTop: '60px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <h2 style={{ color: '#f00', fontSize: '32px', margin: 0 }}>REPORTES DE CAMPO</h2>
+      <div className="mt-60">
+        <div className="flex-center mb-40" style={{ justifyContent: 'space-between' }}>
+          <h2 style={{ fontSize: '32px', margin: 0 }}>REPORTES DE CAMPO</h2>
           {user && String(user.id) === String(forum.user_id) && (
-            <button onClick={() => { setIsEditingReport(false); setReportData({title: '', description: '', image: null}); setShowReportModal(true); }} style={{ padding: '10px 30px', fontSize: '16px', fontWeight: 'bold' }}>+ NUEVO REPORTE</button>
+            <button onClick={() => { setIsEditingReport(false); setReportData({title: '', description: '', image: null}); setShowReportModal(true); }} className="primary" style={{ padding: '10px 30px' }}>+ NUEVO REPORTE</button>
           )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
+        <div className="grid-3">
           {reports.length === 0 ? (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#060', padding: '100px', border: '1px dashed #040' }}>NO SE HAN REGISTRADO EVIDENCIAS TODAVÍA.</div>
+            <div className="text-center" style={{ gridColumn: '1/-1', color: 'var(--text-dim)', padding: '100px', border: '1px dashed var(--border)' }}>NO SE HAN REGISTRADO EVIDENCIAS TODAVÍA.</div>
           ) : (
             reports.map(r => (
-              <div key={r.id} style={{ background: '#000', border: '1px solid #060', padding: '20px', display: 'flex', flexDirection: 'column' }}>
-                <Link to={`/forums/${id}/reports/${r.id}`} style={{ textDecoration: 'none', flex: 1 }}>
-                  <div style={{ height: '150px', background: '#111', marginBottom: '15px', border: '1px solid #040' }}>
+              <div key={r.id} className="horror-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
+                <Link to={`/forums/${id}/reports/${r.id}`} style={{ flex: 1 }}>
+                  <div style={{ height: '150px', background: '#111', marginBottom: '15px', border: '1px solid var(--border)' }}>
                     <ShimmerImage 
                       src={r.image_url} 
                       alt={r.title}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
-                  <h3 style={{ color: '#f00', margin: '0 0 10px 0' }}>{r.title}</h3>
-                  <p style={{ fontSize: '13px', color: '#0f0', opacity: 0.7 }}>{r.description.substring(0, 100)}...</p>
+                  <h3 style={{ margin: '0 0 10px 0' }}>{r.title}</h3>
+                  <p style={{ fontSize: '13px', color: 'var(--text-dim)' }}>{r.description.substring(0, 100)}...</p>
                 </Link>
                 {user && String(user.id) === String(r.user_id) && (
-                  <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                  <div className="flex-center mt-20" style={{ gap: '10px' }}>
                     <button onClick={() => { setCurrentReportId(r.id); setReportData({title: r.title, description: r.description}); setIsEditingReport(true); setShowReportModal(true); }} style={{ flex: 1, fontSize: '12px' }}>EDITAR</button>
-                    <button onClick={() => handleDeleteReport(r.id)} style={{ flex: 1, fontSize: '12px', color: '#f00', borderColor: '#f00' }}>BORRAR</button>
+                    <button onClick={() => handleDeleteReport(r.id)} className="outline-red" style={{ flex: 1, fontSize: '12px' }}>BORRAR</button>
                   </div>
                 )}
               </div>
@@ -293,40 +296,40 @@ export default function ForumDetail() {
       </div>
 
       {showForumModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <form onSubmit={handleUpdateForum} style={{ background: '#000', border: '1px solid #f00', padding: '40px', width: '100%', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h2 style={{ color: '#f00', margin: 0 }}>MODIFICAR EXPEDICIÓN</h2>
-            <input required value={forumData.title} onChange={e => setForumData({...forumData, title: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '15px' }} />
-            <textarea required value={forumData.description} onChange={e => setForumData({...forumData, description: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '15px', minHeight: '200px' }} />
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <button type="submit" style={{ flex: 1, padding: '15px' }}>ACTUALIZAR ARCHIVO</button>
-              <button type="button" onClick={() => setShowForumModal(false)} style={{ flex: 1, padding: '15px', color: '#f00', borderColor: '#f00' }}>ABORTAR</button>
+        <div className="modal-overlay">
+          <form onSubmit={handleUpdateForum} className="horror-form">
+            <h2>MODIFICAR EXPEDICIÓN</h2>
+            <input required value={forumData.title} onChange={e => setForumData({...forumData, title: e.target.value})} />
+            <textarea required value={forumData.description} onChange={e => setForumData({...forumData, description: e.target.value})} style={{ minHeight: '200px' }} />
+            <div className="flex-center" style={{ gap: '20px' }}>
+              <button type="submit" className="primary" style={{ flex: 1, padding: '15px' }}>ACTUALIZAR ARCHIVO</button>
+              <button type="button" onClick={() => setShowForumModal(false)} className="outline-red" style={{ flex: 1, padding: '15px' }}>ABORTAR</button>
             </div>
           </form>
         </div>
       )}
 
       {showReportModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.95)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <form onSubmit={handleReportSubmit} style={{ background: '#000', border: '1px solid #f00', padding: '40px', width: '100%', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h2 style={{ color: '#f00', margin: 0 }}>{isEditingReport ? 'MODIFICAR EVIDENCIA' : 'REGISTRAR EVIDENCIA'}</h2>
+        <div className="modal-overlay">
+          <form onSubmit={handleReportSubmit} className="horror-form">
+            <h2>{isEditingReport ? 'MODIFICAR EVIDENCIA' : 'REGISTRAR EVIDENCIA'}</h2>
             
             {isCreatingReport ? (
-              <div style={{ textAlign: 'center', padding: '40px' }}>
-                <p style={{ color: '#0f0', fontSize: '20px', letterSpacing: '2px' }}>SELLANDO REPORTE EN EL ARCHIVO CENTRAL...</p>
-                <div style={{ fontSize: '64px', color: '#f00', margin: '30px 0' }}>{countdown}</div>
+              <div className="text-center" style={{ padding: '40px' }}>
+                <p style={{ fontSize: '20px', letterSpacing: '2px' }}>SELLANDO REPORTE EN EL ARCHIVO CENTRAL...</p>
+                <div style={{ fontSize: '64px', color: 'var(--accent)', margin: '30px 0' }}>{countdown}</div>
                 <div style={{ width: '100%', height: '4px', background: '#111' }}>
-                  <div style={{ width: `${(countdown/3)*100}%`, height: '100%', background: '#f00', transition: 'width 1s linear' }}></div>
+                  <div style={{ width: `${(countdown/3)*100}%`, height: '100%', background: 'var(--accent)', transition: 'width 1s linear' }}></div>
                 </div>
               </div>
             ) : (
               <>
-                <input required placeholder="TITULO" value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '15px' }} />
-                <textarea required placeholder="DESCRIPCIÓN DE LOS HECHOS..." value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ background: '#000', border: '1px solid #060', color: '#0f0', padding: '15px', minHeight: '200px' }} />
-                {!isEditingReport && <input type="file" required onChange={e => setReportData({...reportData, image: e.target.files[0]})} style={{ color: '#0f0' }} />}
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  <button type="submit" style={{ flex: 1, padding: '15px' }}>{isEditingReport ? 'ACTUALIZAR' : 'REGISTRAR'}</button>
-                  <button type="button" onClick={() => setShowReportModal(false)} style={{ flex: 1, padding: '15px', color: '#f00', borderColor: '#f00' }}>CANCELAR</button>
+                <input required placeholder="TITULO" value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} />
+                <textarea required placeholder="DESCRIPCIÓN DE LOS HECHOS..." value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ minHeight: '200px' }} />
+                {!isEditingReport && <input type="file" required onChange={e => setReportData({...reportData, image: e.target.files[0]})} style={{ color: 'var(--text)' }} />}
+                <div className="flex-center" style={{ gap: '20px' }}>
+                  <button type="submit" className="primary" style={{ flex: 1, padding: '15px' }}>{isEditingReport ? 'ACTUALIZAR' : 'REGISTRAR'}</button>
+                  <button type="button" onClick={() => setShowReportModal(false)} className="outline-red" style={{ flex: 1, padding: '15px' }}>CANCELAR</button>
                 </div>
               </>
             )}

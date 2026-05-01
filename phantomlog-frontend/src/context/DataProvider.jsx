@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import { getProducts } from '../api/products'
 import { getForums } from '../api/forums'
 import { getInvoices } from '../api/invoices'
+import { getPhantoms } from '../api/phantoms'
+import { getExpeditions } from '../api/expeditions'
 import { useAuth } from './AuthContext'
 
 const DataContext = createContext(null)
@@ -11,11 +13,16 @@ export function DataProvider({ children }) {
   const [products, setProducts] = useState([])
   const [forums, setForums] = useState([])
   const [invoices, setInvoices] = useState([])
+  const [phantoms, setPhantoms] = useState([])
+  const [expeditions, setExpeditions] = useState([])
   
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingForums, setLoadingForums] = useState(false)
   const [loadingInvoices, setLoadingInvoices] = useState(false)
+  const [loadingPhantoms, setLoadingPhantoms] = useState(false)
+  const [loadingExpeditions, setLoadingExpeditions] = useState(false)
 
+  const [globalSearch, setGlobalSearch] = useState('')
   const [productsPagination, setProductsPagination] = useState({ currentPage: 1, totalPages: 1 })
   const [forumsPagination, setForumsPagination] = useState({ currentPage: 1, totalPages: 1 })
   const [invoicesPagination, setInvoicesPagination] = useState({ currentPage: 1, totalPages: 1 })
@@ -73,11 +80,37 @@ export function DataProvider({ children }) {
     }
   }, [])
 
+  const refreshPhantoms = useCallback(async () => {
+    setLoadingPhantoms(true)
+    try {
+      const res = await getPhantoms()
+      setPhantoms(res.data)
+    } catch (error) {
+      console.error('Error fetching phantoms:', error)
+    } finally {
+      setLoadingPhantoms(false)
+    }
+  }, [])
+
+  const refreshExpeditions = useCallback(async () => {
+    setLoadingExpeditions(true)
+    try {
+      const res = await getExpeditions()
+      setExpeditions(res.data)
+    } catch (error) {
+      console.error('Error fetching expeditions:', error)
+    } finally {
+      setLoadingExpeditions(false)
+    }
+  }, [])
+
   const refreshAll = useCallback(async () => {
     await Promise.all([
       refreshProducts({ page: 1, per_page: 9 }),
       refreshForums({ page: 1, per_page: 9 }),
-      refreshInvoices({ page: 1, per_page: 5 })
+      refreshInvoices({ page: 1, per_page: 5 }),
+      refreshPhantoms(),
+      refreshExpeditions()
     ])
   }, [refreshProducts, refreshForums, refreshInvoices])
 
@@ -92,6 +125,9 @@ export function DataProvider({ children }) {
       products, loadingProducts, productsPagination, refreshProducts,
       forums, loadingForums, forumsPagination, refreshForums,
       invoices, loadingInvoices, invoicesPagination, refreshInvoices,
+      phantoms, loadingPhantoms, refreshPhantoms,
+      expeditions, loadingExpeditions, refreshExpeditions,
+      globalSearch, setGlobalSearch,
       refreshAll
     }}>
       {children}

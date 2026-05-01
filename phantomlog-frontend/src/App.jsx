@@ -25,6 +25,7 @@ import Invoices       from './pages/Invoices'
 import SuccessInvoice from './pages/SuccessInvoice'
 import Dashboard      from './pages/Dashboard'
 import Profile        from './pages/Profile'
+import NotFound       from './pages/NotFound'
 
 export const router = createBrowserRouter([
   {
@@ -69,7 +70,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "*",
-        element: <Navigate to="/" replace />,
+        element: <NotFound />,
       },
     ]
   }

@@ -82,49 +82,44 @@ export default function Cart() {
   const items = cartData?.items || []
 
   return (
-    <div style={{ padding: '20px', color: '#0f0' }}>
-      <header style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 style={{ color: '#f00', fontSize: '48px', margin: 0 }}>EL CONTENEDOR</h1>
-        <p style={{ color: '#060' }}>Tus adquisiciones a la espera de ser consagradas.</p>
+    <div className="page-container">
+      <header className="text-center mb-40">
+        <h1>EL CONTENEDOR</h1>
+        <p style={{ color: 'var(--text-dim)' }}>Tus adquisiciones a la espera de ser consagradas.</p>
       </header>
 
       <button 
         onClick={() => navigate('/products')} 
-        style={{ 
-          background: 'none', border: '1px solid #0f0', color: '#0f0', 
-          padding: '10px 20px', cursor: 'pointer', marginBottom: '20px',
-          display: 'flex', alignItems: 'center', gap: '10px'
-        }}
+        className="mb-40"
+        style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
       >
         🡄 VOLVER AL CATÁLOGO
       </button>
       
       {items.length === 0 ? (
-        <div style={{ textAlign: 'center', border: '1px dashed #f00', padding: '40px' }}>
+        <div className="text-center" style={{ border: '1px dashed var(--accent)', padding: '40px' }}>
           <p>Tu contenedor está vacío de ecos.</p>
-          <button onClick={() => navigate('/products')} style={{ marginTop: '20px' }}>VOLVER A LA ARMERÍA</button>
+          <button onClick={() => navigate('/products')} className="mt-10">VOLVER A LA ARMERÍA</button>
         </div>
       ) : (
-        <div style={{ maxWidth: '900px', margin: '0 auto', background: '#000', border: '1px solid #060', padding: '30px' }}>
+        <div className="horror-card" style={{ maxWidth: '900px', margin: '0 auto', padding: '30px' }}>
           {items.map(item => (
-            <div key={item.product.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #040', padding: '15px 0' }}>
+            <div key={item.product.id} className="flex-center" style={{ justifyContent: 'space-between', borderBottom: '1px solid var(--text-muted)', padding: '15px 0' }}>
               <div style={{ flex: 1 }}>
-                <h3 style={{ color: '#f00', margin: '0 0 5px 0' }}>{item.product.title}</h3>
-                <p style={{ margin: 0, fontSize: '14px' }}>COSTO: ${item.product.price}</p>
+                <h3 style={{ margin: '0 0 5px 0' }}>{item.product.title}</h3>
+                <p style={{ margin: 0, fontSize: '14px' }}>COSTO: {Number(item.product.price).toFixed(2)}€</p>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <div style={{ display: 'flex', border: '1px solid #060', background: '#111', opacity: updatingState[item.product.id] ? 0.5 : 1 }}>
-                  <button onClick={() => handleUpdate(item.product.id, 'sub')} style={{ padding: '5px 15px', border: 'none', background: 'none', color: '#0f0' }}>-</button>
-                  <span style={{ padding: '5px 10px', borderLeft: '1px solid #060', borderRight: '1px solid #060', minWidth: '30px', textAlign: 'center' }}>{item.quantity}</span>
-                  <button onClick={() => handleUpdate(item.product.id, 'add')} style={{ padding: '5px 15px', border: 'none', background: 'none', color: '#0f0' }}>+</button>
+              <div className="flex-center" style={{ gap: '20px' }}>
+                <div className="flex-center" style={{ border: '1px solid var(--border)', background: '#111', opacity: updatingState[item.product.id] ? 0.5 : 1 }}>
+                  <button onClick={() => handleUpdate(item.product.id, 'sub')} className="cart-action-btn" style={{ padding: '5px 15px' }}>-</button>
+                  <span style={{ padding: '5px 10px', borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)', minWidth: '30px', textAlign: 'center' }}>{item.quantity}</span>
+                  <button onClick={() => handleUpdate(item.product.id, 'add')} className="cart-action-btn" style={{ padding: '5px 15px' }}>+</button>
                 </div>
                 <button 
                   onClick={() => handleUpdate(item.product.id, 'rem')} 
-                  style={{ 
-                    background: 'none', border: '1px solid #f00', color: '#f00', 
-                    padding: '5px 15px', minWidth: '120px' 
-                  }}
+                  className="outline-red"
+                  style={{ padding: '5px 15px', minWidth: '120px' }}
                 >
                   {updatingState[item.product.id] === 'rem' ? 'ELIMINANDO...' : 'ELIMINAR'}
                 </button>
@@ -132,13 +127,14 @@ export default function Cart() {
             </div>
           ))}
 
-          <div style={{ marginTop: '30px', textAlign: 'right' }}>
-            <p style={{ margin: '0', fontSize: '16px' }}>SUBTOTAL: ${cartData.totalWithoutTax}</p>
-            <h2 style={{ color: '#f00', fontSize: '32px', margin: '5px 0' }}>TOTAL: ${cartData.totalWithTax}</h2>
+          <div className="mt-60" style={{ textAlign: 'right' }}>
+            <p style={{ margin: '0', fontSize: '16px' }}>SUBTOTAL: {Number(cartData.totalWithoutTax || 0).toFixed(2)}€</p>
+            <p style={{ margin: '0', fontSize: '16px', color: 'var(--text-dim)' }}>IMPUESTOS (21%): {Number(cartData.totalWithTax - cartData.totalWithoutTax || 0).toFixed(2)}€</p>
+            <h2 style={{ fontSize: '32px', margin: '5px 0' }}>TOTAL: {Number(cartData.totalWithTax || 0).toFixed(2)}€</h2>
             
-            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
-              <button onClick={() => navigate('/products')} style={{ background: 'none', border: '1px solid #0f0', color: '#0f0', padding: '10px 20px' }}>SEGUIR BUSCANDO</button>
-              <button onClick={() => navigate('/checkout')} style={{ padding: '10px 20px', fontSize: '18px', fontWeight: 'bold' }}>SELLAR PACTO (CHECKOUT)</button>
+            <div className="mt-60 flex-center" style={{ justifyContent: 'flex-end', gap: '15px' }}>
+              <button onClick={() => navigate('/products')}>SEGUIR BUSCANDO</button>
+              <button onClick={() => navigate('/checkout')} className="primary" style={{ padding: '10px 20px', fontSize: '18px' }}>SELLAR PACTO (CHECKOUT)</button>
             </div>
           </div>
         </div>

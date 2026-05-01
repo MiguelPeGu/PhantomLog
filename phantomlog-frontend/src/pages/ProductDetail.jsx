@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext'
 import { useCart } from '../context/CartContext'
 
 import ShimmerImage from '../components/ShimmerImage'
+import NotFound from './NotFound'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -13,11 +14,12 @@ export default function ProductDetail() {
   const { addToast } = useToast()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
   const { fetchGlobalCart } = useCart()
 
   useEffect(() => {
     getProduct(id).then(res => setProduct(res.data))
-      .catch(() => navigate('/products'))
+      .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
   }, [id])
 
@@ -29,37 +31,48 @@ export default function ProductDetail() {
     } catch (e) { addToast("Error", "error") }
   }
 
+  if (notFound) return <NotFound />
   if (loading) return <div style={{ color: '#0f0' }}>CARGANDO...</div>
   if (!product) return null
 
   return (
-    <div style={{ padding: '20px', color: '#0f0' }}>
+    <div className="page-container">
       <button 
         onClick={() => navigate('/products')} 
-        style={{ 
-          background: 'none', border: '1px solid #0f0', color: '#0f0', 
-          padding: '10px 20px', cursor: 'pointer', marginBottom: '20px',
-          display: 'flex', alignItems: 'center', gap: '10px'
-        }}
+        className="mb-20 flex-center gap-10"
       >
         🡄 VOLVER AL CATÁLOGO
       </button>
-      <div style={{ border: '1px solid #060', padding: '20px', marginTop: '20px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <div style={{ width: '300px', height: '300px' }}>
+
+      <div className="horror-card product-detail-grid">
+        <div className="product-image-large">
           <ShimmerImage 
             src={product.image?.startsWith('http') ? product.image : `http://localhost:8000/storage/${product.image}`} 
             alt={product.title} 
             style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
           />
         </div>
-        <div style={{ flex: 1 }}>
-          <h1 style={{ color: '#f00' }}>{product.title}</h1>
-          <p>{product.description}</p>
-          <h2 style={{ color: '#0f0' }}>${product.price}</h2>
-          <p style={{ color: product.stock > 0 ? '#0f0' : '#f00' }}>STOCK: {product.stock}</p>
-          <button onClick={handleBuy} disabled={product.stock <= 0}>COMPRAR</button>
+        <div className="product-info-panel column">
+          <h1 style={{ color: 'var(--accent)', marginBottom: '20px' }}>{product.title.toUpperCase()}</h1>
+          <p style={{ lineHeight: '1.6', color: 'var(--text-dim)', marginBottom: '30px' }}>{product.description}</p>
+          
+          <div className="flex-center justify-between mt-auto" style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
+            <h2 style={{ color: 'var(--text)', margin: 0 }}>{Number(product.price).toFixed(2)}€</h2>
+            <span style={{ color: product.stock > 0 ? 'var(--text)' : 'var(--accent)', fontSize: '12px' }}>
+              DISPONIBILIDAD: {product.stock > 0 ? product.stock : 'AGOTADO'}
+            </span>
+          </div>
+
+          <button 
+            className="primary mt-20" 
+            style={{ padding: '15px' }}
+            onClick={handleBuy} 
+            disabled={product.stock <= 0}
+          >
+            {product.stock > 0 ? 'ADQUIRIR RELIQUIA' : 'FUERA DE STOCK'}
+          </button>
         </div>
       </div>
     </div>
-  )
+  );
 }

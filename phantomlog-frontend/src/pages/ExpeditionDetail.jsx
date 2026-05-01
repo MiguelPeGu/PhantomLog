@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getExpedition, toggleJoin, deleteExpedition } from '../api/expeditions'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import NotFound from './NotFound'
 
 export default function ExpeditionDetail() {
   const { id } = useParams()
@@ -12,6 +13,7 @@ export default function ExpeditionDetail() {
   
   const [expedition, setExpedition] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
   const [isJoined, setIsJoined] = useState(false)
 
   useEffect(() => {
@@ -27,8 +29,7 @@ export default function ExpeditionDetail() {
         setIsJoined(joined)
       }
     } catch (e) {
-      addToast('Error al cargar la expedición', 'error')
-      navigate('/expeditions')
+      setNotFound(true)
     } finally {
       setLoading(false)
     }
@@ -65,48 +66,33 @@ export default function ExpeditionDetail() {
   const isClosed = new Date(expedition.date) < new Date()
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <button 
-          onClick={() => navigate('/expeditions')} 
-          style={{ background: 'none', border: '1px solid #0f0', color: '#0f0', padding: '8px 15px', cursor: 'pointer' }}
-        >
-          🡄 VOLVER AL CALENDARIO
-        </button>
+    <div className="page-container" style={{ maxWidth: '1000px' }}>
+      <div className="flex-center mb-40" style={{ justifyContent: 'space-between' }}>
+        <button onClick={() => navigate('/expeditions')}>🡄 VOLVER AL CALENDARIO</button>
         {user && String(user.id) === String(expedition.user_id) && (
-          <button onClick={handleDelete} style={{ background: '#000', border: '1px solid #f00', color: '#f00', padding: '8px 15px', cursor: 'pointer' }}>
-            ELIMINAR INCURSIÓN
-          </button>
+          <button onClick={handleDelete} className="outline-red">ELIMINAR INCURSIÓN</button>
         )}
       </div>
 
-      <div style={{ 
-        border: `2px solid ${isClosed ? '#f00' : '#060'}`, 
-        background: '#000', 
+      <div className="horror-card" style={{ 
+        border: `2px solid ${isClosed ? 'var(--accent)' : 'var(--border)'}`, 
         padding: '40px',
         position: 'relative',
         boxShadow: isClosed ? '0 0 50px rgba(255,0,0,0.1)' : 'none'
       }}>
         {/* Header Section */}
         <div style={{ borderBottom: '1px solid #111', paddingBottom: '30px', marginBottom: '30px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+          <div className="flex-center mb-20" style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <h1 style={{ color: '#f00', fontSize: '48px', margin: 0, letterSpacing: '4px' }}>{expedition.name.toUpperCase()}</h1>
-              <p style={{ color: '#060', fontSize: '14px', margin: '10px 0 0 0' }}>UBICACIÓN: <span style={{ color: '#0f0' }}>{expedition.location.toUpperCase()}</span></p>
+              <h1 style={{ fontSize: '48px', margin: 0, letterSpacing: '4px' }}>{expedition.name.toUpperCase()}</h1>
+              <p style={{ color: 'var(--text-dim)', fontSize: '14px', margin: '10px 0 0 0' }}>UBICACIÓN: <span style={{ color: 'var(--text)' }}>{expedition.location.toUpperCase()}</span></p>
             </div>
-            <div style={{ 
-              background: isClosed ? '#400' : '#040', 
-              color: '#fff', 
-              padding: '10px 20px', 
-              fontWeight: 'bold',
-              letterSpacing: '2px',
-              border: `1px solid ${isClosed ? '#f00' : '#0f0'}`
-            }}>
+            <div className={`status-badge ${isClosed ? 'closed' : 'active'}`} style={{ padding: '10px 20px' }}>
               {isClosed ? 'ESTADO: FINALIZADA' : 'ESTADO: RECLUTANDO'}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '30px', color: '#0f0', fontSize: '16px' }}>
+          <div className="flex-center" style={{ gap: '30px', fontSize: '16px' }}>
             <div>FECHA: {new Date(expedition.date).toLocaleDateString()}</div>
             <div>HORA: {new Date(expedition.date).toLocaleTimeString()}</div>
             <div>AUTOR: {expedition.user?.username.toUpperCase()}</div>
@@ -116,12 +102,12 @@ export default function ExpeditionDetail() {
         {/* Info & Participants Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '40px' }}>
           <div>
-            <h3 style={{ color: '#f00', borderBottom: '1px solid #200', paddingBottom: '10px' }}>OBJETIVOS DE LA MISIÓN</h3>
-            <p style={{ color: '#0f0', lineHeight: '1.6', fontSize: '18px' }}>{expedition.description}</p>
+            <h3 style={{ borderBottom: '1px solid var(--text-muted)', paddingBottom: '10px' }}>OBJETIVOS DE LA MISIÓN</h3>
+            <p style={{ lineHeight: '1.6', fontSize: '18px' }}>{expedition.description}</p>
             
-            <div style={{ marginTop: '30px', padding: '20px', background: '#080808', border: '1px solid #111' }}>
-              <h4 style={{ color: '#060', margin: '0 0 10px 0' }}>ENTIDAD DETECTADA</h4>
-              <div style={{ color: '#f00', fontSize: '24px', fontWeight: 'bold' }}>
+            <div className="horror-card" style={{ marginTop: '30px', padding: '20px' }}>
+              <h4 style={{ color: 'var(--text-dim)', margin: '0 0 10px 0' }}>ENTIDAD DETECTADA</h4>
+              <div style={{ color: 'var(--accent)', fontSize: '24px', fontWeight: 'bold' }}>
                 {expedition.phantom?.name.toUpperCase() || 'DESCONOCIDO'}
               </div>
             </div>
@@ -129,16 +115,10 @@ export default function ExpeditionDetail() {
             {!isClosed && (
               <button 
                 onClick={handleJoin}
+                className={`w-100 mt-40 ${isJoined ? 'outline-red' : 'primary'}`}
                 style={{ 
-                  marginTop: '40px', 
-                  width: '100%', 
                   padding: '20px', 
                   fontSize: '20px', 
-                  background: isJoined ? '#000' : '#f00',
-                  color: isJoined ? '#f00' : '#000',
-                  border: isJoined ? '2px solid #f00' : 'none',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
                 }}
               >
                 {isJoined ? 'ABANDONAR EXPEDICIÓN' : 'CONFIRMAR ASISTENCIA'}
@@ -147,17 +127,17 @@ export default function ExpeditionDetail() {
           </div>
 
           <div style={{ borderLeft: '1px solid #111', paddingLeft: '40px' }}>
-            <h3 style={{ color: '#f00', borderBottom: '1px solid #200', paddingBottom: '10px' }}>OPERATIVOS ({expedition.participants_count})</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
+            <h3 style={{ borderBottom: '1px solid var(--text-muted)', paddingBottom: '10px' }}>OPERATIVOS ({expedition.participants_count})</h3>
+            <div className="column" style={{ gap: '10px', marginTop: '20px' }}>
               {expedition.participants?.length === 0 ? (
-                <p style={{ color: '#040' }}>NADIE SE HA ATREVIDO TODAVÍA.</p>
+                <p style={{ color: 'var(--text-dim)' }}>NADIE SE HA ATREVIDO TODAVÍA.</p>
               ) : (
                 expedition.participants.map(p => (
-                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: 'rgba(0,255,0,0.02)', border: '1px solid #111' }}>
-                    <div style={{ width: '30px', height: '30px', background: '#0f0', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>
+                  <div key={p.id} className="flex-center" style={{ gap: '12px', padding: '10px', background: 'rgba(0,255,0,0.02)', border: '1px solid var(--border)' }}>
+                    <div className="flex-center" style={{ width: '30px', height: '30px', background: 'var(--text)', color: '#000', fontWeight: 'bold', fontSize: '12px' }}>
                       {p.username[0].toUpperCase()}
                     </div>
-                    <span style={{ color: '#0f0', fontSize: '14px' }}>{p.username.toUpperCase()}</span>
+                    <span style={{ fontSize: '14px' }}>{p.username.toUpperCase()}</span>
                   </div>
                 ))
               )}

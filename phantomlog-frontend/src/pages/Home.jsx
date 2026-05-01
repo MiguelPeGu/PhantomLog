@@ -39,95 +39,49 @@ export default function Home() {
   }, []);
 
   return (
-    <div style={{
-      height: '100vh',
-      background: '#000',
-      color: '#0f0',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
+    <div className="vh100 flex-center column text-center relative overflow-hidden">
       {/* Fondo del chico con parpadeo y repetición controlada */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundImage: 'url("/boy.png")',   
-        backgroundSize: '55%', 
-        backgroundRepeat: 'space', 
-        backgroundPosition: 'center',
-        opacity: flickerOpacity,
-        zIndex: 0,
-        transform: `translate(${offset.x}px, ${offset.y}px)`,
-        pointerEvents: 'none'
-      }} />
+      <div 
+        className="flicker-overlay"
+        style={{
+          backgroundImage: 'url("/boy.png")',   
+          backgroundRepeat: 'space', 
+          backgroundPosition: 'center',
+          opacity: flickerOpacity,
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+        }} 
+      />
 
-      <div style={{ 
-        zIndex: 1, 
-        position: 'relative', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center',
-        width: '100%' 
-      }}>
+      <div className="relative w-100 flex-center column" style={{ zIndex: 1 }}>
         <h1 style={{ 
-          color: '#f00', 
           fontSize: '100px', 
-          marginBottom: '10px', 
-          textShadow: '0 0 30px #f00',
+          textShadow: '0 0 30px var(--accent)',
           letterSpacing: '10px'
         }}>
           PHANTOMLOG
         </h1>
-        <p style={{ color: '#0f0', letterSpacing: '8px', fontSize: '20px', marginBottom: '40px' }}>NO DEBERÍAS ESTAR AQUÍ</p>
+        <p style={{ letterSpacing: '8px', fontSize: '20px' }} className="mb-40">NO DEBERÍAS ESTAR AQUÍ</p>
         
         {/* BOTONES CENTRADOS */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '30px', 
-          justifyContent: 'center',
-          width: '100%'
-        }}>
+        <div className="flex-center w-100" style={{ gap: '30px' }}>
           <button 
             onClick={() => navigate('/register')} 
-            style={{ 
-              padding: '20px 40px', 
-              fontSize: '24px', 
-              background: '#0f0', 
-              color: '#000', 
-              border: 'none', 
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              boxShadow: '0 0 20px rgba(0, 255, 0, 0.4)'
-            }}
+            className="primary"
+            style={{ padding: '20px 40px', fontSize: '24px' }}
           >
             ENTRAR
           </button>
           <button 
             onClick={() => navigate('/login')} 
-            style={{ 
-              padding: '20px 40px', 
-              fontSize: '24px', 
-              background: 'none', 
-              color: '#f00', 
-              border: '2px solid #f00',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
+            className="outline-red"
+            style={{ padding: '20px 40px', fontSize: '24px' }}
           >
             LOGIN
           </button>
         </div>
       </div>
 
-      <div style={{ position: 'fixed', bottom: '30px', width: '100%', textAlign: 'center', color: '#040', fontSize: '12px', letterSpacing: '3px' }}>
+      <div className="system-status-footer" style={{ bottom: '30px' }}>
         SYSTEM.ACCESS_DENIED // ERROR_00X12 // ALMA_NO_DETECTADA
       </div>
     </div>

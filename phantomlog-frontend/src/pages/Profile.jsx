@@ -52,15 +52,15 @@ export default function Profile() {
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', borderBottom: '1px solid #040', paddingBottom: '20px' }}>
+    <div className="page-container" style={{ maxWidth: '800px' }}>
+      <div className="flex-center" style={{ justifyContent: 'space-between', marginBottom: '40px', borderBottom: '1px solid var(--text-muted)', paddingBottom: '20px' }}>
         <div>
-          <h1 style={{ color: '#f00', fontSize: '42px', margin: 0, letterSpacing: '4px' }}>PERFIL DE OPERATIVO</h1>
-          <p style={{ color: '#060', fontSize: '14px', marginTop: '5px' }}>EXPEDIENTE: {user?.id}</p>
+          <h1 style={{ fontSize: '42px', letterSpacing: '4px' }}>PERFIL DE OPERATIVO</h1>
+          <p style={{ color: 'var(--text-dim)', fontSize: '14px', marginTop: '5px' }}>EXPEDIENTE: {user?.id}</p>
         </div>
         <button 
           onClick={logout}
-          style={{ background: '#000', border: '1px solid #f00', color: '#f00', padding: '10px 20px', cursor: 'pointer', fontWeight: 'bold' }}
+          className="outline-red"
         >
           CERRAR SESIÓN
         </button>
@@ -68,11 +68,11 @@ export default function Profile() {
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px' }}>
         {/* Avatar Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+        <div className="column flex-center" style={{ gap: '20px' }}>
           <div style={{ 
             width: '200px', 
             height: '200px', 
-            border: '2px solid #060', 
+            border: '2px solid var(--text-muted)', 
             background: '#000',
             display: 'flex',
             alignItems: 'center',
@@ -83,62 +83,60 @@ export default function Profile() {
             {formData.img ? (
               <img src={formData.img} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <div style={{ fontSize: '80px', color: '#0f0' }}>{user?.username?.[0].toUpperCase()}</div>
+              <div style={{ fontSize: '80px', color: 'var(--text)' }}>{user?.username?.[0].toUpperCase()}</div>
             )}
           </div>
-          <label style={{ 
-            background: '#000', border: '1px solid #0f0', color: '#0f0', 
-            padding: '10px', cursor: 'pointer', fontSize: '12px', textAlign: 'center', width: '100%' 
-          }}>
+          <label className="btn" style={{ fontSize: '12px', textAlign: 'center', width: '100%' }}>
             CAMBIAR FOTO
             <input type="file" hidden onChange={handleImageChange} />
           </label>
         </div>
 
         {/* Data Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="column" style={{ gap: '20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <label style={{ color: '#060', fontSize: '12px' }}>USERNAME</label>
-              <input value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} style={{ background: '#000', border: '1px solid #040', color: '#0f0', padding: '12px' }} />
+            <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-dim)' }}>USERNAME</label>
+              <input value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <label style={{ color: '#060', fontSize: '12px' }}>EMAIL (NO MODIFICABLE)</label>
-              <input value={user?.email} disabled style={{ background: '#050505', border: '1px solid #111', color: '#030', padding: '12px', cursor: 'not-allowed' }} />
+            <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-dim)' }}>EMAIL (NO MODIFICABLE)</label>
+              <input value={user?.email} disabled style={{ background: '#050505', border: '1px solid #111', color: '#030', cursor: 'not-allowed' }} />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <label style={{ color: '#060', fontSize: '12px' }}>FIRST_NAME</label>
-              <input value={formData.firstname} onChange={e => setFormData({...formData, firstname: e.target.value})} style={{ background: '#000', border: '1px solid #040', color: '#0f0', padding: '12px' }} />
+            <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-dim)' }}>FIRST_NAME</label>
+              <input value={formData.firstname} onChange={e => setFormData({...formData, firstname: e.target.value})} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <label style={{ color: '#060', fontSize: '12px' }}>LAST_NAME</label>
-              <input value={formData.lastname} onChange={e => setFormData({...formData, lastname: e.target.value})} style={{ background: '#000', border: '1px solid #040', color: '#0f0', padding: '12px' }} />
+            <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-dim)' }}>LAST_NAME</label>
+              <input value={formData.lastname} onChange={e => setFormData({...formData, lastname: e.target.value})} />
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <label style={{ color: '#060', fontSize: '12px' }}>ID_DNI</label>
-            <input value={formData.dni} onChange={e => setFormData({...formData, dni: e.target.value})} style={{ background: '#000', border: '1px solid #040', color: '#0f0', padding: '12px' }} />
+          <div className="form-group">
+            <label className="form-label" style={{ color: 'var(--text-dim)' }}>ID_DNI</label>
+            <input value={formData.dni} onChange={e => setFormData({...formData, dni: e.target.value})} />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <label style={{ color: '#060', fontSize: '12px' }}>BASE_ADDRESS</label>
-              <input value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={{ background: '#000', border: '1px solid #040', color: '#0f0', padding: '12px' }} />
+            <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-dim)' }}>BASE_ADDRESS</label>
+              <input value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <label style={{ color: '#060', fontSize: '12px' }}>POSTAL_CODE</label>
-              <input value={formData.postalCode} onChange={e => setFormData({...formData, postalCode: e.target.value})} style={{ background: '#000', border: '1px solid #040', color: '#0f0', padding: '12px' }} />
+            <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-dim)' }}>POSTAL_CODE</label>
+              <input value={formData.postalCode} onChange={e => setFormData({...formData, postalCode: e.target.value})} />
             </div>
           </div>
 
           <button 
             type="submit" 
             disabled={loading}
-            style={{ marginTop: '20px', padding: '15px', background: '#f00', color: '#000', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+            className="primary"
+            style={{ marginTop: '20px', padding: '15px' }}
           >
             {loading ? 'SINCRONIZANDO...' : 'ACTUALIZAR EXPEDIENTE'}
           </button>
