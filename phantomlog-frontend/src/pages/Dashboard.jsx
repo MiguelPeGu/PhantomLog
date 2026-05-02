@@ -52,7 +52,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="page-container relative" style={{ minHeight: '80vh' }}>
+    <div className="page-container relative" style={{ minHeight: '80vh', marginLeft: '70px', maxWidth: '100%' }}>
       {/* Fondo con secuencia de terror programada */}
       <div 
         className="flicker-overlay"

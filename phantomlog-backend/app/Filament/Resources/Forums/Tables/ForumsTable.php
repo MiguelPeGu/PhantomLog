@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use App\Filament\Resources\Forums\ForumResource;
 use Filament\Tables\Table;
 
 class ForumsTable
@@ -14,31 +15,26 @@ class ForumsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('title')
-                    ->searchable(),
-                TextColumn::make('description')
-                    ->searchable(),
-                TextColumn::make('user_id')
+                    ->label('Título')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->weight('bold'),
+                TextColumn::make('user.username')
+                    ->label('Autor')
+                    ->searchable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Creado')
+                    ->dateTime('d/m/Y')
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
+            ->recordUrl(fn ($record) => ForumResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                EditAction::make(),
+                \Filament\Actions\ViewAction::make()->label('Ver'),
+                \Filament\Actions\EditAction::make()->label('Editar'),
+                \Filament\Actions\DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

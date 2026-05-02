@@ -12,4 +12,10 @@ final class AppServiceProvider extends ServiceProvider
     {
         //
     }
+
+    public function boot(): void
+    {
+        \Filament\Notifications\Livewire\Notifications::alignment(\Filament\Support\Enums\Alignment::Center);
+        \Filament\Notifications\Livewire\Notifications::verticalAlignment(\Filament\Support\Enums\VerticalAlignment::End);
+    }
 }

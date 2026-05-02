@@ -6,6 +6,7 @@ use App\Filament\Resources\Expeditions\Pages\CreateExpedition;
 use App\Filament\Resources\Expeditions\Pages\EditExpedition;
 use App\Filament\Resources\Expeditions\Pages\ListExpeditions;
 use App\Filament\Resources\Expeditions\Schemas\ExpeditionForm;
+use App\Filament\Resources\Expeditions\Schemas\ExpeditionInfolist;
 use App\Filament\Resources\Expeditions\Tables\ExpeditionsTable;
 use App\Models\Expedition;
 use BackedEnum;
@@ -18,13 +19,22 @@ class ExpeditionResource extends Resource
 {
     protected static ?string $model = Expedition::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMap;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?string $modelLabel = 'Expedición';
+
+    protected static ?string $pluralModelLabel = 'Expediciones';
 
     public static function form(Schema $schema): Schema
     {
         return ExpeditionForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return ExpeditionInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -44,6 +54,7 @@ class ExpeditionResource extends Resource
         return [
             'index' => ListExpeditions::route('/'),
             'create' => CreateExpedition::route('/create'),
+            'view' => Pages\ViewExpedition::route('/{record}'),
             'edit' => EditExpedition::route('/{record}/edit'),
         ];
     }

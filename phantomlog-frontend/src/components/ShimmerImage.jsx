@@ -6,28 +6,8 @@ const ShimmerImage = ({ src, alt, style, className = "" }) => {
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: 'inherit', overflow: 'hidden', background: '#121012' }} className={className}>
-      <style>{`
-        .shimmer-effect {
-          background: #1a151a;
-          background-image: linear-gradient(
-            to right, 
-            #1a151a 0%, 
-            #3a2a3a 20%, 
-            #1a151a 40%, 
-            #1a151a 100%
-          );
-          background-repeat: no-repeat;
-          background-size: 800px 100%;
-          animation: shimmer-animation 2s linear infinite forwards;
-        }
-
-        @keyframes shimmer-animation {
-          0% { background-position: -468px 0; }
-          100% { background-position: 468px 0; }
-        }
-      `}</style>
       {!loaded && !error && (
-        <div className="shimmer-effect" style={{
+        <div className="shimmer" style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
           zIndex: 1
         }} />

@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use App\Filament\Resources\Invoices\InvoiceResource;
 use Filament\Tables\Table;
 
 class InvoicesTable
@@ -14,43 +15,33 @@ class InvoicesTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('n_invoice')
-                    ->searchable(),
-                TextColumn::make('user_id')
+                    ->label('Nº Factura')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('dni')
+                    ->weight('bold'),
+                TextColumn::make('user.username')
+                    ->label('Cliente')
                     ->searchable(),
-                TextColumn::make('first_name')
-                    ->searchable(),
-                TextColumn::make('last_name')
-                    ->searchable(),
-                TextColumn::make('address')
-                    ->searchable(),
-                TextColumn::make('tax')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('total')
-                    ->numeric()
+                    ->label('Total')
+                    ->money('EUR')
                     ->sortable(),
+                TextColumn::make('payment_method')
+                    ->label('Método')
+                    ->badge(),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Fecha')
+                    ->dateTime('d/m/Y')
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
+            ->recordUrl(fn ($record) => InvoiceResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                EditAction::make(),
+                \Filament\Actions\ViewAction::make()->label('Ver'),
+                \Filament\Actions\EditAction::make()->label('Editar'),
+                \Filament\Actions\DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

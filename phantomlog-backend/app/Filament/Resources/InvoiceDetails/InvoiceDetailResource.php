@@ -6,6 +6,7 @@ use App\Filament\Resources\InvoiceDetails\Pages\CreateInvoiceDetail;
 use App\Filament\Resources\InvoiceDetails\Pages\EditInvoiceDetail;
 use App\Filament\Resources\InvoiceDetails\Pages\ListInvoiceDetails;
 use App\Filament\Resources\InvoiceDetails\Schemas\InvoiceDetailForm;
+use App\Filament\Resources\InvoiceDetails\Schemas\InvoiceDetailInfolist;
 use App\Filament\Resources\InvoiceDetails\Tables\InvoiceDetailsTable;
 use App\Models\InvoiceDetail;
 use BackedEnum;
@@ -18,13 +19,20 @@ class InvoiceDetailResource extends Resource
 {
     protected static ?string $model = InvoiceDetail::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema
     {
         return InvoiceDetailForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return InvoiceDetailInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -44,6 +52,7 @@ class InvoiceDetailResource extends Resource
         return [
             'index' => ListInvoiceDetails::route('/'),
             'create' => CreateInvoiceDetail::route('/create'),
+            'view' => Pages\ViewInvoiceDetail::route('/{record}'),
             'edit' => EditInvoiceDetail::route('/{record}/edit'),
         ];
     }

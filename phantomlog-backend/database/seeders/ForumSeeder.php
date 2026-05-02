@@ -42,5 +42,7 @@ class ForumSeeder extends Seeder
         foreach ($forums as $index => $data) {
             $users[$index]->forums()->create($data);
         }
+
+        \App\Models\Forum::factory()->count(25)->create();
     }
 }

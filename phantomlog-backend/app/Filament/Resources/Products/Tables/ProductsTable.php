@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use App\Filament\Resources\Products\ProductResource;
 use Filament\Tables\Table;
 
 class ProductsTable
@@ -15,43 +16,33 @@ class ProductsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                ImageColumn::make('image')
+                    ->label('Imagen'),
                 TextColumn::make('sku')
                     ->label('SKU')
                     ->searchable(),
                 TextColumn::make('title')
-                    ->searchable(),
-                TextColumn::make('provider')
-                    ->searchable(),
+                    ->label('Nombre')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
-                TextColumn::make('tax')
-                    ->numeric()
+                    ->label('Precio')
+                    ->money('EUR')
                     ->sortable(),
                 TextColumn::make('stock')
+                    ->label('Stock')
                     ->numeric()
+                    ->badge()
                     ->sortable(),
-                ImageColumn::make('image'),
-                TextColumn::make('description')
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
+            ->recordUrl(fn ($record) => ProductResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                EditAction::make(),
+                \Filament\Actions\ViewAction::make()->label('Ver'),
+                \Filament\Actions\EditAction::make()->label('Editar'),
+                \Filament\Actions\DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

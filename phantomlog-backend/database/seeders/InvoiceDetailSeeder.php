@@ -12,11 +12,11 @@ class InvoiceDetailSeeder extends Seeder
     {
         $invoices = Invoice::all();
 
-        $emf    = Product::where('sku', '8410000001234')->first();
-        $evp    = Product::where('sku', '8410000002345')->first();
-        $camara = Product::where('sku', '8410000003456')->first();
-        $kit    = Product::where('sku', 'PHASMO-002')->first();
-        $termo  = Product::where('sku', 'PHASMO-007')->first();
+        $emf    = Product::where('sku', 'EQ-EMF-K2')->first();
+        $evp    = Product::where('sku', 'EQ-EVP-DIG')->first();
+        $camara = Product::where('sku', 'EQ-CAM-THERM')->first();
+        $kit    = Product::where('sku', 'EQ-DOTS-PRO')->first();
+        $pills  = Product::where('sku', 'EQ-PILL-SANITY')->first();
 
         $details = [
             // Factura 0 → EMF x2 + Termómetro x1
@@ -27,7 +27,7 @@ class InvoiceDetailSeeder extends Seeder
             ],
             [
                 'invoice'  => $invoices[0],
-                'product'  => $termo,
+                'product'  => $pills,
                 'quantity' => 1,
             ],
             // Factura 1 → Cámara Térmica x1

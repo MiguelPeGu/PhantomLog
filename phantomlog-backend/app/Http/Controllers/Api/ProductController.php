@@ -21,6 +21,18 @@ class ProductController extends Controller
             });
         }
 
+        if ($request->has('category') && $request->category !== 'ALL') {
+            $query->where('category', $request->category);
+        }
+
+        if ($request->has('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
         if ($request->has('sort')) {
             switch ($request->sort) {
                 case 'price_asc':
@@ -31,6 +43,9 @@ class ProductController extends Controller
                     break;
                 case 'popular':
                     $query->orderByDesc('invoice_details_count')->orderBy('title', 'asc');
+                    break;
+                case 'newest':
+                    $query->latest();
                     break;
                 default:
                     $query->latest();

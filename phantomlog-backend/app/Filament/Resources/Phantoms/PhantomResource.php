@@ -6,6 +6,7 @@ use App\Filament\Resources\Phantoms\Pages\CreatePhantom;
 use App\Filament\Resources\Phantoms\Pages\EditPhantom;
 use App\Filament\Resources\Phantoms\Pages\ListPhantoms;
 use App\Filament\Resources\Phantoms\Schemas\PhantomForm;
+use App\Filament\Resources\Phantoms\Schemas\PhantomInfolist;
 use App\Filament\Resources\Phantoms\Tables\PhantomsTable;
 use App\Models\Phantom;
 use BackedEnum;
@@ -18,13 +19,22 @@ class PhantomResource extends Resource
 {
     protected static ?string $model = Phantom::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?string $modelLabel = 'Fantasma';
+
+    protected static ?string $pluralModelLabel = 'Fantasmas';
 
     public static function form(Schema $schema): Schema
     {
         return PhantomForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return PhantomInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -44,6 +54,7 @@ class PhantomResource extends Resource
         return [
             'index' => ListPhantoms::route('/'),
             'create' => CreatePhantom::route('/create'),
+            'view' => Pages\ViewPhantom::route('/{record}'),
             'edit' => EditPhantom::route('/{record}/edit'),
         ];
     }

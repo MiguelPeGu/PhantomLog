@@ -54,6 +54,7 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
         'address',
         'postalCode',
         'password',
+        'role',
     ];
 
     /**
@@ -81,6 +82,7 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
             'email' => 'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => 'string',
             'remember_token' => 'string',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -119,7 +121,7 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        return $this->role === 'admin';
     }
 
     public function getFilamentName(): string

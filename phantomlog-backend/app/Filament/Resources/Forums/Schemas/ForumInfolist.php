@@ -1,32 +1,40 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Filament\Resources\Forums\Schemas;
 
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 
-final class ForumInfolist
+class ForumInfolist
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextInput::make('title')
-                    ->required()
-                    ->disabledon('edit'),
-                TextInput::make('description')
-                    ->required()
-                    ->disabledon('edit'),
-                Select::make('user_id')
-                    ->relationship('user', 'username')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
-                    ->searchable(['firstname', 'lastname', 'username'])
-                    ->preload()
-                    ->required()
-                    ->disabledon('edit'),
+                Tabs::make('Detalles del Foro')
+                    ->tabs([
+                        Tabs\Tab::make('Contenido')
+                            ->icon('heroicon-o-chat-bubble-left-right')
+                            ->schema([
+                                Section::make('Información del Foro')
+                                    ->schema([
+                                        TextEntry::make('title')->label('Título')->weight('bold'),
+                                        TextEntry::make('user.username')->label('Creador'),
+                                        TextEntry::make('description')->label('Descripción')->columnSpanFull(),
+                                    ])->columns(2),
+                            ]),
+                        Tabs\Tab::make('Estadísticas')
+                            ->icon('heroicon-o-chart-bar')
+                            ->schema([
+                                Section::make('Actividad')
+                                    ->schema([
+                                        TextEntry::make('reports_count')->label('Número de Reportes')->state(fn($record) => $record->reports()->count()),
+                                        TextEntry::make('created_at')->label('Fecha de Creación')->dateTime(),
+                                    ])->columns(2),
+                            ]),
+                    ])->columnSpanFull(),
             ]);
     }
 }

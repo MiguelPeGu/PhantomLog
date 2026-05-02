@@ -14,19 +14,25 @@ final class ForumForm
     {
         return $schema
             ->components([
-                TextInput::make('title')
-                    ->required()
-                    ->disabledon('edit'),
-                TextInput::make('description')
-                    ->required()
-                    ->disabledon('edit'),
-                Select::make('user_id')
-                    ->relationship('user', 'username')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
-                    ->searchable(['firstname', 'lastname', 'username'])
-                    ->preload()
-                    ->required()
-                    ->disabledon('edit'),
+                \Filament\Schemas\Components\Section::make('Detalles del Foro')
+                    ->schema([
+                        TextInput::make('title')
+                            ->required()
+                            ->disabledon('edit'),
+                        TextInput::make('description')
+                            ->required()
+                            ->disabledon('edit'),
+                    ]),
+                \Filament\Schemas\Components\Section::make('Autoría')
+                    ->schema([
+                        Select::make('user_id')
+                            ->relationship('user', 'username')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
+                            ->searchable(['firstname', 'lastname', 'username'])
+                            ->preload()
+                            ->required()
+                            ->disabledon('edit'),
+                    ]),
             ]);
     }
 }

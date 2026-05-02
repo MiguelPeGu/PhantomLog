@@ -69,6 +69,25 @@ export default function PhantomLayout() {
           >
             {theme === 'dark' ? '🔆' : '🌑'}
           </button>
+          
+          {user?.role === 'admin' && (
+            <a 
+              href="http://localhost:8000/admin" 
+              className="btn" 
+              style={{ 
+                fontSize: '11px', 
+                padding: '8px 15px',
+                textDecoration: 'none', 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                border: '1px solid var(--border)',
+                borderRadius: '0'
+              }}
+            >
+              <span style={{ letterSpacing: '1px' }}>PANEL ADMIN</span>
+            </a>
+          )}
         </div>
 
         <div className="header-search-container" style={{ width: '400px' }}>

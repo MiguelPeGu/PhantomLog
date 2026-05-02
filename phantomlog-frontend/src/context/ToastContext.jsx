@@ -23,35 +23,42 @@ export function ToastProvider({ children }) {
       {children}
       <div style={{
         position: 'fixed',
-        bottom: '20px',
-        right: '20px',
+        top: '40px',
+        left: '50%',
+        transform: 'translateX(-50%)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px',
-        zIndex: 9999
+        alignItems: 'center',
+        gap: '12px',
+        zIndex: 9999,
+        pointerEvents: 'none'
       }}>
         {toasts.map((toast) => (
           <div key={toast.id} style={{
-            background: 'var(--accent)',
-            border: `2px solid var(--border-bright)`,
-            color: '#fff',
-            padding: '15px 30px',
+            background: 'var(--card-bg)',
+            border: `2px solid var(--accent)`,
+            borderLeftWidth: '8px',
+            color: 'var(--text)',
+            padding: '18px 40px',
             fontFamily: 'var(--mono)',
-            fontSize: '16px',
+            fontSize: '15px',
             fontWeight: 'bold',
-            boxShadow: '0 0 20px var(--shadow-color)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.8), 0 0 15px var(--accent-alpha)',
             textTransform: 'uppercase',
-            letterSpacing: '1px',
-            animation: 'toastGlitch 0.3s ease forwards'
+            letterSpacing: '2px',
+            animation: 'toastPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+            pointerEvents: 'auto',
+            backdropFilter: 'blur(10px)',
+            minWidth: '300px',
+            textAlign: 'center'
           }}>
             {toast.message}
           </div>
         ))}
         <style>{`
-          @keyframes toastGlitch {
-            0% { opacity: 0; transform: translateX(50px) skewX(-20deg); }
-            70% { transform: translateX(-5px) skewX(10deg); }
-            100% { opacity: 1; transform: translateX(0) skewX(0); }
+          @keyframes toastPop {
+            0% { opacity: 0; transform: translateY(-20px) scale(0.9); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
           }
         `}</style>
       </div>

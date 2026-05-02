@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Actions\ViewAction;
+use App\Filament\Resources\Comments\CommentResource;
 use Filament\Tables\Table;
 
 class CommentsTable
@@ -15,36 +16,33 @@ class CommentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
+                TextColumn::make('user.username')
+                    ->label('Autor')
+                    ->searchable(),
+                TextColumn::make('report.title')
+                    ->label('Reporte')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('report_id')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('user_id')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->limit(30),
                 TextColumn::make('content')
+                    ->label('Comentario')
+                    ->limit(50)
                     ->searchable(),
                 TextColumn::make('score')
-                    ->numeric()
+                    ->label('Puntuación')
+                    ->badge()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Fecha')
+                    ->dateTime('d/m/Y')
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
+            ->recordUrl(fn ($record) => CommentResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                DeleteAction::make(),
-                ViewAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

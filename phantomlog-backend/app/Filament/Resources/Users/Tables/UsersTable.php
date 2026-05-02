@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
+use App\Filament\Resources\Users\UserResource;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -15,49 +16,42 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('dni')
-                    ->searchable(),
+                ImageColumn::make('img')
+                    ->label('Avatar')
+                    ->circular(),
                 TextColumn::make('username')
-                    ->searchable(),
-                ImageColumn::make('img'),
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('firstname')
+                    ->label('Nombre')
                     ->searchable(),
                 TextColumn::make('lastname')
-                    ->searchable(),
-                TextColumn::make('address')
-                    ->searchable(),
-                TextColumn::make('postalCode')
+                    ->label('Apellidos')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Email')
                     ->searchable(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('role')
+                    ->label('Rol')
+                    ->badge(),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Registrado')
+                    ->dateTime('d/m/Y')
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
+            ->recordUrl(fn ($record) => UserResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                EditAction::make(),
+                \Filament\Actions\ViewAction::make()->label('Ver'),
+                \Filament\Actions\EditAction::make()->label('Editar'),
+                \Filament\Actions\DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                    DeleteBulkAction::make()->label('Borrar seleccionados'),
+                ])->label('Acciones en lote'),
             ]);
     }
 }

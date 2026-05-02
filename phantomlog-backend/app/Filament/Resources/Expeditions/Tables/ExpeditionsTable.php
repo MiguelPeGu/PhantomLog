@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use App\Filament\Resources\Expeditions\ExpeditionResource;
 use Filament\Tables\Table;
 
 class ExpeditionsTable
@@ -14,39 +15,30 @@ class ExpeditionsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('user_id')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('phantom_id')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('description')
-                    ->searchable(),
+                    ->label('Expedición')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('location')
+                    ->label('Ubicación')
                     ->searchable(),
                 TextColumn::make('date')
-                    ->dateTime()
+                    ->label('Fecha')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('phantom.name')
+                    ->label('Objetivo'),
+                TextColumn::make('user.username')
+                    ->label('Líder'),
             ])
             ->filters([
                 //
             ])
+            ->recordUrl(fn ($record) => ExpeditionResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                EditAction::make(),
+                \Filament\Actions\ViewAction::make()->label('Ver'),
+                \Filament\Actions\EditAction::make()->label('Editar'),
+                \Filament\Actions\DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

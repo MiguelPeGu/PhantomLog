@@ -19,8 +19,9 @@ return new class extends Migration
             $table->decimal('price', 8, 2)->default(0);
             $table->integer('tax')->default(21);
             $table->integer('stock')->default(0);
-            $table->string('image');
-            $table->string('description');
+            $table->string('category')->nullable();
+            $table->string('image')->nullable();
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

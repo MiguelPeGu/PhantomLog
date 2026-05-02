@@ -19,27 +19,33 @@ class ForumResource extends Resource
 {
     protected static ?string $model = Forum::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
     protected static ?string $recordTitleAttribute = 'title';
+
+    protected static ?string $modelLabel = 'Foro';
+
+    protected static ?string $pluralModelLabel = 'Foros';
 
     public static function form(Schema $schema): Schema
     {
         return ForumForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return ForumInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return ForumsTable::configure($table);
-    }
-    public static function infolist(Schema $schema): Schema {
-        return ForumInfolist::configure($schema);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ReportsRelationManager::class,
         ];
     }
 

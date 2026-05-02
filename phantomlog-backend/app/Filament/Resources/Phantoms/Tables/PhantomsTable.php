@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use App\Filament\Resources\Phantoms\PhantomResource;
 use Filament\Tables\Table;
 
 class PhantomsTable
@@ -15,38 +16,38 @@ class PhantomsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                ImageColumn::make('image')
+                    ->label('Foto')
+                    ->circular(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Nombre')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('type')
+                    ->label('Tipo')
+                    ->badge()
                     ->searchable(),
-                TextColumn::make('description')
+                TextColumn::make('evidence')
+                    ->label('Evidencias')
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('location')
+                    ->label('Ubicación')
                     ->searchable(),
-                ImageColumn::make('image'),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
+            ->recordUrl(fn ($record) => PhantomResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                EditAction::make(),
+                \Filament\Actions\ViewAction::make()->label('Ver'),
+                \Filament\Actions\EditAction::make()->label('Editar'),
+                \Filament\Actions\DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                    DeleteBulkAction::make()->label('Borrar seleccionados'),
+                ])->label('Acciones en lote'),
             ]);
     }
 }

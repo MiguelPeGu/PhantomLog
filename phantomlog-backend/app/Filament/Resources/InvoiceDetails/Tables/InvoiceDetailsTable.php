@@ -14,44 +14,25 @@ class InvoiceDetailsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('invoice_id')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('product_id')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('sku')
                     ->label('SKU')
                     ->searchable(),
                 TextColumn::make('title')
-                    ->searchable(),
+                    ->label('Producto')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
-                TextColumn::make('tax')
-                    ->numeric()
+                    ->label('Precio/Ud')
+                    ->money('EUR')
                     ->sortable(),
                 TextColumn::make('quantity')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('total')
+                    ->label('Cant.')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('total_with_tax')
-                    ->numeric()
+                    ->label('Total Línea')
+                    ->money('EUR')
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

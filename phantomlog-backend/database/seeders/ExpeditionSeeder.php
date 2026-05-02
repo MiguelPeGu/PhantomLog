@@ -56,5 +56,7 @@ final class ExpeditionSeeder extends Seeder
         foreach ($expeditions as $index => $data) {
             $users[$index]->createdExpeditions()->create($data);
         }
+
+        \App\Models\Expedition::factory()->count(25)->create();
     }
 }

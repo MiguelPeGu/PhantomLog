@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('forum_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
-            $table->string("title")->unique();
+            $table->string("title");
             $table->string("description");
             $table->string("image")->nullable();
             $table->integer("score")->default(0);

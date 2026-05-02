@@ -40,6 +40,7 @@ final class Product extends Model
         'price',
         'tax',
         'stock',
+        'category',
         'image',
         'description',
     ];

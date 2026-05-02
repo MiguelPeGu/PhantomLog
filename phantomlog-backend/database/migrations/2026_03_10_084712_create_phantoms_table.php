@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text("strengths")->nullable();
             $table->text("weaknesses")->nullable();
             $table->text("evidence")->nullable();
+            $table->string("location")->nullable();
             $table->string("image")->nullable();
             $table->timestamps();
         });

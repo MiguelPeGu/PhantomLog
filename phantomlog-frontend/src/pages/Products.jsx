@@ -4,6 +4,7 @@ import { useToast } from '../context/ToastContext'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useData } from '../context/DataProvider'
+import ShimmerImage from '../components/ShimmerImage'
 
 export default function Products() {
   const { products, loadingProducts: loading, productsPagination, refreshProducts, globalSearch, setGlobalSearch } = useData()
@@ -15,23 +16,23 @@ export default function Products() {
   const [category, setCategory] = useState('ALL')
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
-  const [activeFilters, setActiveFilters] = useState({ category: 'ALL', minPrice: '', maxPrice: '' })
+  const [sort, setSort] = useState('newest')
+  const [activeFilters, setActiveFilters] = useState({ category: 'ALL', minPrice: '', maxPrice: '', sort: 'newest' })
   const [addingId, setAddingId] = useState(null)
   const [categories, setCategories] = useState(['ALL'])
 
-  // Extraer categorías dinámicamente del backend si no están definidas
+  // Extraer categorías dinámicamente
   useEffect(() => {
     if (products.length > 0) {
       const uniqueCats = ['ALL', ...new Set(products.map(p => p.category?.toUpperCase()).filter(Boolean))]
-      // Solo actualizamos si las categorías son diferentes para evitar loops
-      if (uniqueCats.length > categories.length) {
+      if (JSON.stringify(uniqueCats) !== JSON.stringify(categories)) {
         setCategories(uniqueCats)
       }
     }
-  }, [products, categories.length])
+  }, [products, categories])
 
   const applyFilters = () => {
-    setActiveFilters({ category, minPrice, maxPrice });
+    setActiveFilters({ category, minPrice, maxPrice, sort });
     setCurrentPage(1);
   };
 
@@ -42,32 +43,17 @@ export default function Products() {
 
   // Effect for both search and page changes
   useEffect(() => {
-    // Evitar recarga redundante al montar si ya tenemos productos y estamos en estado inicial
-    const isInitialDefault = globalSearch === '' && 
-                            currentPage === 1 && 
-                            activeFilters.category === 'ALL' && 
-                            !activeFilters.minPrice && 
-                            !activeFilters.maxPrice;
-
-    if (isInitialDefault && products.length > 0) return;
-
     const params = { 
       search: globalSearch, 
       page: currentPage, 
-      per_page: 9 
+      per_page: 9,
+      sort: activeFilters.sort
     };
     if (activeFilters.category !== 'ALL') params.category = activeFilters.category;
     if (activeFilters.minPrice) params.min_price = activeFilters.minPrice;
     if (activeFilters.maxPrice) params.max_price = activeFilters.maxPrice;
 
-    if (globalSearch !== '') {
-      const delayDebounceFn = setTimeout(() => {
-        refreshProducts(params);
-      }, 400);
-      return () => clearTimeout(delayDebounceFn);
-    } else {
-      refreshProducts(params);
-    }
+    refreshProducts(params);
   }, [globalSearch, currentPage, activeFilters, refreshProducts]);
 
   const handleBuy = async (productId) => {
@@ -97,6 +83,25 @@ export default function Products() {
       <div className="flex-center" style={{ alignItems: 'flex-start', gap: '40px' }}>
         {/* Sidebar de Filtros */}
         <aside className="horror-card" style={{ width: '250px', padding: '20px', position: 'sticky', top: '100px', height: 'fit-content' }}>
+          <h3 style={{ marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>ORDENAR POR</h3>
+          <div className="column" style={{ gap: '10px', marginBottom: '30px' }}>
+            {[
+              { id: 'newest', label: 'NOVEDADES' },
+              { id: 'popular', label: 'MÁS VENDIDOS' },
+              { id: 'price_asc', label: 'MENOR PRECIO' },
+              { id: 'price_desc', label: 'MAYOR PRECIO' }
+            ].map(s => (
+              <button 
+                key={s.id} 
+                onClick={() => setSort(s.id)}
+                className={sort === s.id ? 'primary' : 'outline-red'}
+                style={{ textAlign: 'left', padding: '8px 12px', fontSize: '11px' }}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
           <h3 style={{ marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>CATEGORÍAS</h3>
           <div className="column" style={{ gap: '10px', marginBottom: '30px' }}>
             {categories.map(cat => (
@@ -153,7 +158,7 @@ export default function Products() {
                       width: '100%', height: '200px', cursor: 'pointer', 
                       background: '#111', borderBottom: '1px solid var(--border)' 
                     }}>
-                      <img 
+                      <ShimmerImage 
                         src={p.image?.startsWith('http') ? p.image : `http://localhost:8000/storage/${p.image}`} 
                         alt={p.title} 
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }} 

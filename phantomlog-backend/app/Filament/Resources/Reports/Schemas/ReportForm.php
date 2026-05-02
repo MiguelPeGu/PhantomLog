@@ -14,29 +14,39 @@ final class ReportForm
     {
         return $schema
             ->components([
-                Select::make('forum_id')
-                    ->relationship('forum', 'title') // ajusta 'title' al campo que quieras mostrar
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->disabledOn('edit'),
-                Select::make('user_id')
-                    ->relationship('user', 'username')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
-                    ->searchable(['firstname', 'lastname', 'username'])
-                    ->preload()
-                    ->required()
-                    ->disabledon('edit'),
-                TextInput::make('title')
-                    ->required()
-                    ->disabledOn('edit'),
-                TextInput::make('description')
-                    ->required()
-                    ->disabledOn('edit'),
-                TextInput::make('score')
-                    ->required()
-                    ->disabledOn('edit')
-                    ->default('0'),
+                \Filament\Schemas\Components\Section::make('Relaciones')
+                    ->schema([
+                        Select::make('forum_id')
+                            ->relationship('forum', 'title')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->disabledOn('edit'),
+                        Select::make('user_id')
+                            ->relationship('user', 'username')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
+                            ->searchable(['firstname', 'lastname', 'username'])
+                            ->preload()
+                            ->required()
+                            ->disabledon('edit'),
+                    ])->columns(2),
+
+                \Filament\Schemas\Components\Section::make('Contenido del Reporte')
+                    ->schema([
+                        TextInput::make('title')
+                            ->required()
+                            ->disabledOn('edit'),
+                        \Filament\Forms\Components\Textarea::make('description')
+                            ->required()
+                            ->disabledOn('edit')
+                            ->rows(5)
+                            ->columnSpanFull(),
+                        TextInput::make('score')
+                            ->required()
+                            ->disabledOn('edit')
+                            ->numeric()
+                            ->default(0),
+                    ]),
             ]);
     }
 }

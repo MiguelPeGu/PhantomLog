@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('phantom_id')->constrained()->cascadeOnDelete();
-            $table->string("name",20)->unique();
+            $table->string("name");
             $table->string("description");
             $table->string("location");
             $table->dateTime("date");

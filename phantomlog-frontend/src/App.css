@@ -369,22 +369,22 @@ button.outline-red:hover {
 
 /* Animations & Special Effects */
 .shimmer {
-  background: var(--bg);
+  background: #1a151a;
   background-image: linear-gradient(
-    to right,
-    var(--bg) 0%,
-    var(--border) 20%,
-    var(--bg) 40%,
-    var(--bg) 100%
+    to right, 
+    #1a151a 0%, 
+    #3a2a3a 20%, 
+    #1a151a 40%, 
+    #1a151a 100%
   );
   background-repeat: no-repeat;
   background-size: 800px 100%;
-  animation: shimmer-animation 2s linear infinite forwards;
+  animation: shimmer-animation 1.5s linear infinite forwards;
 }
 
 @keyframes shimmer-animation {
-  0% { background-position: -468px 0; }
-  100% { background-position: 468px 0; }
+  0% { background-position: -800px 0; }
+  100% { background-position: 800px 0; }
 }
 
 .flicker-overlay {

@@ -21,9 +21,15 @@ final class CommentResource extends Resource
 {
     protected static ?string $model = Comment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenterText;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $recordTitleAttribute = 'id';
+
+    protected static ?string $modelLabel = 'Comentario';
+
+    protected static ?string $pluralModelLabel = 'Comentarios';
 
     public static function form(Schema $schema): Schema
     {
