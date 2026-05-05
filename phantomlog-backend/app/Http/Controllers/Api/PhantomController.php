@@ -8,11 +8,19 @@ use Illuminate\Http\Request;
 
 class PhantomController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            Phantom::withCount('expeditions')->latest()->get()
-        );
+        $query = Phantom::withCount('expeditions')->latest();
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('name', 'like', "%$s%")
+                  ->orWhere('type', 'like', "%$s%");
+            });
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request)

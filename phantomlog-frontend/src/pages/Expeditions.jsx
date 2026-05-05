@@ -5,8 +5,23 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useData } from '../context/DataProvider'
 
+const ExpeditionSkeleton = () => (
+  <div className="horror-card column gap-15 p-25 h-100">
+    <div className="flex-center justify-between align-start">
+      <div className="skeleton skeleton-title" style={{ width: '60%' }}></div>
+      <div className="skeleton" style={{ width: '60px', height: '20px' }}></div>
+    </div>
+    <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
+    <div className="skeleton skeleton-text" style={{ width: '40%' }}></div>
+    <div className="border-top mt-auto flex-center justify-between pt-15">
+      <div className="skeleton skeleton-text" style={{ width: '30%' }}></div>
+      <div className="skeleton skeleton-text" style={{ width: '20%' }}></div>
+    </div>
+  </div>
+)
+
 export default function Expeditions() {
-  const { expeditions, phantoms, refreshExpeditions, loadingExpeditions, expeditionsPagination } = useData()
+  const { expeditions, refreshExpeditions, loadingExpeditions, expeditionsPagination } = useData()
   const [localSearch, setLocalSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -15,7 +30,6 @@ export default function Expeditions() {
     name: '', description: '', location: '', date: '', phantom_id: ''
   })
   const [currentPage, setCurrentPage] = useState(1)
-  const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false)
   const { user } = useAuth()
   const { addToast } = useToast()
 
@@ -24,23 +38,14 @@ export default function Expeditions() {
   }, [localSearch]);
 
   useEffect(() => {
-    const fetch = async () => {
-      try {
-        if (localSearch !== '') {
-          const delayDebounceFn = setTimeout(async () => {
-            await refreshExpeditions({ search: localSearch, page: currentPage, per_page: 9 });
-            setHasAttemptedLoad(true)
-          }, 400);
-          return () => clearTimeout(delayDebounceFn);
-        } else {
-          await refreshExpeditions({ search: '', page: currentPage, per_page: 9 });
-          setHasAttemptedLoad(true)
-        }
-      } catch (e) {
-        setHasAttemptedLoad(true)
-      }
+    if (localSearch !== '') {
+      const delayDebounceFn = setTimeout(() => {
+        refreshExpeditions({ search: localSearch, page: currentPage, per_page: 9 });
+      }, 400);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
+      refreshExpeditions({ search: '', page: currentPage, per_page: 9 });
     }
-    fetch()
   }, [localSearch, currentPage, refreshExpeditions]);
 
   const handleOpenCreate = () => {
@@ -129,78 +134,74 @@ export default function Expeditions() {
       </header>
 
       <div className="max-1200">
-        {loadingExpeditions && expeditions.length === 0 ? (
-          <div className="text-center fs-24 p-100 italic">Estableciendo conexión con el archivo de campo...</div>
-        ) : (
-          <>
-            <div className={`grid-3 ${loadingExpeditions ? 'opacity-04' : ''}`}>
-              {hasAttemptedLoad && !loadingExpeditions && expeditions.length === 0 ? (
-                <p className="text-muted text-center flex-1 p-100" style={{ gridColumn: '1/-1' }}>NO HAY INCURSIONES PROGRAMADAS EN ESTE SECTOR.</p>
-              ) : (
-                expeditions.map(exp => {
-                  const isClosed = new Date(exp.date) < new Date()
-                  const isCreator = user && String(user.id) === String(exp.user_id)
+        <div className="grid-3">
+          {loadingExpeditions && expeditions.length === 0 ? (
+            [...Array(6)].map((_, i) => <ExpeditionSkeleton key={i} />)
+          ) : expeditions.length === 0 ? (
+            <p className="text-muted text-center flex-1 p-100" style={{ gridColumn: '1/-1' }}>NO HAY INCURSIONES PROGRAMADAS EN ESTE SECTOR.</p>
+          ) : (
+            expeditions.map(exp => {
+              const isClosed = new Date(exp.date) < new Date()
+              const isCreator = user && String(user.id) === String(exp.user_id)
 
-                  return (
-                    <div key={exp.id} className="relative">
-                      <Link 
-                        to={`/expeditions/${exp.id}`} 
-                        className={`horror-card column ${isClosed ? 'red' : ''} gap-15 p-25 h-100`}
-                      >
-                        <div className="flex-center justify-between align-start">
-                          <h3 className={`m-0 fs-20 ${isClosed ? 'text-accent-dim' : 'text-accent'}`}>{exp.name.toUpperCase()}</h3>
-                          <div className={`status-badge ${isClosed ? 'closed' : 'active'}`}>
-                            {isClosed ? 'FINALIZADA' : 'ACTIVA'}
-                          </div>
-                        </div>
-
-                        <div className="fs-12 opacity-08">
-                          <div>Ubicación: {exp.location.toUpperCase()}</div>
-                          <div>Objetivo: {exp.phantom?.name.toUpperCase() || 'DESCONOCIDO'}</div>
-                        </div>
-
-                        <div className="border-top mt-auto flex-center justify-between pt-15">
-                          <div className="text-dim fs-11">
-                            {new Date(exp.date).toLocaleString()}
-                          </div>
-                          <div className="text-accent fs-11 bold">
-                            {exp.participants_count} OPERATIVOS
-                          </div>
-                        </div>
-                        
-                        {isCreator && (
-                          <div className="flex-center mt-20 gap-10 border-top pt-10 border-faded-05">
-                            <button onClick={(e) => handleOpenEdit(e, exp)} className="flex-1 fs-10 p-5">[EDITAR]</button>
-                            <button onClick={(e) => handleDeleteExpedition(e, exp.id)} className="outline-red flex-1 fs-10 p-5">[PURGAR]</button>
-                          </div>
-                        )}
-                      </Link>
+              return (
+                <div key={exp.id} className="relative">
+                  <Link 
+                    to={`/expeditions/${exp.id}`} 
+                    className={`horror-card column ${isClosed ? 'red' : ''} gap-15 p-25 h-100`}
+                  >
+                    <div className="flex-center justify-between align-start">
+                      <h3 className={`m-0 fs-20 ${isClosed ? 'text-accent-dim' : 'text-accent'}`}>{exp.name.toUpperCase()}</h3>
+                      <div className={`status-badge ${isClosed ? 'closed' : 'active'}`}>
+                        {isClosed ? 'FINALIZADA' : 'ACTIVA'}
+                      </div>
                     </div>
-                  )
-                })
-              )}
-            </div>
 
-            {totalPages > 1 && (
-              <div className="pagination-controls mt-60">
-                <button 
-                  disabled={currentPage === 1} 
-                  onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
-                >
-                  🡄 ANTERIOR
-                </button>
-                <span className="bold fs-18">
-                  {currentPage} / {totalPages}
-                </span>
-                <button 
-                  disabled={currentPage === totalPages} 
-                  onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}
-                >
-                  SIGUIENTE 🡆
-                </button>
-              </div>
-            )}
-          </>
+                    <div className="fs-12 opacity-08">
+                      <div>Ubicación: {exp.location.toUpperCase()}</div>
+                      <div>Objetivo: {exp.phantom?.name.toUpperCase() || 'DESCONOCIDO'}</div>
+                    </div>
+
+                    <div className="border-top mt-auto flex-center justify-between pt-15">
+                      <div className="text-dim fs-11">
+                        {new Date(exp.date).toLocaleString()}
+                      </div>
+                      <div className="text-accent fs-11 bold">
+                        {exp.participants_count} OPERATIVOS
+                      </div>
+                    </div>
+                    
+                    {isCreator && (
+                      <div className="flex-center mt-20 gap-10 border-top pt-10 border-faded-05">
+                        <button onClick={(e) => handleOpenEdit(e, exp)} className="flex-1 fs-10 p-5">[EDITAR]</button>
+                        <button onClick={(e) => handleDeleteExpedition(e, exp.id)} className="outline-red flex-1 fs-10 p-5">[PURGAR]</button>
+                      </div>
+                    )}
+                  </Link>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {totalPages > 1 && (
+          <div className="pagination-controls mt-60">
+            <button 
+              disabled={currentPage === 1} 
+              onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
+            >
+              🡄 ANTERIOR
+            </button>
+            <span className="bold fs-18">
+              {currentPage} / {totalPages}
+            </span>
+            <button 
+              disabled={currentPage === totalPages} 
+              onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}
+            >
+              SIGUIENTE 🡆
+            </button>
+          </div>
         )}
       </div>
 

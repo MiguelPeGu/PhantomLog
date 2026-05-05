@@ -14,9 +14,14 @@ class InvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        return response()->json(
-            $request->user()->invoices()->with('details')->latest()->paginate($request->input('per_page', 5))
-        );
+        $query = $request->user()->invoices()->with('details')->latest();
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where('n_invoice', 'like', "%$s%");
+        }
+
+        return response()->json($query->paginate($request->input('per_page', 5)));
     }
 
     public function store(Request $request)

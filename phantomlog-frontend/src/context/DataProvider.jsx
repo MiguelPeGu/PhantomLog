@@ -21,7 +21,7 @@ export function DataProvider({ children }) {
   const [loadingInvoices, setLoadingInvoices] = useState(false)
   const [loadingPhantoms, setLoadingPhantoms] = useState(false)
   const [loadingExpeditions, setLoadingExpeditions] = useState(false)
-  const requestRefs = useRef({ products: 0, forums: 0, invoices: 0, expeditions: 0 })
+  const requestRefs = useRef({ products: 0, forums: 0, invoices: 0, expeditions: 0, phantoms: 0 })
 
   const [globalSearch, setGlobalSearch] = useState('')
   const [productsPagination, setProductsPagination] = useState({ currentPage: 1, totalPages: 1 })
@@ -42,10 +42,10 @@ export function DataProvider({ children }) {
         currentPage: res.data.current_page || 1,
         totalPages: res.data.last_page || 1
       })
-    } catch (error) {
-      console.error('Error fetching products:', error)
-    } finally {
       setLoadingProducts(false)
+    } catch (error) {
+      if (requestId === requestRefs.current.products) setLoadingProducts(false)
+      console.error('Error fetching products:', error)
     }
   }, [])
 
@@ -62,10 +62,10 @@ export function DataProvider({ children }) {
         currentPage: res.data.current_page || 1,
         totalPages: res.data.last_page || 1
       })
-    } catch (error) {
-      console.error('Error fetching forums:', error)
-    } finally {
       setLoadingForums(false)
+    } catch (error) {
+      if (requestId === requestRefs.current.forums) setLoadingForums(false)
+      console.error('Error fetching forums:', error)
     }
   }, [])
 
@@ -82,22 +82,26 @@ export function DataProvider({ children }) {
         currentPage: res.data.current_page || 1,
         totalPages: res.data.last_page || 1
       })
-    } catch (error) {
-      console.error('Error fetching invoices:', error)
-    } finally {
       setLoadingInvoices(false)
+    } catch (error) {
+      if (requestId === requestRefs.current.invoices) setLoadingInvoices(false)
+      console.error('Error fetching invoices:', error)
     }
   }, [])
 
-  const refreshPhantoms = useCallback(async () => {
+  const refreshPhantoms = useCallback(async (params = {}) => {
+    const requestId = ++requestRefs.current.phantoms
     setLoadingPhantoms(true)
     try {
-      const res = await getPhantoms()
-      setPhantoms(res.data)
-    } catch (error) {
-      console.error('Error fetching phantoms:', error)
-    } finally {
+      const res = await getPhantoms(params)
+      if (requestId !== requestRefs.current.phantoms) return
+
+      const data = res.data.data || res.data
+      setPhantoms(Array.isArray(data) ? data : [])
       setLoadingPhantoms(false)
+    } catch (error) {
+      if (requestId === requestRefs.current.phantoms) setLoadingPhantoms(false)
+      console.error('Error fetching phantoms:', error)
     }
   }, [])
 
@@ -114,10 +118,10 @@ export function DataProvider({ children }) {
         currentPage: res.data.current_page || 1,
         totalPages: res.data.last_page || 1
       })
-    } catch (error) {
-      console.error('Error fetching expeditions:', error)
-    } finally {
       setLoadingExpeditions(false)
+    } catch (error) {
+      if (requestId === requestRefs.current.expeditions) setLoadingExpeditions(false)
+      console.error('Error fetching expeditions:', error)
     }
   }, [])
 
@@ -126,7 +130,7 @@ export function DataProvider({ children }) {
       refreshProducts({ page: 1, per_page: 9 }),
       refreshForums({ page: 1, per_page: 9 }),
       refreshInvoices({ page: 1, per_page: 5 }),
-      refreshPhantoms(),
+      refreshPhantoms({ page: 1, per_page: 9 }),
       refreshExpeditions({ page: 1, per_page: 9 })
     ])
   }, [refreshProducts, refreshForums, refreshInvoices])

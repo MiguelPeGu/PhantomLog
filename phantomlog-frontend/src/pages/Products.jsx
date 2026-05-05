@@ -6,6 +6,17 @@ import { useCart } from '../context/CartContext'
 import { useData } from '../context/DataProvider'
 import ShimmerImage from '../components/ShimmerImage'
 
+const ProductSkeleton = () => (
+  <div className="horror-card column p-0 overflow-hidden">
+    <div className="skeleton" style={{ width: '100%', height: '250px' }}></div>
+    <div className="card-padding">
+      <div className="skeleton skeleton-title" style={{ width: '80%' }}></div>
+      <div className="skeleton skeleton-text" style={{ width: '40%' }}></div>
+      <div className="skeleton skeleton-text" style={{ width: '100%', height: '40px', marginTop: '20px' }}></div>
+    </div>
+  </div>
+)
+
 export default function Products() {
   const { products, loadingProducts: loading, productsPagination, refreshProducts, globalSearch, setGlobalSearch } = useData()
   const { addToast } = useToast()
@@ -179,12 +190,13 @@ export default function Products() {
 
           {/* Lista de Productos */}
           <div className="flex-1">
-            {loading && products.length === 0 ? (
-              <div className="text-center fs-24 p-100">Invocando objetos...</div>
-            ) : (
-              <>
-                <div className={`grid-catalog mb-60 ${loading ? 'opacity-04' : ''}`}>
-                  {products.map(p => (
+            <div className="grid-catalog mb-60">
+              {loading && products.length === 0 ? (
+                [...Array(6)].map((_, i) => <ProductSkeleton key={i} />)
+              ) : products.length === 0 ? (
+                <div className="text-center fs-24 p-100 italic" style={{ gridColumn: '1/-1' }}>No se han detectado objetos con ese patrón.</div>
+              ) : (
+                products.map(p => (
                     <div key={p.id} className="horror-card column p-0 overflow-hidden">
                       <Link to={`/products/${p.id}`} className="product-img-container block no-underline">
                         <ShimmerImage
@@ -212,8 +224,9 @@ export default function Products() {
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  ))
+                )}
+            </div>
 
                 {totalPages > 1 && (
                   <div className="pagination-controls">
@@ -234,14 +247,7 @@ export default function Products() {
                     </button>
                   </div>
                 )}
-              </>
-            )}
 
-            {!loading && products.length === 0 && (
-              <div className="text-center border-dashed text-accent p-100">
-                NO SE HAN ENCONTRADO RELIQUIAS EN ESTE SECTOR DEL ARCHIVO.
-              </div>
-            )}
           </div>
         </div>
       </div>

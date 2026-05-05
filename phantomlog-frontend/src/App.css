@@ -237,6 +237,43 @@ a:hover {
   box-shadow: 0 5px 15px var(--shadow-color);
 }
 
+/* Skeleton & Shimmer Effect */
+.skeleton {
+  background: var(--shimmer-bg);
+  background-image: linear-gradient(
+    90deg, 
+    transparent 0%, 
+    var(--shimmer-gradient) 50%, 
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 2px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-text {
+  height: 14px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 70%;
+  margin-bottom: 15px;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 200px;
+  margin-bottom: 20px;
+}
+
 .horror-card.red {
   border-color: var(--accent-dim);
 }

@@ -1,10 +1,20 @@
 import { Link } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { createForum, deleteForum, updateForum } from '../api/forums'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useData } from '../context/DataProvider'
 import ShimmerImage from '../components/ShimmerImage'
+
+const ForumSkeleton = () => (
+  <div className="horror-card column">
+    <div className="skeleton skeleton-img"></div>
+    <div className="skeleton skeleton-title"></div>
+    <div className="skeleton skeleton-text"></div>
+    <div className="skeleton skeleton-text" style={{ width: '90%' }}></div>
+    <div className="skeleton skeleton-text" style={{ width: '40%' }}></div>
+  </div>
+)
 
 export default function Forums() {
   const { forums, loadingForums: loading, forumsPagination, refreshForums } = useData()
@@ -22,19 +32,16 @@ export default function Forums() {
   }, [localSearch]);
 
   useEffect(() => {
-    // Evitar recarga redundante al montar si ya tenemos foros y estamos en estado inicial
-    const isInitialDefault = localSearch === '' && currentPage === 1;
-    if (isInitialDefault && forums.length > 0) return;
-
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
-        refreshForums({ search: localSearch, page: currentPage, per_page: 9 });
-      }, 400);
-      return () => clearTimeout(delayDebounceFn);
+        refreshForums({ search: localSearch, page: currentPage, per_page: 9 })
+      }, 400)
+      return () => clearTimeout(delayDebounceFn)
     } else {
-      refreshForums({ search: '', page: currentPage, per_page: 9 });
+      refreshForums({ search: '', page: currentPage, per_page: 9 })
     }
-  }, [localSearch, currentPage, refreshForums]);
+  }, [localSearch, currentPage, refreshForums])
+
 
   const handleCreateForum = async (e) => {
     e.preventDefault()
@@ -114,13 +121,14 @@ export default function Forums() {
         </div>
       </header>
 
-      {loading && forums.length === 0 ? (
-        <div className="text-center fs-18 p-100">Invocando foros...</div>
-      ) : (
-        <>
-        <div className="max-1200">
-          <div className={`grid-3 ${loading ? 'opacity-04' : ''}`}>
-            {forums.map(f => (
+      <div className="max-1200">
+        <div className="grid-3">
+          {loading && forums.length === 0 ? (
+            [...Array(6)].map((_, i) => <ForumSkeleton key={i} />)
+          ) : forums.length === 0 ? (
+            <div className="text-center p-100 border-dashed" style={{gridColumn: '1/-1'}}>NO SE HAN ENCONTRADO ARCHIVOS CON ESTE PATRÓN.</div>
+          ) : (
+            forums.map(f => (
               <div key={f.id} className="horror-card column">
                 <Link to={`/forums/${f.id}`} className="no-underline flex-1">
                   <div className="card-image-box">
@@ -140,19 +148,18 @@ export default function Forums() {
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </div>
 
-          {totalPages > 1 && (
-            <div className="pagination-controls">
-              <button disabled={currentPage === 1} onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}>🡄 ANTERIOR</button>
-              <span className="bold">{currentPage} / {totalPages}</span>
-              <button disabled={currentPage === totalPages} onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}>SIGUIENTE 🡆</button>
-            </div>
-          )}
-        </>
-      )}
+        {totalPages > 1 && (
+          <div className="pagination-controls mt-60">
+            <button disabled={currentPage === 1} onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}>🡄 ANTERIOR</button>
+            <span className="bold">{currentPage} / {totalPages}</span>
+            <button disabled={currentPage === totalPages} onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}>SIGUIENTE 🡆</button>
+          </div>
+        )}
+      </div>
 
       {showModal && (
         <div className="modal-overlay">
