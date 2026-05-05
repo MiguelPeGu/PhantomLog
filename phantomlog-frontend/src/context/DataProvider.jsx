@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { getProducts } from '../api/products'
 import { getForums } from '../api/forums'
 import { getInvoices } from '../api/invoices'
@@ -21,6 +21,7 @@ export function DataProvider({ children }) {
   const [loadingInvoices, setLoadingInvoices] = useState(false)
   const [loadingPhantoms, setLoadingPhantoms] = useState(false)
   const [loadingExpeditions, setLoadingExpeditions] = useState(false)
+  const requestRefs = useRef({ products: 0, forums: 0, invoices: 0 })
 
   const [globalSearch, setGlobalSearch] = useState('')
   const [productsPagination, setProductsPagination] = useState({ currentPage: 1, totalPages: 1 })
@@ -28,12 +29,13 @@ export function DataProvider({ children }) {
   const [invoicesPagination, setInvoicesPagination] = useState({ currentPage: 1, totalPages: 1 })
 
   const refreshProducts = useCallback(async (params = {}) => {
+    const requestId = ++requestRefs.current.products
     setLoadingProducts(true)
     try {
       const res = await getProducts(params)
-      console.log('DEBUG: API Products Response:', res.data)
+      if (requestId !== requestRefs.current.products) return
+      
       const data = res.data.data || res.data
-      console.log('DEBUG: Extracted products array:', data)
       setProducts(Array.isArray(data) ? data : [])
       setProductsPagination({
         currentPage: res.data.current_page || 1,
@@ -47,9 +49,12 @@ export function DataProvider({ children }) {
   }, [])
 
   const refreshForums = useCallback(async (params = {}) => {
+    const requestId = ++requestRefs.current.forums
     setLoadingForums(true)
     try {
       const res = await getForums(params)
+      if (requestId !== requestRefs.current.forums) return
+
       const data = res.data.data || res.data
       setForums(Array.isArray(data) ? data : [])
       setForumsPagination({
@@ -64,9 +69,12 @@ export function DataProvider({ children }) {
   }, [])
 
   const refreshInvoices = useCallback(async (params = {}) => {
+    const requestId = ++requestRefs.current.invoices
     setLoadingInvoices(true)
     try {
       const res = await getInvoices(params)
+      if (requestId !== requestRefs.current.invoices) return
+
       const data = res.data.data || res.data
       setInvoices(Array.isArray(data) ? data : [])
       setInvoicesPagination({
@@ -120,16 +128,26 @@ export function DataProvider({ children }) {
     }
   }, [user, refreshAll])
 
+  const value = useMemo(() => ({
+    products, loadingProducts, productsPagination, refreshProducts,
+    forums, loadingForums, forumsPagination, refreshForums,
+    invoices, loadingInvoices, invoicesPagination, refreshInvoices,
+    phantoms, loadingPhantoms, refreshPhantoms,
+    expeditions, loadingExpeditions, refreshExpeditions,
+    globalSearch, setGlobalSearch,
+    refreshAll
+  }), [
+    products, loadingProducts, productsPagination, refreshProducts,
+    forums, loadingForums, forumsPagination, refreshForums,
+    invoices, loadingInvoices, invoicesPagination, refreshInvoices,
+    phantoms, loadingPhantoms, refreshPhantoms,
+    expeditions, loadingExpeditions, refreshExpeditions,
+    globalSearch,
+    refreshAll
+  ])
+
   return (
-    <DataContext.Provider value={{
-      products, loadingProducts, productsPagination, refreshProducts,
-      forums, loadingForums, forumsPagination, refreshForums,
-      invoices, loadingInvoices, invoicesPagination, refreshInvoices,
-      phantoms, loadingPhantoms, refreshPhantoms,
-      expeditions, loadingExpeditions, refreshExpeditions,
-      globalSearch, setGlobalSearch,
-      refreshAll
-    }}>
+    <DataContext.Provider value={value}>
       {children}
     </DataContext.Provider>
   )

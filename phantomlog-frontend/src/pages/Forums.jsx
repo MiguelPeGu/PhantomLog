@@ -136,7 +136,7 @@ export default function Forums() {
                     />
                   </div>
                   <h3 className="fs-24 mb-10">{f.title.toUpperCase()}</h3>
-                  <p className="fs-15 lh-1-6 text-dim">{f.description.substring(0, 120)}...</p>
+                  <p className="fs-15 lh-1-6 text-dim text-break">{f.description.substring(0, 120)}...</p>
                 </div>
                 {user && String(user.id) === String(f.user_id) && (
                   <div className="flex-center mt-10 gap-10">

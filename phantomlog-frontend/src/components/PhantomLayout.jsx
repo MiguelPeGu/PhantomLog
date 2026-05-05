@@ -118,7 +118,7 @@ export default function PhantomLayout() {
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </Link>
           
-          <Link to="/profile" className="flex-center gap-10 border-left-1 pl-15">
+          <Link to="/profile" className="flex-center gap-10" style={{ borderLeft: '1px solid var(--border)', paddingLeft: '20px', marginLeft: '10px' }}>
             <div className="header-avatar-circle">
               {user?.img ? (
                 <img 
@@ -155,9 +155,9 @@ export default function PhantomLayout() {
           <div className="footer-section">
             <h4 className="footer-title">ACCESO RÁPIDO</h4>
             <div className="column gap-5">
-              <Link to="/products">Armería</Link>
-              <Link to="/forums">Archivo de Testimonios</Link>
-              <Link to="/expeditions">Calendario de Incursión</Link>
+              {navLinks.map(link => (
+                <Link key={link.path} to={link.path}>{link.name}</Link>
+              ))}
             </div>
           </div>
           <div className="footer-section">

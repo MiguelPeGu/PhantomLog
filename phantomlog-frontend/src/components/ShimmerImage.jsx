@@ -14,10 +14,9 @@ const ShimmerImage = ({ src, alt, style, className = "", objectFit = "cover" }) 
   return (
     <div className={`shimmer-container ${className}`} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: 'var(--bg)', ...style }}>
       {!loaded && !error && (
-        <div className="shimmer" style={{
+        <div className="shimmer-box" style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          zIndex: 1,
-          opacity: 0.5
+          zIndex: 1
         }} />
       )}
       

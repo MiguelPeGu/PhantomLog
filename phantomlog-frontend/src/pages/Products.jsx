@@ -67,7 +67,14 @@ export default function Products() {
     if (activeFilters.minPrice) params.min_price = activeFilters.minPrice;
     if (activeFilters.maxPrice) params.max_price = activeFilters.maxPrice;
 
-    refreshProducts(params);
+    if (globalSearch !== '') {
+      const handler = setTimeout(() => {
+        refreshProducts(params);
+      }, 400);
+      return () => clearTimeout(handler);
+    } else {
+      refreshProducts(params);
+    }
   }, [globalSearch, currentPage, activeFilters, refreshProducts]);
 
   const handleBuy = async (productId) => {

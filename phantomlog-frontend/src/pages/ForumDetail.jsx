@@ -88,18 +88,32 @@ export default function ForumDetail() {
         setShowReportModal(false)
         fetchReports()
       } else {
+        // Empezar contador inmediatamente
         setIsCreatingReport(true)
         setCountdown(3)
         
+        // Iniciar proceso de archivo en paralelo
         const reader = new FileReader()
         reader.readAsDataURL(reportData.image)
+        
+        // El proceso de envío ocurre mientras el contador baja
         reader.onload = async () => {
           try {
-            await createReport(id, { title: reportData.title, description: reportData.description, image: reader.result })
-            for (let i = 3; i > 0; i--) {
-              setCountdown(i)
+            // Enviamos la petición
+            const apiPromise = createReport(id, { 
+              title: reportData.title, 
+              description: reportData.description, 
+              image: reader.result 
+            })
+
+            // El contador visual baja cada segundo
+            for (let i = 2; i >= 0; i--) {
               await new Promise(r => setTimeout(r, 1000))
+              setCountdown(i)
             }
+            
+            // Esperamos a que la API termine si no ha terminado ya
+            await apiPromise
             
             setIsCreatingReport(false)
             setShowReportModal(false)
@@ -215,7 +229,7 @@ export default function ForumDetail() {
           </div>
         </div>
         
-        <div className="horror-card fs-18 column lh-1-6 border-accent-left-3 min-h-120 w-100">
+        <div className="horror-card fs-18 column lh-1-6 border-accent-left-3 min-h-120 w-100 text-break">
           <div className={isExpanded ? '' : 'line-clamp-3'}>
             {forum.description}
           </div>
@@ -302,7 +316,7 @@ export default function ForumDetail() {
             {isCreatingReport ? (
               <div className="text-center p-40">
                 <p className="fs-20 ls-2">SELLANDO REPORTE EN EL ARCHIVO CENTRAL...</p>
-                <div className="fs-64 text-accent m-30-0">{countdown}</div>
+                <div className="fs-64 m-30-0" style={{ color: 'var(--text)' }}>{countdown}</div>
                 <div className="w-100 h-4 bg-black">
                   <div className="h-100 bg-accent transition-width" style={{ width: `${(countdown/3)*100}%` }}></div>
                 </div>

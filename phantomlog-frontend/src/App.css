@@ -15,6 +15,8 @@
   --flicker-pos: 90% -100%;
   --flicker-size: 55%;
   --shadow-color: rgba(0, 255, 0, 0.15);
+  --shimmer-bg: #0a0a0a;
+  --shimmer-gradient: rgba(255, 255, 255, 0.05);
   --believe-color: #00ff00;
   --sans: 'Inter', 'Roboto', 'Outfit', sans-serif;
   --mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -53,6 +55,8 @@ body.light-mode {
   --flicker-pos: 90% 10%;
   --flicker-size: 40%;
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --shimmer-bg: #d0d7de;
+  --shimmer-gradient: rgba(255, 255, 255, 0.8);
   --believe-color: #0077ff;
 }
 
@@ -817,18 +821,25 @@ body.light-mode .status-badge.closed {
 }
 
 /* Shimmer Placeholder */
-.shimmer-box {
-  background: #1a1a1a;
+.shimmer-box, .shimmer-effect {
+  background: var(--shimmer-bg);
   position: relative;
   overflow: hidden;
+  border-radius: 4px;
 }
-.shimmer-box::after {
+
+.shimmer-box::after, .shimmer-effect::after {
   content: "";
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-  animation: shimmer-animation 1.5s infinite;
+  background: linear-gradient(90deg, transparent, var(--shimmer-gradient), transparent);
+  animation: shimmer-animation 2s infinite;
+}
+
+@keyframes shimmer-animation {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* Credibility Bar Component */
@@ -1196,6 +1207,8 @@ body.light-mode .status-badge.closed {
 .mt-60 { margin-top: 60px; }
 .mx-auto { margin-left: auto; margin-right: auto; }
 .border-dashed-accent { border: 2px dashed var(--accent-dim); border-radius: 8px; }
+.text-dim { color: var(--text-dim); }
+.text-break { word-break: break-word; white-space: pre-wrap; }
 .font-mono { font-family: var(--mono); }
 @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 .grid-1-15 { display: grid; grid-template-columns: 1fr 1.5fr; }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { createExpedition, updateExpedition, deleteExpedition } from '../api/expeditions'
 import { useAuth } from '../context/AuthContext'
@@ -78,14 +78,16 @@ export default function Expeditions() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 15 // 5 rows of 3
 
-  const filteredExpeditions = expeditions.filter(exp => 
-    exp.name.toLowerCase().includes(search.toLowerCase()) ||
-    exp.location.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredExpeditions = useMemo(() => {
+    return expeditions.filter(exp => 
+      exp.name.toLowerCase().includes(search.toLowerCase()) ||
+      exp.location.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [expeditions, search])
 
-  const totalPages = Math.ceil(filteredExpeditions.length / itemsPerPage)
+  const totalPages = useMemo(() => Math.ceil(filteredExpeditions.length / itemsPerPage), [filteredExpeditions])
   const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedExpeditions = filteredExpeditions.slice(startIndex, startIndex + itemsPerPage)
+  const paginatedExpeditions = useMemo(() => filteredExpeditions.slice(startIndex, startIndex + itemsPerPage), [filteredExpeditions, startIndex])
 
   return (
     <div className="page-container">
