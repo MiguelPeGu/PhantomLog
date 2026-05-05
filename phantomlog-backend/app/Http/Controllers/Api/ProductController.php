@@ -14,11 +14,13 @@ class ProductController extends Controller
 
         if ($request->has('search') && !empty($request->search)) {
             $term = $request->search;
-            $query->where(function ($q) use ($term) {
-                $q->where('title', 'like', '%' . $term . '%')
-                  ->orWhere('description', 'like', '%' . $term . '%')
-                  ->orWhere('provider', 'like', '%' . $term . '%');
-            });
+            if (strlen($term) >= 2) {
+                $query->where(function ($q) use ($term) {
+                    $q->where('title', 'like', '%' . $term . '%')
+                      ->orWhere('provider', 'like', '%' . $term . '%')
+                      ->orWhere('sku', 'like', '%' . $term . '%');
+                });
+            }
         }
 
         if ($request->has('category') && $request->category !== 'ALL') {
@@ -30,7 +32,11 @@ class ProductController extends Controller
         }
 
         if ($request->has('max_price')) {
-            $query->where('price', '<=', $request->max_price);
+            if ($request->has('min_price') && $request->max_price < $request->min_price) {
+                // Ignore invalid range or handle error
+            } else {
+                $query->where('price', '<=', $request->max_price);
+            }
         }
 
         if ($request->has('sort')) {
@@ -70,6 +76,12 @@ class ProductController extends Controller
             'image'       => 'nullable|string',
             'description' => 'nullable|string',
         ]);
+
+        foreach ($data as $key => $value) {
+            if (is_string($value) && $key !== 'image') {
+                $data[$key] = trim(strip_tags($value));
+            }
+        }
 
         $product = Product::create($data);
 

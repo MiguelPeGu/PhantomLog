@@ -15,27 +15,27 @@ class ForumSeeder extends Seeder
             [
                 'title'       => 'Avistamientos Nocturnos',
                 'description' => 'Comparte tus experiencias y avistamientos de entidades paranormales durante la noche. Relatos verificados por la comunidad.',
-                'image'       => 'https://api.dicebear.com/9.x/icons/svg?seed=Night',
+                'image'       => 'images/forums/night_sightings.jpg',
             ],
             [
                 'title'       => 'Lugares Encantados España',
                 'description' => 'Foro dedicado a la exploración de edificios, castillos y lugares con actividad paranormal registrada en España.',
-                'image'       => 'https://api.dicebear.com/9.x/icons/svg?seed=Castle',
+                'image'       => 'images/forums/haunted_spain.jpg',
             ],
             [
                 'title'       => 'Técnicas de Investigación',
                 'description' => 'Debate sobre métodos, equipos y técnicas para investigar fenómenos paranormales de manera rigurosa y documentada.',
-                'image'       => 'https://api.dicebear.com/9.x/icons/svg?seed=Tech',
+                'image'       => 'images/forums/investigation_tech.jpg',
             ],
             [
                 'title'       => 'Fotografías Paranormales',
                 'description' => 'Comparte y analiza fotografías con posibles anomalías. Expertos en edición digital ayudan a validar la autenticidad.',
-                'image'       => 'https://api.dicebear.com/9.x/icons/svg?seed=Photo',
+                'image'       => 'images/forums/paranormal_photos.jpg',
             ],
             [
                 'title'       => 'Expediciones Grupales',
                 'description' => 'Organiza y únete a expediciones paranormales grupales. Planificación, seguridad y experiencias compartidas.',
-                'image'       => 'https://api.dicebear.com/9.x/icons/svg?seed=Group',
+                'image'       => 'images/forums/group_expeditions.jpg',
             ],
         ];
 

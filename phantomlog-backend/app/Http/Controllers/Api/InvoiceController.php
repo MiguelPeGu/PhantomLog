@@ -22,15 +22,27 @@ class InvoiceController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'dni'            => 'required|string',
-            'first_name'     => 'required|string',
-            'last_name'      => 'required|string',
-            'address'        => 'required|string',
+            'dni'            => ['required', 'string', 'regex:/^[0-9]{8}[A-Z]$/i'],
+            'first_name'     => 'required|string|max:50',
+            'last_name'      => 'required|string|max:50',
+            'address'        => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s,.\-\/ºª]+$/'],
+            'postal_code'    => 'required|numeric|digits:5',
             'payment_method' => 'required|string|in:credito,debito,bizum',
             'items'          => 'required|array|min:1',
             'items.*.product_id' => 'required|uuid|exists:products,id',
             'items.*.quantity'   => 'required|integer|min:1',
+        ], [
+            'dni.regex' => 'El DNI debe tener 8 números y una letra.',
+            'address.regex' => 'La dirección contiene caracteres no permitidos.',
+            'postal_code.numeric' => 'El código postal debe ser únicamente numérico.',
         ]);
+
+        // Sanitización manual
+        foreach ($data as $key => $value) {
+            if (is_string($value)) {
+                $data[$key] = trim(strip_tags($value));
+            }
+        }
 
         return DB::transaction(function () use ($request, $data) {
             $total = 0;
@@ -62,6 +74,7 @@ class InvoiceController extends Controller
                 'first_name'     => $data['first_name'],
                 'last_name'      => $data['last_name'],
                 'address'        => $data['address'],
+                'postal_code'    => $data['postal_code'],
                 'payment_method' => $data['payment_method'],
                 'tax'            => 21,
                 'total'          => $total,

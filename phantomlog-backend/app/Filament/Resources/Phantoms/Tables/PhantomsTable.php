@@ -18,6 +18,7 @@ class PhantomsTable
             ->columns([
                 ImageColumn::make('image')
                     ->label('Foto')
+                    ->disk('public')
                     ->circular(),
                 TextColumn::make('name')
                     ->label('Nombre')

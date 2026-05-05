@@ -51,7 +51,7 @@ class ProductSeeder extends Seeder
                 'tax'         => 21,
                 'stock'       => 20,
                 'category'    => 'EQUIPMENT',
-                'image'       => 'images/products/spiritbox.jpg',
+                'image'       => 'images/products/ghost_box_bt.jpg',
                 'description' => 'Caja de espíritus con barrido de frecuencias AM/FM. Permite la comunicación en tiempo real con entidades.',
             ],
             [

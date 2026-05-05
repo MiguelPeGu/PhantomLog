@@ -44,21 +44,43 @@ export default function Forums() {
     try {
       if (isEditing) {
         await updateForum(currentEditId, { title: formData.title, description: formData.description })
-        addToast('Actualizado', 'success')
+        addToast('Investigación actualizada con éxito.', 'success')
       } else {
+        if (!formData.image) return addToast('Debes adjuntar una evidencia visual.', 'error')
+        
+        // Client-side type check
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+        if (!validTypes.includes(formData.image.type)) {
+          return addToast('El archivo debe ser una imagen (JPG, PNG o WEBP).', 'error')
+        }
+
         const reader = new FileReader()
         reader.readAsDataURL(formData.image)
         reader.onload = async () => {
-          await createForum({ title: formData.title, description: formData.description, image: reader.result })
-          addToast('Creado', 'success')
-          refreshForums({ page: 1 })
+          try {
+            await createForum({ title: formData.title, description: formData.description, image: reader.result })
+            addToast('Nuevo foro de investigación sellado.', 'success')
+            setShowModal(false)
+            refreshForums({ page: 1 })
+          } catch (err) {
+            const msg = err.response?.data?.message || 'Error al sellar el foro.'
+            const errors = err.response?.data?.errors
+            if (errors) {
+              const firstError = Object.values(errors)[0][0]
+              addToast(firstError.toUpperCase(), 'error')
+            } else {
+              addToast(msg.toUpperCase(), 'error')
+            }
+          }
         }
-        setShowModal(false)
         return
       }
       setShowModal(false)
       refreshForums({ page: currentPage })
-    } catch (error) { addToast('Error', 'error') }
+    } catch (error) { 
+      const msg = error.response?.data?.message || 'Fallo en la conexión con el servidor.'
+      addToast(msg.toUpperCase(), 'error') 
+    }
   }
 
   const handleDeleteForum = async (id) => {
@@ -74,54 +96,63 @@ export default function Forums() {
 
   return (
     <div className="page-container">
-      <header className="mb-40 text-center">
-        <h1>FOROS DE INVESTIGACIÓN</h1>
-        <p style={{ color: 'var(--text-dim)' }}>Comparte tus hallazgos con la comunidad.</p>
+      <header className="text-center mb-60 border-bottom pb-30">
+        <h1 className="fs-42 ls-4">FOROS DE INVESTIGACIÓN</h1>
+        <p className="text-dim fs-14 mt-5 mb-80">Comparte tus hallazgos con la comunidad.</p>
+        
+        <div className="flex-center gap-20 mt-60">
+          <input 
+            type="text" 
+            placeholder="BUSCAR FOROS..." 
+            className="search-bar w-100 max-400 m-0"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+          />
+          {user && (
+            <button 
+              onClick={() => { setFormData({title: '', description: '', image: null}); setIsEditing(false); setShowModal(true); }}
+              className="ls-1 p-15-40 primary nowrap"
+            >
+              + NUEVO FORO
+            </button>
+          )}
+        </div>
       </header>
 
-      <div className="mb-40 flex-center" style={{ justifyContent: 'space-between', gap: '20px' }}>
-        <input 
-          type="text" 
-          placeholder="BUSCAR FOROS..." 
-          value={localSearch}
-          onChange={(e) => setLocalSearch(e.target.value)}
-          style={{ maxWidth: '300px', margin: 0 }}
-        />
-        {user && <button onClick={() => { setFormData({title: '', description: '', image: null}); setIsEditing(false); setShowModal(true); }}>NUEVO FORO</button>}
-      </div>
-
       {loading && forums.length === 0 ? (
-        <div className="text-center" style={{ padding: '100px', color: 'var(--text)' }}>Invocando foros...</div>
+        <div className="text-center fs-18 p-100">Invocando foros...</div>
       ) : (
         <>
-          <div className="grid-3" style={{ opacity: loading ? 0.4 : 1, transition: 'opacity 0.2s' }}>
+        <div className="max-1200">
+          <div className={`grid-3 ${loading ? 'opacity-04' : ''}`}>
             {forums.map(f => (
-              <div key={f.id} className="horror-card column" style={{ padding: '15px' }}>
-                <div onClick={() => navigate(`/forums/${f.id}`)} style={{ cursor: 'pointer', flex: 1 }}>
-                  <div style={{ height: '180px', background: '#111', border: '1px solid var(--border)', marginBottom: '15px' }}>
+              <div key={f.id} className="horror-card column">
+                <div onClick={() => navigate(`/forums/${f.id}`)} className="pointer flex-1">
+                  <div className="card-image-box">
                     <ShimmerImage 
                       src={f.image_url}
                       alt={f.title}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      objectFit="cover"
                     />
                   </div>
-                  <h3>{f.title.toUpperCase()}</h3>
-                  <p style={{ fontSize: '13px', lineHeight: '1.4', color: 'var(--text-dim)' }}>{f.description.substring(0, 100)}...</p>
+                  <h3 className="fs-24 mb-10">{f.title.toUpperCase()}</h3>
+                  <p className="fs-15 lh-1-6 text-dim">{f.description.substring(0, 120)}...</p>
                 </div>
                 {user && String(user.id) === String(f.user_id) && (
-                  <div className="flex-center mt-10" style={{ gap: '10px' }}>
-                    <button onClick={() => { setFormData({title: f.title, description: f.description}); setCurrentEditId(f.id); setIsEditing(true); setShowModal(true); }} style={{ flex: 1 }}>EDITAR</button>
-                    <button onClick={() => handleDeleteForum(f.id)} className="outline-red" style={{ flex: 1 }}>BORRAR</button>
+                  <div className="flex-center mt-10 gap-10">
+                    <button onClick={() => { setFormData({title: f.title, description: f.description}); setCurrentEditId(f.id); setIsEditing(true); setShowModal(true); }} className="flex-1">EDITAR</button>
+                    <button onClick={() => handleDeleteForum(f.id)} className="outline-red flex-1">BORRAR</button>
                   </div>
                 )}
               </div>
             ))}
           </div>
+        </div>
 
           {totalPages > 1 && (
-            <div className="mt-60 flex-center" style={{ gap: '20px' }}>
+            <div className="pagination-controls">
               <button disabled={currentPage === 1} onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}>🡄 ANTERIOR</button>
-              <span style={{ fontWeight: 'bold' }}>{currentPage} / {totalPages}</span>
+              <span className="bold">{currentPage} / {totalPages}</span>
               <button disabled={currentPage === totalPages} onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}>SIGUIENTE 🡆</button>
             </div>
           )}
@@ -130,13 +161,28 @@ export default function Forums() {
 
       {showModal && (
         <div className="modal-overlay">
-          <form onSubmit={handleCreateForum} className="horror-form" style={{ maxWidth: '400px' }}>
-            <h2>{isEditing ? 'EDITAR FORO' : 'NUEVO FORO'}</h2>
-            <input required placeholder="Titulo" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
-            <textarea required placeholder="Descripcion" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} style={{ minHeight: '100px' }} />
-            {!isEditing && <input type="file" required onChange={e => setFormData({...formData, image: e.target.files[0]})} />}
-            <button type="submit" className="primary">GUARDAR CAMBIOS</button>
-            <button type="button" onClick={() => setShowModal(false)} className="outline-red">CANCELAR</button>
+          <form onSubmit={handleCreateForum} className="horror-form max-400">
+            <div className="form-group">
+              <label className="form-label">TÍTULO DE LA INVESTIGACIÓN</label>
+              <input required placeholder="Ej: Avistamiento en el bosque" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">DESCRIPCIÓN DE LOS HECHOS</label>
+              <textarea required placeholder="Relata lo sucedido con detalle..." value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="min-h-120" />
+            </div>
+
+            {!isEditing && (
+              <div className="form-group">
+                <label className="form-label">EVIDENCIA VISUAL (IMAGEN)</label>
+                <input type="file" required onChange={e => setFormData({...formData, image: e.target.files[0]})} />
+              </div>
+            )}
+
+            <div className="flex-center mt-20 gap-20">
+              <button type="submit" className="primary flex-1">GUARDAR REGISTRO</button>
+              <button type="button" onClick={() => setShowModal(false)} className="outline-red flex-1">CANCELAR</button>
+            </div>
           </form>
         </div>
       )}

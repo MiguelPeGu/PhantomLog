@@ -52,7 +52,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="page-container relative" style={{ minHeight: '80vh', marginLeft: '70px', maxWidth: '100%' }}>
+    <div className="page-container relative vh100">
       {/* Fondo con secuencia de terror programada */}
       <div 
         className="flicker-overlay"
@@ -66,21 +66,21 @@ export default function Dashboard() {
       />
 
       {/* CONTENIDO */}
-      <div className="relative column" style={{ zIndex: 2, alignItems: 'flex-start', paddingLeft: '0' }}>
-        <h1 style={{ textAlign: 'left', marginLeft: '0' }}>PANEL DE CONTROL</h1>
-        <p style={{ letterSpacing: '2px', textAlign: 'left', marginLeft: '0' }}>Bienvenido, investigador <span style={{ color: 'var(--accent)' }}>{user?.username?.toUpperCase()}</span>. Selecciona un módulo de acceso.</p>
+      <div className="relative column align-start pl-0 z-2">
+        <h1 className="text-left ml-0">PANEL DE CONTROL</h1>
+        <p className="ls-2 text-left ml-0">Bienvenido, investigador <span className="text-accent">{user?.username?.toUpperCase()}</span>. Selecciona un módulo de acceso.</p>
         
-        <div className="column mt-60 w-100" style={{ maxWidth: '400px', gap: '20px', marginLeft: '0' }}>
+        <div className="column mt-60 w-100 max-400 gap-20 ml-0">
           {modules.map((m, i) => (
-            <Link key={i} to={m.path} className="horror-card column" style={{ padding: '20px 30px' }}>
-              <h2 style={{ fontSize: '24px', margin: 0 }}>{m.title}</h2>
-              <p style={{ fontSize: '12px', margin: 0, color: 'var(--text-dim)' }}>{m.desc}</p>
+            <Link key={i} to={m.path} className="horror-card column p-20-30">
+              <h2 className="fs-24 m-0">{m.title}</h2>
+              <p className="text-dim m-0 fs-12">{m.desc}</p>
             </Link>
           ))}
         </div>
       </div>
 
-      <div className="system-status-footer" style={{ textAlign: 'right', right: '20px' }}>
+      <div className="system-status-footer text-right right-20">
         TERMINAL.STATUS: ONLINE // ENCRYPTED_CONNECTION
       </div>
     </div>

@@ -30,6 +30,13 @@ export default function Cart() {
   const handleUpdate = async (productId, intent) => {
     if (updatingState[productId]) return;
 
+    // Pedir confirmación ANTES del update optimista si la intención es borrar
+    if (intent === 'rem') {
+      if (!window.confirm("¿CONFIRMAS QUE DESEAS PURGAR ESTA OFRENDA DEL CONTENEDOR?")) {
+        return;
+      }
+    }
+
     const currentItem = cartData?.items.find(i => i.product.id === productId);
     if (intent === 'add' && currentItem && currentItem.quantity >= currentItem.product.stock) {
       addToast("Has alcanzado el límite de existencias.", "error");
@@ -78,49 +85,52 @@ export default function Cart() {
     }
   }
 
-  if (loading) return <div style={{ color: 'var(--text)', textAlign: 'center', marginTop: '50px' }}>INSPECCIONANDO EL VACÍO...</div>
+  if (loading) return <div className="mt-50 text-normal text-center">INSPECCIONANDO EL VACÍO...</div>
 
   const items = cartData?.items || []
 
   return (
-    <div className="page-container">
+    <div className="page-container mx-auto" style={{ maxWidth: '900px' }}>
       <header className="text-center mb-40">
         <h1>EL CONTENEDOR</h1>
-        <p style={{ color: 'var(--text-dim)' }}>Tus adquisiciones a la espera de ser consagradas.</p>
+        <p className="text-dim">Tus adquisiciones a la espera de ser consagradas.</p>
       </header>
 
       <button 
         onClick={() => navigate('/products')} 
-        className="mb-40"
-        style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+        className="mb-40 flex-center gap-10"
       >
         🡄 VOLVER AL CATÁLOGO
       </button>
       
       {items.length === 0 ? (
-        <div className="text-center" style={{ border: '1px dashed var(--accent)', padding: '40px' }}>
-          <p>Tu contenedor está vacío de ecos.</p>
-          <button onClick={() => navigate('/products')} className="mt-10">VOLVER A LA ARMERÍA</button>
+        <div className="text-center column align-center p-60">
+          <img 
+            src="/ghost-shopping.png" 
+            alt="Vacio" 
+            className="mb-40 opacity-04 mx-auto" 
+            style={{ width: '250px', filter: 'grayscale(1) brightness(0.9)' }} 
+          />
+          <p className="fs-24 ls-2 text-dim">Tu contenedor está vacío de ecos.</p>
         </div>
       ) : (
-        <div className="horror-card" style={{ maxWidth: '900px', margin: '0 auto', padding: '30px' }}>
+        <div className="horror-card p-30">
           {items.map(item => (
-            <div key={item.product.id} className="flex-center" style={{ justifyContent: 'space-between', borderBottom: '1px solid var(--text-muted)', padding: '15px 0' }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: '0 0 5px 0' }}>{item.product.title}</h3>
-                <p style={{ margin: 0, fontSize: '14px' }}>COSTO: {Number(item.product.price).toFixed(2)}€</p>
+            <div key={item.product.id} className="cart-item-row flex-center">
+              <div className="flex-1">
+                <h3 className="m-0 mb-5">{item.product.title}</h3>
+                <p className="m-0 fs-14">COSTO: {Number(item.product.price).toFixed(2)}€</p>
               </div>
 
-              <div className="flex-center" style={{ gap: '20px' }}>
-                <div className="flex-center" style={{ border: '1px solid var(--border)', background: 'var(--bg)', opacity: updatingState[item.product.id] ? 0.5 : 1 }}>
-                  <button onClick={() => handleUpdate(item.product.id, 'sub')} className="cart-action-btn" style={{ padding: '5px 15px' }}>-</button>
-                  <span style={{ padding: '5px 10px', borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)', minWidth: '30px', textAlign: 'center' }}>{item.quantity}</span>
-                  <button onClick={() => handleUpdate(item.product.id, 'add')} className="cart-action-btn" style={{ padding: '5px 15px' }}>+</button>
+              <div className="flex-center gap-20">
+                <div className={`cart-qty-selector flex-center ${updatingState[item.product.id] ? 'opacity-05' : ''}`}>
+                  <button onClick={() => handleUpdate(item.product.id, 'sub')} className="cart-action-btn p-5-15">-</button>
+                  <span>{item.quantity}</span>
+                  <button onClick={() => handleUpdate(item.product.id, 'add')} className="cart-action-btn p-5-15">+</button>
                 </div>
                 <button 
                   onClick={() => handleUpdate(item.product.id, 'rem')} 
-                  className="outline-red"
-                  style={{ padding: '5px 15px', minWidth: '120px' }}
+                  className="outline-red p-5-15 min-w-120"
                 >
                   {updatingState[item.product.id] === 'rem' ? 'ELIMINANDO...' : 'ELIMINAR'}
                 </button>
@@ -128,14 +138,14 @@ export default function Cart() {
             </div>
           ))}
 
-          <div className="mt-60" style={{ textAlign: 'right' }}>
-            <p style={{ margin: '0', fontSize: '16px' }}>SUBTOTAL: {Number(cartData.totalWithoutTax || 0).toFixed(2)}€</p>
-            <p style={{ margin: '0', fontSize: '16px', color: 'var(--text-dim)' }}>IMPUESTOS (21%): {Number(cartData.totalWithTax - cartData.totalWithoutTax || 0).toFixed(2)}€</p>
-            <h2 style={{ fontSize: '32px', margin: '5px 0' }}>TOTAL: {Number(cartData.totalWithTax || 0).toFixed(2)}€</h2>
+          <div className="cart-totals-panel">
+            <p className="m-0 fs-16">SUBTOTAL: {Number(cartData.totalWithoutTax || 0).toFixed(2)}€</p>
+            <p className="m-0 fs-16 text-dim">IMPUESTOS (21%): {Number(cartData.totalWithTax - cartData.totalWithoutTax || 0).toFixed(2)}€</p>
+            <h2 className="fs-32 m-5-0">TOTAL: {Number(cartData.totalWithTax || 0).toFixed(2)}€</h2>
             
-            <div className="mt-60 flex-center" style={{ justifyContent: 'flex-end', gap: '15px' }}>
+            <div className="mt-60 flex-center justify-end gap-15">
               <button onClick={() => navigate('/products')}>SEGUIR BUSCANDO</button>
-              <button onClick={() => navigate('/checkout')} className="primary" style={{ padding: '10px 20px', fontSize: '18px' }}>SELLAR PACTO (CHECKOUT)</button>
+              <button onClick={() => navigate('/checkout')} className="primary fs-18 p-10-20">SELLAR PACTO (CHECKOUT)</button>
             </div>
           </div>
         </div>

@@ -17,7 +17,7 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
-    dni: '', first_name: '', last_name: '', address: '',
+    dni: '', first_name: '', last_name: '', address: '', postal_code: '',
     mobile: '', card: '', expiry: '', cvv: ''
   })
   const [paymentMethod, setPaymentMethod] = useState('credito')
@@ -30,6 +30,7 @@ export default function Checkout() {
         first_name: user.firstname || '',
         last_name: user.lastname || '',
         address: user.address || '',
+        postal_code: user.postalCode || '',
         mobile: user.mobile || ''
       }))
     }
@@ -42,9 +43,53 @@ export default function Checkout() {
     }).finally(() => setLoading(false))
   }, [navigate])
 
+  const validateForm = () => {
+    const dniRegex = /^[0-9]{8}[A-Z]$/i
+    if (!dniRegex.test(formData.dni)) {
+      addToast("DNI INVÁLIDO (8 NÚMEROS + 1 LETRA)", "error")
+      return false
+    }
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
+    if (!nameRegex.test(formData.first_name) || !nameRegex.test(formData.last_name)) {
+      addToast("EL NOMBRE Y APELLIDOS NO PUEDEN CONTENER NÚMEROS", "error")
+      return false
+    }
+    const phoneRegex = /^[0-9]+$/
+    if (!phoneRegex.test(formData.mobile)) {
+      addToast("EL TELÉFONO DEBE SER SOLO NÚMEROS", "error")
+      return false
+    }
+    if (!phoneRegex.test(formData.postal_code) || formData.postal_code.length !== 5) {
+      addToast("CÓDIGO POSTAL INVÁLIDO (5 NÚMEROS)", "error")
+      return false
+    }
+
+    if (paymentMethod !== 'bizum') {
+      const cardRegex = /^[0-9]{16}$/
+      const expiryRegex = /^[0-9]{2}\/[0-9]{2}$/
+      const cvvRegex = /^[0-9]{3}$/
+      
+      const cleanCard = formData.card.replace(/\s/g, '')
+      if (!cardRegex.test(cleanCard)) {
+        addToast("Nº DE TARJETA INVÁLIDO (16 NÚMEROS)", "error")
+        return false
+      }
+      if (!expiryRegex.test(formData.expiry)) {
+        addToast("FECHA DE CADUCIDAD INVÁLIDA (MM/AA)", "error")
+        return false
+      }
+      if (!cvvRegex.test(formData.cvv)) {
+        addToast("CVV INVÁLIDO (3 NÚMEROS)", "error")
+        return false
+      }
+    }
+    return true
+  }
+
   const handleProcess = async (e) => {
     e.preventDefault()
     if (isSubmitting) return;
+    if (!validateForm()) return;
     setIsSubmitting(true)
     
     try {
@@ -60,51 +105,46 @@ export default function Checkout() {
       setTimeout(() => navigate(`/success/${resp.data.id}`), 3000)
     } catch (err) {
       setIsSubmitting(false)
-      addToast("Error al procesar el pacto.", "error")
+      const msg = err.response?.data?.message || "Error al procesar el pacto."
+      addToast(msg.toUpperCase(), "error")
     }
   }
 
-  if (loading || !cartData) return <div style={{ color: 'var(--text)', textAlign: 'center', marginTop: '50px' }}>SINCRONIZANDO PACTO...</div>
+  if (loading || !cartData) return <div className="mt-50 text-normal text-center">SINCRONIZANDO PACTO...</div>
 
   if (ghostLoading) {
     return (
-      <div style={{ textAlign: 'center', color: 'var(--text)', marginTop: '100px' }}>
-        <h1 style={{ color: '#f00', fontSize: '32px' }}>FORMALIZANDO EL CONTRATO...</h1>
-        <div style={{ fontSize: '120px', animation: 'float 2s infinite' }}>👻</div>
-        <style>{`
-          @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-30px); }
-          }
-        `}</style>
+      <div className="mt-100 text-normal text-center">
+        <h1 className="text-accent fs-32">FORMALIZANDO EL CONTRATO...</h1>
+        <div className="fs-120 animate-float">👻</div>
       </div>
     )
   }
 
   return (
-    <div className="page-container" style={{ maxWidth: '1100px' }}>
+    <div className="page-container mx-auto" style={{ maxWidth: '1100px' }}>
       <header className="text-center mb-40">
         <h1>SELLAR PACTO (CHECKOUT)</h1>
-        <p style={{ color: 'var(--text-dim)' }}>Finaliza la ceremonia de intercambio.</p>
+        <p className="text-dim">Finaliza la ceremonia de intercambio.</p>
       </header>
 
-      <div className="flex-center" style={{ gap: '40px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+      <div className="flex-center align-start gap-40 wrap grid-2-1">
         {/* Formulario */}
-        <div className="horror-card" style={{ flex: '2', padding: '30px' }}>
-          <h2 style={{ marginBottom: '20px' }}>IDENTIDAD DEL INVOCADOR</h2>
-          <form onSubmit={handleProcess} className="column" style={{ gap: '20px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div className="horror-card flex-2 p-30">
+          <h2 className="mb-20">IDENTIDAD DEL INVOCADOR</h2>
+          <form onSubmit={handleProcess} className="column gap-20">
+            <div className="grid-2 gap-20">
               <div className="form-group">
                 <label className="form-label">DNI / DOCUMENTO</label>
-                <input required value={formData.dni} onChange={e => setFormData({...formData, dni: e.target.value})} />
+                <input required placeholder="12345678X" value={formData.dni} onChange={e => setFormData({...formData, dni: e.target.value.toUpperCase()})} />
               </div>
               <div className="form-group">
                 <label className="form-label">TELÉFONO</label>
-                <input required value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} />
+                <input required placeholder="600000000" value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value.replace(/\D/g,'')})} />
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="grid-2 gap-20">
               <div className="form-group">
                 <label className="form-label">NOMBRE</label>
                 <input required value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} />
@@ -117,50 +157,57 @@ export default function Checkout() {
 
             <div className="form-group">
               <label className="form-label">DIRECCIÓN DE ENTREGA</label>
-              <input required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+              <input required placeholder="Calle, Número, Piso" className="w-100" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">C.P.</label>
+              <input required placeholder="28001" maxLength="5" value={formData.postal_code} onChange={e => setFormData({...formData, postal_code: e.target.value.replace(/\D/g,'')})} />
             </div>
 
-            <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--text-muted)' }}>
-              <h2 style={{ marginBottom: '20px' }}>OFRENDA MONETARIA</h2>
+            <div className="mt-20 pt-20 border-top">
+              <h2 className="mb-20">OFRENDA MONETARIA</h2>
               <label className="form-label">MÉTODO DE PAGO</label>
-              <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} style={{ width: '100%', marginBottom: '20px' }}>
+              <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} className="w-100 mb-20">
                 <option value="credito">Tarjeta de Crédito</option>
                 <option value="debito">Tarjeta de Débito</option>
                 <option value="bizum">Bizum</option>
               </select>
 
               {paymentMethod !== 'bizum' && (
-                <div className="column" style={{ gap: '15px' }}>
-                  <input placeholder="Nº TARJETA (XXXX XXXX XXXX XXXX)" required value={formData.card} onChange={e => setFormData({...formData, card: e.target.value})} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <input placeholder="MM/AA" required value={formData.expiry} onChange={e => setFormData({...formData, expiry: e.target.value})} />
-                    <input placeholder="CVV" required value={formData.cvv} onChange={e => setFormData({...formData, cvv: e.target.value})} />
+                <div className="column gap-15">
+                  <input placeholder="Nº TARJETA (16 DÍGITOS)" required maxLength="19" value={formData.card} onChange={e => setFormData({...formData, card: e.target.value.replace(/\D/g,'').replace(/(\d{4})/g,'$1 ').trim()})} />
+                  <div className="grid-2 gap-20">
+                    <input placeholder="MM/AA" required maxLength="5" value={formData.expiry} onChange={e => {
+                      let val = e.target.value.replace(/\D/g,'')
+                      if (val.length > 2) val = val.slice(0,2) + '/' + val.slice(2,4)
+                      setFormData({...formData, expiry: val})
+                    }} />
+                    <input placeholder="CVV" required maxLength="3" value={formData.cvv} onChange={e => setFormData({...formData, cvv: e.target.value.replace(/\D/g,'')})} />
                   </div>
                 </div>
               )}
             </div>
 
-            <button type="submit" disabled={isSubmitting} className="primary" style={{ 
-              marginTop: '20px', padding: '15px', fontSize: '20px'
-            }}>
+            <button type="submit" disabled={isSubmitting} className="primary mt-20 fs-20 p-15">
               {isSubmitting ? 'PROCESANDO...' : `CONSECRAR PAGO: ${Number(cartData.totalWithTax || 0).toFixed(2)}€`}
             </button>
           </form>
         </div>
 
         {/* Sidebar Resumen */}
-        <div className="horror-card" style={{ flex: '1', padding: '30px', height: 'fit-content' }}>
-          <h2 style={{ marginBottom: '20px' }}>RESUMEN DEL RITUAL</h2>
+        <div className="horror-card flex-1 p-30 h-fit">
+          <h2 className="mb-20">RESUMEN DEL RITUAL</h2>
           {cartData.items.map(item => (
-            <div key={item.id} className="flex-center" style={{ justifyContent: 'space-between', borderBottom: '1px solid var(--text-muted)', paddingBottom: '10px', marginBottom: '10px' }}>
+            <div key={item.id} className="checkout-summary-item flex-center">
               <span>{item.quantity}x {item.product.title}</span>
-              <span style={{ color: 'var(--accent)' }}>{(item.product.price * item.quantity).toFixed(2)}€</span>
+              <span className="text-accent">{(item.product.price * item.quantity).toFixed(2)}€</span>
             </div>
           ))}
-          <div className="mt-40" style={{ textAlign: 'right' }}>
-            <p style={{ margin: 0 }}>SUBTOTAL: {Number(cartData.totalWithoutTax || 0).toFixed(2)}€</p>
-            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-dim)' }}>IMPUESTOS (21%): {Number(cartData.totalWithTax - cartData.totalWithoutTax || 0).toFixed(2)}€</p>
-            <h3 style={{ color: 'var(--text)', fontSize: '24px', marginTop: '10px' }}>TOTAL: {Number(cartData.totalWithTax || 0).toFixed(2)}€</h3>
+          <div className="mt-40 text-right">
+            <p className="m-0">SUBTOTAL: {Number(cartData.totalWithoutTax || 0).toFixed(2)}€</p>
+            <p className="m-0 fs-14 text-dim">IMPUESTOS (21%): {Number(cartData.totalWithTax - cartData.totalWithoutTax || 0).toFixed(2)}€</p>
+            <h3 className="text-normal fs-24 mt-10">TOTAL: {Number(cartData.totalWithTax || 0).toFixed(2)}€</h3>
           </div>
         </div>
       </div>

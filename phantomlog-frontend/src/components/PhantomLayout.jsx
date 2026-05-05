@@ -53,18 +53,14 @@ export default function PhantomLayout() {
   ]
 
   return (
-    <div key={theme} className="column" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+    <div key={theme} className="column min-vh100" style={{ background: 'var(--bg)' }}>
       {/* Header Estilo Amazon/Horror */}
-      <header className="main-header" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
-        <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Link to="/dashboard" style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: '24px', letterSpacing: '2px' }}>PHANTOMLOG</Link>
+      <header className="main-header header-grid">
+        <div className="header-left gap-20">
+          <Link to="/dashboard" className="header-logo">PHANTOMLOG</Link>
           <button 
             onClick={toggleTheme} 
-            className="flex-center" 
-            style={{ 
-              width: '35px', height: '35px', padding: 0, borderRadius: '50%', 
-              fontSize: '18px', border: '1px solid var(--border)' 
-            }}
+            className="flex-center theme-toggle-btn" 
             title={theme === 'dark' ? 'Activar modo clínico' : 'Activar modo original'}
           >
             {theme === 'dark' ? '🔆' : '🌑'}
@@ -73,24 +69,14 @@ export default function PhantomLayout() {
           {user?.role === 'admin' && (
             <a 
               href="http://localhost:8000/admin" 
-              className="btn" 
-              style={{ 
-                fontSize: '11px', 
-                padding: '8px 15px',
-                textDecoration: 'none', 
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                border: '1px solid var(--border)',
-                borderRadius: '0'
-              }}
+              className="btn fs-11 p-8-15 no-underline flex-center gap-8 border-1"
             >
-              <span style={{ letterSpacing: '1px' }}>PANEL ADMIN</span>
+              <span className="ls-1">PANEL ADMIN</span>
             </a>
           )}
         </div>
 
-        <div className="header-search-container" style={{ width: '400px' }}>
+        <div className="header-search-container" style={{ flex: '0 0 400px', maxWidth: '600px', margin: '0 20px' }}>
           <input 
             type="text" 
             placeholder="BUSCAR PRODUCTOS..." 
@@ -110,7 +96,7 @@ export default function PhantomLayout() {
           </svg>
         </div>
         
-        <nav className="nav-links" style={{ justifySelf: 'end' }}>
+        <nav className="header-right nav-links gap-20">
           {navLinks.map(link => (
             <Link 
               key={link.path} 
@@ -123,7 +109,7 @@ export default function PhantomLayout() {
               {link.name}
             </Link>
           ))}
-          <Link to="/cart" className="nav-link" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <Link to="/cart" className="nav-link relative flex-center gap-5">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="9" cy="21" r="1"></circle>
               <circle cx="20" cy="21" r="1"></circle>
@@ -132,28 +118,21 @@ export default function PhantomLayout() {
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </Link>
           
-          <Link to="/profile" style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '10px', 
-            borderLeft: '1px solid #222', 
-            paddingLeft: '15px' 
-          }}>
-            <div style={{ 
-              width: '32px', 
-              height: '32px', 
-              borderRadius: '50%', 
-              background: 'var(--text-muted)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              overflow: 'hidden',
-              border: '1px solid var(--text)'
-            }}>
+          <Link to="/profile" className="flex-center gap-10 border-left-1 pl-15">
+            <div className="header-avatar-circle">
               {user?.img ? (
-                <img src={user.img} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img 
+                  src={user.img.startsWith('http') || user.img.startsWith('data:') ? user.img : `http://localhost:8000/storage/${user.img}`} 
+                  alt="Profile" 
+                  className="w-100 h-100 object-cover" 
+                  onError={(e) => {
+                    console.error("ERROR: Header avatar failed to load:", e.target.src);
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerText = user.username[0].toUpperCase();
+                  }}
+                />
               ) : (
-                <span style={{ color: 'var(--text)', fontSize: '14px', fontWeight: 'bold' }}>{user?.username?.[0].toUpperCase()}</span>
+                <span className="text-normal fs-14 bold">{user?.username?.[0].toUpperCase()}</span>
               )}
             </div>
           </Link>
@@ -161,7 +140,7 @@ export default function PhantomLayout() {
       </header>
 
       {/* Content Area */}
-      <main style={{ opacity: showContent ? 1 : 0, transition: 'opacity 0.5s', flex: 1 }}>
+      <main className={`flex-1 transition-opacity-05 ${showContent ? 'opacity-1' : 'opacity-0'}`}>
         <Outlet />
       </main>
 
@@ -169,13 +148,13 @@ export default function PhantomLayout() {
       <footer className="main-footer">
         <div className="footer-content grid-3">
           <div className="footer-section">
-            <h4 className="footer-title">PHANTOMLOG CORP</h4>
+            <h4 className="footer-title">PHANTOMLOG</h4>
             <p>Monitoreando el velo desde 1994.</p>
             <p>Todos los derechos reservados // Código: 0x8842</p>
           </div>
           <div className="footer-section">
             <h4 className="footer-title">ACCESO RÁPIDO</h4>
-            <div className="column" style={{ gap: '5px' }}>
+            <div className="column gap-5">
               <Link to="/products">Armería</Link>
               <Link to="/forums">Archivo de Testimonios</Link>
               <Link to="/expeditions">Calendario de Incursión</Link>
@@ -183,9 +162,9 @@ export default function PhantomLayout() {
           </div>
           <div className="footer-section">
             <h4 className="footer-title">ESTADO DEL SISTEMA</h4>
-            <p style={{ color: 'var(--text)' }}>● SERVIDORES: ONLINE</p>
-            <p style={{ color: 'var(--text)' }}>● CONEXIÓN: ENCRIPTADA</p>
-            <p style={{ color: 'var(--accent)' }}>● AMENAZAS: ACTIVAS</p>
+            <p className="text-normal">● SERVIDORES: ONLINE</p>
+            <p className="text-normal">● CONEXIÓN: ENCRIPTADA</p>
+            <p className="text-accent">● AMENAZAS: ACTIVAS</p>
           </div>
         </div>
         <div className="footer-bottom">

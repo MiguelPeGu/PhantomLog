@@ -18,20 +18,19 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $products = [
-            ['title' => 'Sensor EMF K-II Pro', 'desc' => 'Detector de campos electromagnéticos de alta sensibilidad. Indispensable para localizar focos de energía paranormal.'],
-            ['title' => 'Spirit Box SB7-V2', 'desc' => 'Radio de barrido de frecuencia ultra-rápido para comunicación trans-instrumental en tiempo real.'],
-            ['title' => 'Cámara Térmica FLIR Ghost', 'desc' => 'Visualiza variaciones térmicas de hasta 0.01°C. Capta siluetas invisibles al ojo humano.'],
-            ['title' => 'Sal Bendita del Vaticano', 'desc' => 'Contenedor de 500g de sal marina pura, ritualizada para protección perimetral contra entidades de clase 4.'],
-            ['title' => 'Grabadora Digital de EVP', 'desc' => 'Filtro de ruido blanco avanzado para capturar psicofonías en frecuencias inaudibles.'],
-            ['title' => 'Lámpara UV de Espectro Completo', 'desc' => 'Revela rastros de ectoplasma y fluidos residuales invisibles bajo luz convencional.'],
-            ['title' => 'Incienso de Sándalo Antiguo', 'desc' => 'Pack de 20 varillas para purificación de ambientes cargados con energía negativa.'],
-            ['title' => 'Crucifijo de Plata de Ley', 'desc' => 'Reliquia de protección personal fabricada en plata 925 con inscripciones en latín.'],
-            ['title' => 'Sensor de Movimiento Láser', 'desc' => 'Crea una red de seguridad invisible. Emite una alarma sonora al detectar cualquier interrupción física.'],
-            ['title' => 'Pendulo de Cuarzo Amatista', 'desc' => 'Herramienta de radiestesia para respuestas binarias en investigaciones de campo.'],
+            ['title' => 'Sensor EMF K-II Pro', 'desc' => 'Detector de campos electromagnéticos de alta sensibilidad.', 'img' => 'emf_k2.jpg'],
+            ['title' => 'Spirit Box SB7-V2', 'desc' => 'Radio de barrido de frecuencia ultra-rápido.', 'img' => 'ghost_box_bt.jpg'],
+            ['title' => 'Cámara Térmica FLIR Ghost', 'desc' => 'Visualiza variaciones térmicas de hasta 0.01°C.', 'img' => 'thermal_cam.jpg'],
+            ['title' => 'Sal Bendita del Vaticano', 'desc' => 'Contenedor de 500g de sal marina pura.', 'img' => 'salt.jpg'],
+            ['title' => 'Grabadora Digital de EVP', 'desc' => 'Filtro de ruido blanco avanzado.', 'img' => 'evp_recorder.jpg'],
+            ['title' => 'Lámpara UV de Espectro Completo', 'desc' => 'Revela rastros de ectoplasma.', 'img' => 'uv_light.jpg'],
+            ['title' => 'Incienso de Sándalo Antiguo', 'desc' => 'Pack de 20 varillas para purificación.', 'img' => 'sage.jpg'],
+            ['title' => 'Crucifijo de Plata de Ley', 'desc' => 'Reliquia de protección personal.', 'img' => 'cross.jpg'],
+            ['title' => 'Sensor de Movimiento Láser', 'desc' => 'Crea una red de seguridad invisible.', 'img' => 'motion_ir.jpg'],
+            ['title' => 'Péndulo de Cuarzo Amatista', 'desc' => 'Herramienta de radiestesia.', 'img' => 'candles.jpg'], // Using candles as placeholder if pendulo is missing
         ];
 
         $product = $this->faker->randomElement($products);
-        $index = array_search($product, $products) + 1;
 
         return [
             'id' => (string) Str::uuid(),
@@ -41,7 +40,7 @@ class ProductFactory extends Factory
             'price' => $this->faker->randomFloat(2, 20, 1500),
             'tax' => 21,
             'stock' => $this->faker->numberBetween(5, 50),
-            'image' => "images/products/product_{$index}.jpg",
+            'image' => "images/products/{$product['img']}",
             'description' => $product['desc'],
         ];
     }

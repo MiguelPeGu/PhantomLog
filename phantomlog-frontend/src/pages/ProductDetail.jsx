@@ -35,7 +35,7 @@ export default function ProductDetail() {
   }
 
   if (notFound) return <NotFound />
-  if (loading) return <div style={{ color: 'var(--text)' }}>CARGANDO...</div>
+  if (loading) return <div className="text-normal text-center mt-50">CARGANDO...</div>
   if (!product) return null
 
   return (
@@ -52,23 +52,22 @@ export default function ProductDetail() {
           <ShimmerImage 
             src={product.image?.startsWith('http') ? product.image : `http://localhost:8000/storage/${product.image}`} 
             alt={product.title} 
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+            objectFit="contain"
           />
         </div>
         <div className="product-info-panel column">
-          <h1 style={{ color: 'var(--accent)', marginBottom: '20px' }}>{product.title.toUpperCase()}</h1>
-          <p style={{ lineHeight: '1.6', color: 'var(--text-dim)', marginBottom: '30px' }}>{product.description}</p>
+          <h1 className="text-accent mb-20">{product.title.toUpperCase()}</h1>
+          <p className="lh-1-6 text-dim mb-30">{product.description}</p>
           
-          <div className="flex-center justify-between mt-auto" style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
-            <h2 style={{ color: 'var(--text)', margin: 0 }}>{Number(product.price).toFixed(2)}€</h2>
-            <span style={{ color: product.stock > 0 ? 'var(--text)' : 'var(--accent)', fontSize: '12px' }}>
+          <div className="flex-center justify-between mt-auto border-top pt-20">
+            <h2 className="text-normal m-0">{Number(product.price).toFixed(2)}€</h2>
+            <span className={`fs-12 ${product.stock > 0 ? 'text-normal' : 'text-accent'}`}>
               DISPONIBILIDAD: {product.stock > 0 ? product.stock : 'AGOTADO'}
             </span>
           </div>
 
           <button 
-            className="primary mt-20" 
-            style={{ padding: '15px' }}
+            className="primary mt-20 p-15" 
             onClick={handleBuy} 
             disabled={product.stock <= 0}
           >

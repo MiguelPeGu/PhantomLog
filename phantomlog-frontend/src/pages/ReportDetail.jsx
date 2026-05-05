@@ -33,25 +33,31 @@ export default function ReportDetail() {
       const res = await getReport(forumId, reportId)
       setReport(res.data)
       setReportData({ title: res.data.title, description: res.data.description })
-    } catch (error) { addToast('Error al cargar reporte', 'error') }
+    } catch (error) { 
+      addToast('ERROR AL CARGAR EL REPORTE', 'error') 
+    }
   }
 
   const fetchComments = async () => {
     try {
       const res = await getComments(reportId)
       setComments(res.data.data || res.data)
-    } catch (error) { console.error(error) }
+    } catch (error) { 
+      console.error(error) 
+    }
   }
 
   const fetchUserVote = async () => {
     try {
       const res = await getReportVote(reportId)
       setUserVote(res.data.user_vote)
-    } catch (error) { console.error(error) }
+    } catch (error) { 
+      console.error(error) 
+    }
   }
 
   const handleVote = async (value) => {
-    if (!user) return addToast('Debes iniciar sesión para votar', 'info')
+    if (!user) return addToast('DEBES INICIAR SESIÓN PARA VOTAR', 'info')
     
     const prevVote = userVote
     const prevScore = report.score
@@ -75,20 +81,18 @@ export default function ReportDetail() {
 
     try {
       const res = await voteReport(reportId, value)
-      // Sync with server response just in case
       setUserVote(res.data.user_vote)
       setReport({ ...report, score: res.data.score, votes_count: res.data.votes_count })
       
       if (res.data.user_vote === 0) {
-        addToast('VOTO RETIRADO', 'info')
+        addToast('VOTO RETIRADO DEL ARCHIVO', 'info')
       } else {
-        addToast(value === 1 ? 'HAS CREÍDO EN EL REPORTE' : 'HAS MARCADO COMO FALSEDAD', 'success')
+        addToast(value === 1 ? 'HAS CREÍDO EN LA EVIDENCIA' : 'HAS MARCADO COMO FALSEDAD', 'success')
       }
     } catch (error) { 
-      // Revert on error
       setUserVote(prevVote)
       setReport({ ...report, score: prevScore })
-      addToast('Error al registrar voto', 'error') 
+      addToast('ERROR AL REGISTRAR VOTO', 'error') 
     }
   }
 
@@ -96,19 +100,24 @@ export default function ReportDetail() {
     e.preventDefault()
     try {
       await updateReport(forumId, reportId, reportData)
-      addToast('Reporte actualizado', 'success')
+      addToast('REPORTE ACTUALIZADO EN EL SISTEMA', 'success')
       setShowReportModal(false)
       fetchReport()
-    } catch (error) { addToast('Error al actualizar', 'error') }
+    } catch (err) { 
+      const msg = err.response?.data?.message || 'ERROR AL ACTUALIZAR'
+      addToast(msg.toUpperCase(), 'error') 
+    }
   }
 
   const handleReportDelete = async () => {
-    if (!window.confirm('¿Borrar reporte?')) return
+    if (!window.confirm('¿ELIMINAR ESTA EVIDENCIA PERMANENTEMENTE?')) return
     try {
       await deleteReport(forumId, reportId)
-      addToast('Reporte eliminado', 'success')
+      addToast('REPORTE ELIMINADO', 'success')
       navigate(`/forums/${forumId}`)
-    } catch (error) { addToast('Error al eliminar', 'error') }
+    } catch (err) { 
+      addToast('ERROR AL ELIMINAR EL REPORTE', 'error') 
+    }
   }
 
   const handleCommentSubmit = async (e) => {
@@ -118,15 +127,28 @@ export default function ReportDetail() {
       await createComment(reportId, { content: newComment })
       setNewComment('')
       fetchComments()
-    } catch (error) { addToast('Error al comentar', 'error') }
+      addToast('TRANSMISIÓN REGISTRADA', 'success')
+    } catch (err) { 
+      const errors = err.response?.data?.errors
+      if (errors) {
+        const firstError = Object.values(errors)[0][0]
+        addToast(firstError.toUpperCase(), 'error')
+      } else {
+        const msg = err.response?.data?.message || 'ERROR AL COMENTAR'
+        addToast(msg.toUpperCase(), 'error') 
+      }
+    }
   }
 
   const handleCommentDelete = async (id) => {
-    if (!window.confirm('¿Borrar comentario?')) return
+    if (!window.confirm('¿ELIMINAR ESTA TRANSMISIÓN?')) return
     try {
       await deleteComment(reportId, id)
       fetchComments()
-    } catch (error) { addToast('Error al borrar', 'error') }
+      addToast('COMENTARIO PURGADO', 'success')
+    } catch (err) { 
+      addToast('ERROR AL BORRAR', 'error') 
+    }
   }
 
   const handleCommentUpdate = async (id) => {
@@ -134,91 +156,89 @@ export default function ReportDetail() {
       await updateComment(reportId, id, { content: editingCommentText })
       setEditingCommentId(null)
       fetchComments()
-    } catch (error) { addToast('Error al editar', 'error') }
+      addToast('COMENTARIO ACTUALIZADO', 'success')
+    } catch (err) { 
+      const msg = err.response?.data?.message || 'ERROR AL EDITAR'
+      addToast(msg.toUpperCase(), 'error') 
+    }
   }
 
   // SKELETON LOADERS
   if (!report) {
     return (
       <div className="page-container">
-        <div className="shimmer-effect mb-40" style={{ height: '40px', width: '200px' }}></div>
-        <div className="shimmer-effect mb-40" style={{ height: '60px', width: '80%' }}></div>
-        <div className="shimmer-effect mb-40" style={{ height: '400px', width: '100%', border: '1px solid var(--border)' }}></div>
-        <div className="shimmer-effect mb-10" style={{ height: '20px', width: '100%' }}></div>
-        <div className="shimmer-effect mb-10" style={{ height: '20px', width: '90%' }}></div>
+        <div className="shimmer-effect mb-40 h-40 w-200"></div>
+        <div className="shimmer-effect mb-40 h-60 w-80pc"></div>
+        <div className="shimmer-effect mb-40 h-400 w-100 border-1"></div>
+        <div className="shimmer-effect mb-10 h-20 w-100"></div>
+        <div className="shimmer-effect mb-10 h-20 w-90pc"></div>
       </div>
     )
   }
 
   return (
-    <div className="page-container" style={{ maxWidth: '1000px' }}>
+    <div className="page-container max-1000">
       {/* Header Navigation */}
-      <div className="flex-center mb-40" style={{ justifyContent: 'space-between', borderBottom: '1px solid var(--text-muted)', paddingBottom: '20px' }}>
-        <div className="flex-center" style={{ gap: '10px' }}>
+      <div className="flex-center justify-between mb-40 border-bottom pb-20">
+        <div className="flex-center gap-10">
           <button 
             onClick={() => navigate('/forums')} 
-            style={{ padding: '8px 15px', display: 'flex', alignItems: 'center', gap: '8px' }}
+            className="flex-center gap-8 p-8-15"
           >
             🡄 INICIO
           </button>
           <button 
             onClick={() => navigate(`/forums/${forumId}`)} 
-            style={{ padding: '8px 15px', display: 'flex', alignItems: 'center', gap: '8px' }}
+            className="flex-center gap-8 p-8-15"
           >
             🡄 FORO
           </button>
         </div>
         {user && String(user.id) === String(report?.user_id) && (
-          <div className="flex-center" style={{ gap: '10px' }}>
-            <button onClick={() => setShowReportModal(true)} style={{ padding: '8px 15px' }}>EDITAR REPORTE</button>
-            <button onClick={handleReportDelete} className="outline-red" style={{ padding: '8px 15px' }}>ELIMINAR REPORTE</button>
+          <div className="flex-center gap-10">
+            <button onClick={() => setShowReportModal(true)} className="p-8-15">EDITAR REPORTE</button>
+            <button onClick={handleReportDelete} className="outline-red p-8-15">ELIMINAR REPORTE</button>
           </div>
         )}
       </div>
 
-      <h1 style={{ fontSize: '42px', marginBottom: '10px' }}>{report.title}</h1>
-      <p style={{ color: 'var(--text-dim)', marginBottom: '30px' }}>
-        HALLAZGO REGISTRADO POR <span style={{ color: 'var(--text)' }}>{report.user?.username.toUpperCase()}</span>
+      <h1 className="fs-42 mb-10">{report.title}</h1>
+      <p className="text-dim mb-30">
+        HALLAZGO REGISTRADO POR <span className="text-normal">{report.user?.username.toUpperCase()}</span>
       </p>
       
       {report.image_url && (
-        <div className="horror-card" style={{ 
-          padding: '10px', 
-          marginBottom: '30px',
-          minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
+        <div className="horror-card mb-30 p-0 overflow-hidden" style={{ minHeight: '400px' }}>
           <ShimmerImage 
-            src={report.image_url} 
+            src={report.image_url?.startsWith('http') ? report.image_url : `http://localhost:8000/storage/${report.image_url}`} 
             alt="Evidencia"
-            style={{ width: '100%', maxHeight: '600px', objectFit: 'contain' }}
+            objectFit="contain"
+            style={{ height: '500px' }}
           />
         </div>
       )}
 
-      <div className="horror-card" style={{ 
-        padding: '30px', borderLeft: '4px solid var(--accent)', 
-        fontSize: '18px', lineHeight: '1.8', whiteSpace: 'pre-line', marginBottom: '30px' 
-      }}>
+      <div className="horror-card p-30 mb-30 fs-18 lh-1-8 pre-line border-accent-left-4">
         {report.description}
       </div>
 
       {/* Votación / Score */}
-      <div className="flex-center" style={{ gap: '40px', marginBottom: '50px', background: 'rgba(255,0,0,0.05)', padding: '25px', border: '1px solid var(--border)' }}>
-        <div className="flex-center" style={{ gap: '30px', borderRight: '1px solid #222', paddingRight: '40px' }}>
-          <div style={{ textAlign: 'center', minWidth: '100px' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginBottom: '5px', letterSpacing: '1px' }}>SCORE_CREDIBILITY</div>
-            <div style={{ fontSize: '36px', fontWeight: 'bold', color: report.score > 0 ? 'var(--text)' : (report.score < 0 ? 'var(--accent)' : 'var(--text)') }}>
+      <div className="report-score-box flex-center mb-50">
+        <div className="flex-center gap-30 border-right pr-40">
+          <div className="score-display">
+            <div className="fs-11 text-dim mb-5 ls-1">SCORE_CREDIBILITY</div>
+            <div className={`fs-32 bold ${report.score > 0 ? 'text-normal' : (report.score < 0 ? 'text-accent' : 'text-normal')}`}>
               {report.score > 0 ? `+${report.score}` : report.score}
             </div>
           </div>
           
-          <div style={{ textAlign: 'center', minWidth: '100px' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginBottom: '5px', letterSpacing: '1px' }}>TOTAL_WITNESSES</div>
-            <div style={{ fontSize: '36px', fontWeight: 'bold', color: 'var(--text)' }}>{report.votes_count}</div>
+          <div className="score-display">
+            <div className="fs-11 text-dim mb-5 ls-1">TOTAL_WITNESSES</div>
+            <div className="fs-32 bold text-normal">{report.votes_count}</div>
           </div>
         </div>
         
-        <div className="flex-center" style={{ gap: '20px' }}>
+        <div className="flex-center gap-20">
           <button 
             className={`vote-btn ${userVote === 1 ? 'active' : ''}`} 
             style={{ "--i": "var(--believe-color, #00ff00)", "--j": "var(--text-dim)" }}
@@ -251,49 +271,76 @@ export default function ReportDetail() {
 
       {/* Comentarios */}
       <div className="mt-60">
-        <h2 style={{ borderBottom: '1px solid var(--text-muted)', paddingBottom: '10px', marginBottom: '30px' }}>TRANSMISIONES RELACIONADAS</h2>
+        <h2 className="border-bottom pb-10 mb-30">TRANSMISIONES RELACIONADAS</h2>
         
         {user ? (
-          <form onSubmit={handleCommentSubmit} className="flex-center mb-40" style={{ gap: '15px' }}>
-            <input 
-              value={newComment} 
-              onChange={e => setNewComment(e.target.value)} 
-              placeholder="ENVIAR TRANSMISIÓN AL ARCHIVO..." 
-              style={{ flex: 1 }}
-            />
-            <button type="submit" className="primary" style={{ padding: '0 30px' }}>ENVIAR</button>
-          </form>
+          <div className="mb-40">
+            <label className="form-label mb-10 block">NUEVA TRANSMISIÓN (MÁX. 1000 CARACTERES)</label>
+            <form onSubmit={handleCommentSubmit} className="flex-center gap-15">
+              <div className="flex-1 relative">
+                <input 
+                  value={newComment} 
+                  onChange={e => setNewComment(e.target.value)} 
+                  maxLength={1000}
+                  placeholder="ESCRIBE TU HALLAZGO..." 
+                  className="w-100"
+                />
+                <small className={`absolute fs-10 right-10 bottom--20 ${newComment.length >= 1000 ? 'text-accent' : 'text-dim'}`}>
+                  {newComment.length} / 1000
+                </small>
+              </div>
+              <button type="submit" className="primary p-0-30 h-42">ENVIAR</button>
+            </form>
+          </div>
         ) : (
-          <p className="text-center mb-40" style={{ color: 'var(--text-dim)' }}>DEBES ESTAR LOGUEADO PARA ENVIAR TRANSMISIONES.</p>
+          <p className="text-center text-dim mb-40">DEBES ESTAR LOGUEADO PARA ENVIAR TRANSMISIONES.</p>
         )}
 
-        <div className="column" style={{ gap: '20px' }}>
+        <div className="column gap-20">
           {comments.length === 0 ? (
-            <p className="text-center" style={{ color: 'var(--text-dim)' }}>NO HAY TRANSMISIONES ADICIONALES.</p>
+            <p className="text-center text-dim">NO HAY TRANSMISIONES ADICIONALES.</p>
           ) : (
             comments.map(c => (
-              <div key={c.id} className="horror-card" style={{ padding: '20px', borderLeft: '3px solid var(--border)', background: 'var(--card-bg)' }}>
-                <div className="flex-center mb-10" style={{ justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--accent)', fontWeight: 'bold' }}>{c.user?.username.toUpperCase()}</span>
-                  <div className="flex-center" style={{ gap: '10px' }}>
+              <div key={c.id} className="comment-box horror-card">
+                <div className="flex-center justify-between mb-10">
+                  <div className="flex-center gap-10">
+                    <div className="comment-avatar">
+                      {c.user?.img ? (
+                        <img 
+                          src={c.user.img.startsWith('http') || c.user.img.startsWith('data:') ? c.user.img : `http://localhost:8000/storage/${c.user.img}`} 
+                          alt={c.user.username} 
+                          className="w-100 h-100 object-cover" 
+                        />
+                      ) : (
+                        c.user?.username ? c.user.username[0].toUpperCase() : '?'
+                      )}
+                    </div>
+                    <span className="text-accent bold uppercase">{c.user?.username}</span>
+                  </div>
+                  <div className="flex-center gap-10">
                     {user && String(user.id) === String(c.user_id) && editingCommentId !== c.id && (
                       <>
-                        <button onClick={() => { setEditingCommentId(c.id); setEditingCommentText(c.content); }} style={{ fontSize: '10px', padding: '2px 8px' }}>[EDITAR]</button>
-                        <button onClick={() => handleCommentDelete(c.id)} className="outline-red" style={{ fontSize: '10px', padding: '2px 8px' }}>[BORRAR]</button>
+                        <button onClick={() => { setEditingCommentId(c.id); setEditingCommentText(c.content); }} className="fs-10 p-2-8">[EDITAR]</button>
+                        <button onClick={() => handleCommentDelete(c.id)} className="outline-red fs-10 p-2-8">[BORRAR]</button>
                       </>
                     )}
-                    <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{new Date(c.created_at).toLocaleString()}</span>
+                    <span className="fs-10 text-muted">{new Date(c.created_at).toLocaleString()}</span>
                   </div>
                 </div>
                 
                 {editingCommentId === c.id ? (
-                  <div className="flex-center mt-10" style={{ gap: '10px' }}>
-                    <input className="w-100" value={editingCommentText} onChange={e => setEditingCommentText(e.target.value)} />
+                  <div className="flex-center gap-10 mt-10">
+                    <div className="flex-1 relative">
+                      <input className="w-100" value={editingCommentText} maxLength={1000} onChange={e => setEditingCommentText(e.target.value)} />
+                      <small className="absolute fs-9 text-dim right-10 bottom--15">
+                        {editingCommentText.length} / 1000
+                      </small>
+                    </div>
                     <button onClick={() => handleCommentUpdate(c.id)}>OK</button>
                     <button onClick={() => setEditingCommentId(null)} className="outline-red">CANCELAR</button>
                   </div>
                 ) : (
-                  <p style={{ margin: 0, fontSize: '16px', lineHeight: '1.4' }}>{c.content}</p>
+                  <p className="m-0 fs-16 lh-1-4">{c.content}</p>
                 )}
               </div>
             ))
@@ -305,11 +352,20 @@ export default function ReportDetail() {
         <div className="modal-overlay">
           <form onSubmit={handleReportUpdate} className="horror-form">
             <h2>MODIFICAR REPORTE</h2>
-            <input required value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} />
-            <textarea required value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ minHeight: '200px' }} />
-            <div className="flex-center" style={{ gap: '20px' }}>
-              <button type="submit" className="primary" style={{ flex: 1, padding: '15px' }}>ACTUALIZAR</button>
-              <button type="button" onClick={() => setShowReportModal(false)} className="outline-red" style={{ flex: 1, padding: '15px' }}>CANCELAR</button>
+            
+            <div className="form-group">
+              <label className="form-label">TÍTULO DEL HALLAZGO</label>
+              <input required value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">DESCRIPCIÓN DETALLADA</label>
+              <textarea required value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} className="min-h-200" />
+            </div>
+
+            <div className="flex-center gap-20">
+              <button type="submit" className="primary flex-1 p-15">ACTUALIZAR DATOS</button>
+              <button type="button" onClick={() => setShowReportModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
             </div>
           </form>
         </div>

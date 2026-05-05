@@ -15,22 +15,46 @@ final class PhantomForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required(),
-                TextInput::make('type')
-                    ->required(),
-                TextInput::make('location')
-                    ->required(),
-                \Filament\Forms\Components\Textarea::make('description')
+                    ->label('Nombre de la Entidad')
                     ->required()
+                    ->maxLength(100)
+                    ->regex('/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/')
+                    ->validationMessages([
+                        'regex' => 'El nombre contiene caracteres no permitidos.',
+                    ]),
+                TextInput::make('type')
+                    ->label('Clasificación / Tipo')
+                    ->required()
+                    ->maxLength(50)
+                    ->regex('/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/')
+                    ->validationMessages([
+                        'regex' => 'El tipo contiene caracteres no permitidos.',
+                    ]),
+                TextInput::make('location')
+                    ->label('Zona de Avistamiento')
+                    ->required()
+                    ->maxLength(40)
+                    ->regex('/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/')
+                    ->validationMessages([
+                        'max' => 'Máximo 40 caracteres.',
+                        'regex' => 'La ubicación contiene caracteres no permitidos.',
+                    ]),
+                \Filament\Forms\Components\Textarea::make('description')
+                    ->label('Descripción del Ente')
+                    ->required()
+                    ->maxLength(2000)
                     ->columnSpanFull(),
                 \Filament\Forms\Components\Textarea::make('evidence')
-                    ->label('Evidencias Técnicas')
+                    ->label('Evidencias Técnicas / Pruebas')
                     ->placeholder('Ej: CEM Nivel 5, Orbes Espectrales...')
+                    ->maxLength(1000)
                     ->columnSpanFull(),
                 \Filament\Forms\Components\Textarea::make('strengths')
-                    ->label('Fortalezas'),
+                    ->maxLength(500)
+                    ->label('Fortalezas Espectrales'),
                 \Filament\Forms\Components\Textarea::make('weaknesses')
-                    ->label('Debilidades'),
+                    ->maxLength(500)
+                    ->label('Vulnerabilidades Conocidas'),
                 FileUpload::make('image')
                     ->image()
                     ->disk('public')

@@ -21,50 +21,28 @@ export default function NotFound() {
   }, [])
 
   return (
-    <div className="flex-center column vh100 text-center" style={{ background: '#000', padding: '20px' }}>
-      <div style={{ position: 'relative' }}>
-        <h1 style={{ 
-          fontSize: '120px', 
-          margin: 0, 
-          color: 'var(--accent)', 
-          textShadow: '0 0 20px rgba(255, 0, 0, 0.5)',
-          fontFamily: 'var(--mono)'
-        }}>
+    <div className="flex-center column vh100 text-center bg-black p-20">
+      <div className="relative">
+        <h1 className="fs-120 m-0 text-accent text-shadow-horror font-mono">
           {glitchText}
         </h1>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: 'linear-gradient(transparent, rgba(255,0,0,0.1), transparent)',
-          animation: 'scanline 2s linear infinite',
-          pointerEvents: 'none'
-        }} />
+        <div className="scanline-overlay" />
       </div>
       
-      <h2 style={{ color: 'var(--text)', marginTop: '20px', letterSpacing: '4px' }}>ACCESO DENEGADO // RUTA NO ENCONTRADA</h2>
-      <p style={{ color: 'var(--text-dim)', maxWidth: '500px', margin: '20px 0', lineHeight: '1.6' }}>
+      <h2 className="text-normal mt-20 ls-4">ACCESO DENEGADO // RUTA NO ENCONTRADA</h2>
+      <p className="text-dim max-500 m-20-0 lh-1-6">
         Has cruzado el velo hacia un sector inexistente del archivo. 
         La entidad que buscas no reside en esta dimensión de datos.
       </p>
 
-      <div className="column" style={{ gap: '15px', marginTop: '40px' }}>
-        <Link to="/dashboard" className="primary" style={{ padding: '15px 40px', fontWeight: 'bold' }}>
+      <div className="column gap-15 mt-40">
+        <Link to="/dashboard" className="primary p-15-40 bold no-underline">
           RETORNAR AL PANEL DE CONTROL
         </Link>
-        <p style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+        <p className="fs-10 text-muted">
           ERR_CODE: [NULL_POINTER_EXCEPTION] // SECTOR_LOST
         </p>
       </div>
-
-      <style>{`
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
-        }
-      `}</style>
     </div>
   )
 }

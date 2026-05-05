@@ -1,120 +1,234 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { createExpedition } from '../api/expeditions'
+import { createExpedition, updateExpedition, deleteExpedition } from '../api/expeditions'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useData } from '../context/DataProvider'
 
 export default function Expeditions() {
-  const { expeditions, phantoms, refreshExpeditions } = useData()
+  const { expeditions, phantoms, refreshExpeditions, loadingExpeditions } = useData()
+  const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [currentExpId, setCurrentExpId] = useState(null)
   const [formData, setFormData] = useState({
     name: '', description: '', location: '', date: '', phantom_id: ''
   })
   const { user } = useAuth()
   const { addToast } = useToast()
 
-  // No useEffect needed here as DataProvider handles pre-loading
+  const handleOpenCreate = () => {
+    setFormData({ name: '', description: '', location: '', date: '', phantom_id: '' })
+    setIsEditing(false)
+    setShowModal(true)
+  }
+
+  const handleOpenEdit = (e, exp) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setFormData({
+      name: exp.name,
+      description: exp.description,
+      location: exp.location,
+      date: exp.date ? new Date(exp.date).toISOString().slice(0, 16) : '',
+      phantom_id: exp.phantom_id
+    })
+    setCurrentExpId(exp.id)
+    setIsEditing(true)
+    setShowModal(true)
+  }
+
+  const handleDelete = async (e, id) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!window.confirm('¿ESTÁS SEGURO DE ELIMINAR ESTA INCURSIÓN?')) return
+    try {
+      await deleteExpedition(id)
+      addToast('Incursión purgada del sistema', 'success')
+      refreshExpeditions()
+    } catch (e) {
+      addToast('Error al eliminar', 'error')
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await createExpedition(formData)
-      addToast('Expedición programada', 'success')
+      if (isEditing) {
+        await updateExpedition(currentExpId, formData)
+        addToast('INCURSIÓN RE-PROGRAMADA CON ÉXITO', 'success')
+      } else {
+        await createExpedition(formData)
+        addToast('INCURSIÓN DESPLEGADA EN EL CALENDARIO', 'success')
+      }
       setShowModal(false)
       refreshExpeditions()
-    } catch (e) { 
-      const msg = e.response?.data?.message || 'Error al crear'
-      addToast(msg.toUpperCase(), 'error') 
+    } catch (err) { 
+      const errors = err.response?.data?.errors
+      if (errors) {
+        const firstError = Object.values(errors)[0][0]
+        addToast(firstError.toUpperCase(), 'error')
+      } else {
+        const msg = err.response?.data?.message || 'ERROR EN LA OPERACIÓN'
+        addToast(msg.toUpperCase(), 'error') 
+      }
     }
   }
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 15 // 5 rows of 3
+
+  const filteredExpeditions = expeditions.filter(exp => 
+    exp.name.toLowerCase().includes(search.toLowerCase()) ||
+    exp.location.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const totalPages = Math.ceil(filteredExpeditions.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedExpeditions = filteredExpeditions.slice(startIndex, startIndex + itemsPerPage)
+
   return (
     <div className="page-container">
-      <div className="flex-center" style={{ justifyContent: 'space-between', marginBottom: '40px', borderBottom: '1px solid var(--text-muted)', paddingBottom: '20px' }}>
-        <div>
-          <h1 style={{ fontSize: '42px', letterSpacing: '4px' }}>CALENDARIO DE INCURSIÓN</h1>
-          <p style={{ color: 'var(--text-dim)', fontSize: '14px', marginTop: '5px' }}>ZONAS DE ACTIVIDAD PARANORMAL CONFIRMADA</p>
+      <header className="text-center mb-60 border-bottom pb-30">
+        <h1 className="fs-42 ls-4">CALENDARIO DE INCURSIÓN</h1>
+        <p className="text-dim fs-14 mt-5 mb-80">ZONAS DE ACTIVIDAD PARANORMAL CONFIRMADA</p>
+        
+        <div className="flex-center gap-20 mt-60">
+          <input 
+            type="text" 
+            placeholder="BUSCAR INCURSIÓN O UBICACIÓN..." 
+            className="search-bar w-100 max-400 m-0"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {user && (
+            <button 
+              onClick={handleOpenCreate}
+              className="ls-1 p-15-40 primary nowrap"
+            >
+              + PROGRAMAR INCURSIÓN
+            </button>
+          )}
         </div>
-        {user && (
-          <button 
-            onClick={() => setShowModal(true)}
-            style={{ padding: '15px 30px', letterSpacing: '1px' }}
-          >
-            + PROGRAMAR INCURSIÓN
-          </button>
-        )}
-      </div>
+      </header>
 
-      <div className="grid-3">
-        {expeditions.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center', gridColumn: '1/-1', padding: '100px' }}>NO HAY INCURSIONES PROGRAMADAS EN ESTE SECTOR.</p>
+      <div className="max-1200">
+        {loadingExpeditions && expeditions.length === 0 ? (
+          <div className="text-center fs-24 p-100 italic">Estableciendo conexión con el archivo de campo...</div>
         ) : (
-          expeditions.map(exp => {
-            const isClosed = new Date(exp.date) < new Date()
-            return (
-              <Link 
-                key={exp.id} 
-                to={`/expeditions/${exp.id}`} 
-                className={`horror-card column ${isClosed ? 'red' : ''}`}
-                style={{ 
-                  background: isClosed ? 'rgba(20,0,0,0.4)' : 'var(--card-bg)',
-                  gap: '15px',
-                  padding: '25px'
-                }}
-              >
-                <div className="flex-center" style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h3 style={{ color: isClosed ? 'var(--accent-dim)' : 'var(--accent)', margin: 0, fontSize: '20px' }}>{exp.name.toUpperCase()}</h3>
-                  <div className={`status-badge ${isClosed ? 'closed' : 'active'}`}>
-                    {isClosed ? 'FINALIZADA' : 'ACTIVA'}
-                  </div>
-                </div>
+          <>
+            <div className="grid-3">
+              {filteredExpeditions.length === 0 ? (
+                <p className="text-muted text-center flex-1 p-100" style={{ gridColumn: '1/-1' }}>NO HAY INCURSIONES PROGRAMADAS EN ESTE SECTOR.</p>
+              ) : (
+                paginatedExpeditions.map(exp => {
+                  const isClosed = new Date(exp.date) < new Date()
+                  const isCreator = user && String(user.id) === String(exp.user_id)
 
-                <div style={{ fontSize: '12px', opacity: 0.8 }}>
-                  <div>Ubicación: {exp.location.toUpperCase()}</div>
-                  <div>Objetivo: {exp.phantom?.name.toUpperCase() || 'DESCONOCIDO'}</div>
-                </div>
+                  return (
+                    <div key={exp.id} className="relative">
+                      <Link 
+                        to={`/expeditions/${exp.id}`} 
+                        className={`horror-card column ${isClosed ? 'red' : ''} gap-15 p-25 h-100`}
+                      >
+                        <div className="flex-center justify-between align-start">
+                          <h3 className={`m-0 fs-20 ${isClosed ? 'text-accent-dim' : 'text-accent'}`}>{exp.name.toUpperCase()}</h3>
+                          <div className={`status-badge ${isClosed ? 'closed' : 'active'}`}>
+                            {isClosed ? 'FINALIZADA' : 'ACTIVA'}
+                          </div>
+                        </div>
 
-                <div style={{ 
-                  borderTop: '1px solid #111', 
-                  paddingTop: '15px', 
-                  display: 'flex', 
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div style={{ color: 'var(--text-dim)', fontSize: '11px' }}>
-                    {new Date(exp.date).toLocaleString()}
-                  </div>
-                  <div style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 'bold' }}>
-                    {exp.participants_count} OPERATIVOS
-                  </div>
-                </div>
-              </Link>
-            )
-          })
+                        <div className="fs-12 opacity-08">
+                          <div>Ubicación: {exp.location.toUpperCase()}</div>
+                          <div>Objetivo: {exp.phantom?.name.toUpperCase() || 'DESCONOCIDO'}</div>
+                        </div>
+
+                        <div className="border-top mt-auto flex-center justify-between pt-15">
+                          <div className="text-dim fs-11">
+                            {new Date(exp.date).toLocaleString()}
+                          </div>
+                          <div className="text-accent fs-11 bold">
+                            {exp.participants_count} OPERATIVOS
+                          </div>
+                        </div>
+                        
+                        {isCreator && (
+                          <div className="flex-center mt-20 gap-10 border-top pt-10 border-faded-05">
+                            <button onClick={(e) => handleOpenEdit(e, exp)} className="flex-1 fs-10 p-5">[EDITAR]</button>
+                            <button onClick={(e) => handleDelete(e, exp.id)} className="outline-red flex-1 fs-10 p-5">[PURGAR]</button>
+                          </div>
+                        )}
+                      </Link>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="pagination-controls mt-60">
+                <button 
+                  disabled={currentPage === 1} 
+                  onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
+                >
+                  🡄 ANTERIOR
+                </button>
+                <span className="bold fs-18">
+                  {currentPage} / {totalPages}
+                </span>
+                <button 
+                  disabled={currentPage === totalPages} 
+                  onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}
+                >
+                  SIGUIENTE 🡆
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {showModal && (
         <div className="modal-overlay">
           <form onSubmit={handleSubmit} className="horror-form">
-            <h2 style={{ letterSpacing: '2px' }}>NUEVA INCURSIÓN</h2>
+            <h2 className="ls-2">{isEditing ? 'RE-PROGRAMAR' : 'NUEVA'} INCURSIÓN</h2>
             
-            <input required placeholder="NOMBRE DE LA MISIÓN" onChange={e => setFormData({...formData, name: e.target.value})} />
-            <textarea required placeholder="DESCRIPCIÓN Y OBJETIVOS" onChange={e => setFormData({...formData, description: e.target.value})} style={{ minHeight: '100px' }} />
-            <input required placeholder="UBICACIÓN" onChange={e => setFormData({...formData, location: e.target.value})} />
-            <input required type="datetime-local" onChange={e => setFormData({...formData, date: e.target.value})} />
-            
-            <select required onChange={e => setFormData({...formData, phantom_id: e.target.value})}>
-              <option value="">SELECCIONAR ENTIDAD OBJETIVO</option>
-              {phantoms.map(p => (
-                <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>
-              ))}
-            </select>
+            <div className="form-group">
+              <label className="form-label">NOMBRE DE LA OPERACIÓN</label>
+              <input required placeholder="Ej: Operación Silencio" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            </div>
 
-            <div className="flex-center" style={{ gap: '20px', marginTop: '10px' }}>
-              <button type="submit" className="primary" style={{ flex: 1, padding: '15px' }}>DESPLEGAR</button>
-              <button type="button" onClick={() => setShowModal(false)} className="outline-red" style={{ flex: 1, padding: '15px' }}>ABORTAR</button>
+            <div className="form-group">
+              <label className="form-label">OBJETIVOS Y PROTOCOLO (MÍN. 100 CARACTERES)</label>
+              <textarea required minLength={100} placeholder="Describe detalladamente los objetivos..." value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="min-h-120" />
+              <small className={`fs-10 ${formData.description.length < 100 ? 'text-accent' : 'text-dim'}`}>
+                CARACTERES: {formData.description.length} / 100
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">UBICACIÓN BASE (MÁX. 40 CARACTERES)</label>
+              <input required maxLength={40} placeholder="Ej: Psiquiátrico Abandonado" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">FECHA Y HORA DE DESPLIEGUE</label>
+              <input required type="datetime-local" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">ENTIDAD OBJETIVO</label>
+              <select required value={formData.phantom_id} onChange={e => setFormData({...formData, phantom_id: e.target.value})}>
+                <option value="">SELECCIONAR ENTIDAD...</option>
+                {phantoms.map(p => (
+                  <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-center mt-10 gap-20">
+              <button type="submit" className="primary flex-1 p-15">{isEditing ? 'ACTUALIZAR DATOS' : 'DESPLEGAR INCURSIÓN'}</button>
+              <button type="button" onClick={() => setShowModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
             </div>
           </form>
         </div>

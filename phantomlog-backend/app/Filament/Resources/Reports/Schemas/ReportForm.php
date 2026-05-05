@@ -14,15 +14,17 @@ final class ReportForm
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Relaciones')
+                \Filament\Schemas\Components\Section::make('Vínculos del Hallazgo')
                     ->schema([
                         Select::make('forum_id')
+                            ->label('Foro del Expediente')
                             ->relationship('forum', 'title')
                             ->searchable()
                             ->preload()
                             ->required()
                             ->disabledOn('edit'),
                         Select::make('user_id')
+                            ->label('Investigador de Campo')
                             ->relationship('user', 'username')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
                             ->searchable(['firstname', 'lastname', 'username'])
@@ -31,17 +33,32 @@ final class ReportForm
                             ->disabledon('edit'),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Contenido del Reporte')
+                \Filament\Schemas\Components\Section::make('Detalle de la Evidencia')
                     ->schema([
                         TextInput::make('title')
+                            ->label('Título del Reporte')
                             ->required()
+                            ->minLength(5)
+                            ->maxLength(255)
+                            ->regex('/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/')
+                            ->validationMessages([
+                                'regex' => 'El título contiene caracteres no permitidos.',
+                                'min' => 'Mínimo 5 caracteres.',
+                            ])
                             ->disabledOn('edit'),
                         \Filament\Forms\Components\Textarea::make('description')
+                            ->label('Descripción de los Hechos')
                             ->required()
+                            ->minLength(10)
+                            ->maxLength(5000)
+                            ->validationMessages([
+                                'min' => 'La descripción debe ser más detallada.',
+                            ])
                             ->disabledOn('edit')
                             ->rows(5)
                             ->columnSpanFull(),
                         TextInput::make('score')
+                            ->label('Nivel de Credibilidad')
                             ->required()
                             ->disabledOn('edit')
                             ->numeric()

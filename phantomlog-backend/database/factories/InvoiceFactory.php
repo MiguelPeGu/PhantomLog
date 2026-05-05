@@ -27,6 +27,7 @@ class InvoiceFactory extends Factory
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
             'address' => $this->faker->address(),
+            'postal_code' => $this->faker->numerify('#####'),
             'tax' => 21,
             'total' => $this->faker->randomFloat(2, 10, 1000),
         ];

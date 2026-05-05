@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('address');
+            $table->string('postal_code');
             $table->integer('tax')->default(21);
             $table->decimal('total', 10, 2)->default(0);
             $table->string('payment_method')->default('credito');

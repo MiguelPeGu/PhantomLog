@@ -17,23 +17,37 @@ export default function PhantomDetail() {
     fetchPhantom()
   }, [id])
 
+  const [error, setError] = useState(null)
+
   const fetchPhantom = async () => {
     try {
       const res = await getPhantom(id)
       setPhantom(res.data)
     } catch (e) {
-      setNotFound(true)
+      if (e.response?.status === 404) {
+        setNotFound(true)
+      } else {
+        setError(e.response?.data?.message || e.message)
+      }
     } finally {
       setLoading(false)
     }
   }
 
+  if (error) return (
+    <div className="vh100 flex-center column">
+      <h2 className="text-accent">FALLO EN EL NÚCLEO</h2>
+      <p className="text-dim">Error de red: {error}</p>
+      <button onClick={fetchPhantom} className="mt-20">REINTENTAR ACCESO</button>
+    </div>
+  )
+
   if (notFound) return <NotFound />
-  if (loading) return <div style={{ padding: '100px', color: 'var(--text)', textAlign: 'center', letterSpacing: '5px' }}>DESENCRIPTANDO ARCHIVO...</div>
+  if (loading) return <div className="p-100 text-normal text-center ls-5">DESENCRIPTANDO ARCHIVO...</div>
   if (!phantom) return null
 
   return (
-    <div className="page-container" style={{ maxWidth: '900px' }}>
+    <div className="page-container max-900">
       <button 
         onClick={() => navigate('/phantoms')} 
         className="mb-40"
@@ -41,48 +55,49 @@ export default function PhantomDetail() {
         🡄 VOLVER AL BESTIARIO
       </button>
 
-      <div className="horror-card" style={{ padding: '40px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '40px' }}>
+      <div className="horror-card p-25 mb-40">
+        <div className="grid-2 gap-40 grid-1-15">
           
           {/* Visual Evidence Section */}
-          <div className="column" style={{ gap: '20px' }}>
-            <div style={{ width: '100%', aspectRatio: '1/1', border: '1px solid var(--border)', background: '#050505', overflow: 'hidden' }}>
+          <div className="column gap-20">
+            <div className="bestiary-img-box">
               <ShimmerImage 
-                src={phantom.image} 
+                src={phantom.image?.startsWith('http') ? phantom.image : `http://localhost:8000/storage/${phantom.image}`} 
                 alt={phantom.name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(100%) contrast(150%)' }} 
+                objectFit="cover"
+                className="contrast-high"
               />
             </div>
-            <div style={{ border: '1px solid #111', padding: '15px', background: 'rgba(255,0,0,0.05)' }}>
-              <h4 style={{ color: 'var(--accent)', margin: '0 0 10px 0', fontSize: '12px', letterSpacing: '2px' }}>EVIDENCIA REQUERIDA</h4>
-              <p style={{ color: 'var(--text)', fontSize: '14px', margin: 0 }}>{phantom.evidence}</p>
+            <div className="bestiary-evidence-box">
+              <h4 className="text-accent m-0 mb-10 fs-12 ls-2">EVIDENCIA REQUERIDA</h4>
+              <p className="fs-14 m-0">{phantom.evidence}</p>
             </div>
           </div>
 
           {/* Data Section */}
           <div>
-            <div style={{ borderBottom: '1px solid #200', paddingBottom: '20px', marginBottom: '25px' }}>
-              <h1 style={{ fontSize: '48px', margin: 0, letterSpacing: '5px' }}>{phantom.name.toUpperCase()}</h1>
-              <span style={{ color: 'var(--text-dim)', fontSize: '14px' }}>CLASIFICACIÓN: {phantom.type.toUpperCase()}</span>
+            <div className="border-bottom pb-20 mb-20">
+              <h1 className="fs-42 m-0 ls-5">{phantom.name.toUpperCase()}</h1>
+              <span className="text-dim fs-14">CLASIFICACIÓN: {phantom.type.toUpperCase()}</span>
             </div>
 
-            <div style={{ marginBottom: '30px' }}>
-              <h3 style={{ fontSize: '14px', margin: '0 0 10px 0', letterSpacing: '1px' }}>DESCRIPCIÓN DEL ENTE</h3>
-              <p style={{ color: '#aaa', lineHeight: '1.6', fontSize: '16px' }}>{phantom.description}</p>
+            <div className="mb-40">
+              <h3 className="fs-14 mb-10 ls-1">DESCRIPCIÓN DEL ENTE</h3>
+              <p className="text-dim lh-1-6 fs-16">{phantom.description}</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div style={{ padding: '15px', border: '1px solid var(--border)', background: 'rgba(0,255,0,0.02)' }}>
-                <h4 style={{ color: 'var(--text)', margin: '0 0 10px 0', fontSize: '12px' }}>PUNTOS FUERTES</h4>
-                <p style={{ color: 'var(--text-dim)', fontSize: '13px', margin: 0 }}>{phantom.strengths}</p>
+            <div className="grid-2 gap-20">
+              <div className="stat-box">
+                <h4 className="text-normal m-0 mb-10 fs-12">PUNTOS FUERTES</h4>
+                <p className="text-dim fs-13 m-0">{phantom.strengths}</p>
               </div>
-              <div style={{ padding: '15px', border: '1px solid var(--accent-dim)', background: 'rgba(255,0,0,0.02)' }}>
-                <h4 style={{ color: 'var(--accent)', margin: '0 0 10px 0', fontSize: '12px' }}>DEBILIDADES</h4>
-                <p style={{ color: 'var(--accent-dim)', fontSize: '13px', margin: 0 }}>{phantom.weaknesses}</p>
+              <div className="stat-box-red">
+                <h4 className="text-accent m-0 mb-10 fs-12">DEBILIDADES</h4>
+                <p className="text-accent-dim fs-13 m-0">{phantom.weaknesses}</p>
               </div>
             </div>
 
-            <div style={{ marginTop: '30px', padding: '20px', background: '#080808', border: '1px solid #111', fontSize: '11px', color: '#333' }}>
+            <div className="investigator-note">
               NOTA DEL INVESTIGADOR: ESTA ENTIDAD ES EXTREMADAMENTE PELIGROSA. NO INTENTAR CONTACTO SIN EQUIPO DE PROTECCIÓN NIVEL 3.
             </div>
           </div>

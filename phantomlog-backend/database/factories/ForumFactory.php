@@ -29,11 +29,19 @@ class ForumFactory extends Factory
         $case = $this->faker->randomElement($cases);
         $index = array_search($case, $cases) + 1;
 
+        $images = [
+            'images/forums/night_sightings.jpg',
+            'images/forums/haunted_spain.jpg',
+            'images/forums/investigation_tech.jpg',
+            'images/forums/paranormal_photos.jpg',
+            'images/forums/group_expeditions.jpg',
+        ];
+
         return [
             'id' => (string) Str::uuid(),
             'title' => $case['title'],
             'description' => $case['desc'],
-            'image' => "images/forums/forum_{$index}.jpg",
+            'image' => $this->faker->randomElement($images),
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
         ];
     }

@@ -19,8 +19,14 @@ class CommentController extends Controller
     public function store(Request $request, Report $report)
     {
         $data = $request->validate([
-            'content' => 'required|string',
+            'content' => ['required', 'string', 'max:1000', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡.,;:\(\)\"\'\-]+$/'],
+        ], [
+            'content.required' => 'El comentario no puede estar vacío.',
+            'content.max' => 'Has excedido el límite de caracteres (máximo 1000).',
+            'content.regex' => 'El comentario contiene símbolos no permitidos.',
         ]);
+
+        $data['content'] = trim(strip_tags($data['content']));
 
         $comment = $report->comments()->create([
             'content' => $data['content'],

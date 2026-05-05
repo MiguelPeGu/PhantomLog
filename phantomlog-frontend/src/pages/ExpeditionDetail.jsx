@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getExpedition, toggleJoin, deleteExpedition } from '../api/expeditions'
+import { getExpedition, toggleJoin, deleteExpedition, updateExpedition } from '../api/expeditions'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useData } from '../context/DataProvider'
 import NotFound from './NotFound'
 
 export default function ExpeditionDetail() {
@@ -10,11 +11,18 @@ export default function ExpeditionDetail() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { addToast } = useToast()
+  const { phantoms } = useData()
   
   const [expedition, setExpedition] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [isJoined, setIsJoined] = useState(false)
+
+  // Edit Modal State
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '', description: '', location: '', date: '', phantom_id: ''
+  })
 
   useEffect(() => {
     fetchExpedition()
@@ -28,6 +36,14 @@ export default function ExpeditionDetail() {
         const joined = res.data.participants.some(p => String(p.id) === String(user.id))
         setIsJoined(joined)
       }
+      // Initialize form data for editing
+      setFormData({
+        name: res.data.name,
+        description: res.data.description,
+        location: res.data.location,
+        date: res.data.date ? new Date(res.data.date).toISOString().slice(0, 16) : '',
+        phantom_id: res.data.phantom_id
+      })
     } catch (e) {
       setNotFound(true)
     } finally {
@@ -60,54 +76,72 @@ export default function ExpeditionDetail() {
     } catch (e) { addToast('Error al eliminar', 'error') }
   }
 
-  if (loading) return <div style={{ padding: '100px', color: 'var(--text)', textAlign: 'center' }}>ESCANEANDO FRECUENCIAS...</div>
+  const handleUpdate = async (e) => {
+    e.preventDefault()
+    try {
+      await updateExpedition(id, formData)
+      addToast('EXPEDIENTE DE INCURSIÓN ACTUALIZADO', 'success')
+      setShowEditModal(false)
+      fetchExpedition()
+    } catch (err) {
+      const errors = err.response?.data?.errors
+      if (errors) {
+        const firstError = Object.values(errors)[0][0]
+        addToast(firstError.toUpperCase(), 'error')
+      } else {
+        const msg = err.response?.data?.message || 'ERROR AL ACTUALIZAR'
+        addToast(msg.toUpperCase(), 'error')
+      }
+    }
+  }
+
+  if (notFound) return <NotFound />
+  if (loading) return <div className="p-100 text-normal text-center">ESCANEANDO FRECUENCIAS...</div>
   if (!expedition) return null
 
   const isClosed = new Date(expedition.date) < new Date()
 
   return (
-    <div className="page-container" style={{ maxWidth: '1000px' }}>
-      <div className="flex-center mb-40" style={{ justifyContent: 'space-between' }}>
+    <div className="page-container max-1000">
+      <div className="flex-center justify-between mb-40">
         <button onClick={() => navigate('/expeditions')}>🡄 VOLVER AL CALENDARIO</button>
         {user && String(user.id) === String(expedition.user_id) && (
-          <button onClick={handleDelete} className="outline-red">ELIMINAR INCURSIÓN</button>
+          <div className="flex-center gap-15">
+            <button onClick={() => setShowEditModal(true)} className="outline">EDITAR INCURSIÓN</button>
+            <button onClick={handleDelete} className="outline-red">ELIMINAR INCURSIÓN</button>
+          </div>
         )}
       </div>
 
-      <div className="horror-card" style={{ 
-        border: `2px solid ${isClosed ? 'var(--accent)' : 'var(--border)'}`, 
-        padding: '40px',
-        position: 'relative',
-        boxShadow: isClosed ? '0 0 50px rgba(255,0,0,0.1)' : 'none'
-      }}>
+      <div className={`horror-card ${isClosed ? 'red closed-mission-shadow' : ''} p-40 relative`}>
         {/* Header Section */}
-        <div style={{ borderBottom: '1px solid #111', paddingBottom: '30px', marginBottom: '30px' }}>
-          <div className="flex-center mb-20" style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="border-bottom pb-30 mb-30">
+          <div className="flex-center justify-between align-start mb-20">
             <div>
-              <h1 style={{ fontSize: '48px', margin: 0, letterSpacing: '4px' }}>{expedition.name.toUpperCase()}</h1>
-              <p style={{ color: 'var(--text-dim)', fontSize: '14px', margin: '10px 0 0 0' }}>UBICACIÓN: <span style={{ color: 'var(--text)' }}>{expedition.location.toUpperCase()}</span></p>
+              <h1 className="m-0 fs-48 ls-4">{expedition.name.toUpperCase()}</h1>
+              <p className="text-dim fs-14 mt-10">UBICACIÓN: <span className="text-normal">{expedition.location.toUpperCase()}</span></p>
             </div>
-            <div className={`status-badge ${isClosed ? 'closed' : 'active'}`} style={{ padding: '10px 20px' }}>
+            <div className={`status-badge ${isClosed ? 'closed' : 'active'} p-10-20`}>
               {isClosed ? 'ESTADO: FINALIZADA' : 'ESTADO: RECLUTANDO'}
             </div>
           </div>
 
-          <div className="flex-center" style={{ gap: '30px', fontSize: '16px' }}>
-            <div>FECHA: {new Date(expedition.date).toLocaleDateString()}</div>
-            <div>HORA: {new Date(expedition.date).toLocaleTimeString()}</div>
-            <div>AUTOR: {expedition.user?.username.toUpperCase()}</div>
+          <div className="flex-wrap gap-30 fs-16 text-dim mt-20">
+            <div><span className="text-muted">FECHA:</span> {new Date(expedition.date).toLocaleDateString()}</div>
+            <div><span className="text-muted">HORA:</span> {new Date(expedition.date).toLocaleTimeString()}</div>
+            <div><span className="text-muted">AUTOR:</span> {expedition.creator?.username.toUpperCase()}</div>
           </div>
         </div>
 
         {/* Info & Participants Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '40px' }}>
+        <div className="grid-2 gap-40 grid-15-1">
           <div>
-            <h3 style={{ borderBottom: '1px solid var(--text-muted)', paddingBottom: '10px' }}>OBJETIVOS DE LA MISIÓN</h3>
-            <p style={{ lineHeight: '1.6', fontSize: '18px' }}>{expedition.description}</p>
+            <h3 className="border-bottom pb-10">OBJETIVOS DE LA MISIÓN</h3>
+            <p className="fs-18 lh-1-6 pre-wrap word-break">{expedition.description}</p>
             
-            <div className="horror-card" style={{ marginTop: '30px', padding: '20px' }}>
-              <h4 style={{ color: 'var(--text-dim)', margin: '0 0 10px 0' }}>ENTIDAD DETECTADA</h4>
-              <div style={{ color: 'var(--accent)', fontSize: '24px', fontWeight: 'bold' }}>
+            <div className="horror-card mt-30 p-20">
+              <h4 className="text-dim m-0 mb-10">ENTIDAD DETECTADA</h4>
+              <div className="text-accent fs-24 bold">
                 {expedition.phantom?.name.toUpperCase() || 'DESCONOCIDO'}
               </div>
             </div>
@@ -115,36 +149,92 @@ export default function ExpeditionDetail() {
             {!isClosed && (
               <button 
                 onClick={handleJoin}
-                className={`w-100 mt-40 ${isJoined ? 'outline-red' : 'primary'}`}
-                style={{ 
-                  padding: '20px', 
-                  fontSize: '20px', 
-                }}
+                className={`w-100 mt-40 fs-24 ${isJoined ? 'outline-red' : 'primary'} p-20`}
               >
                 {isJoined ? 'ABANDONAR EXPEDICIÓN' : 'CONFIRMAR ASISTENCIA'}
               </button>
             )}
           </div>
 
-          <div style={{ borderLeft: '1px solid #111', paddingLeft: '40px' }}>
-            <h3 style={{ borderBottom: '1px solid var(--text-muted)', paddingBottom: '10px' }}>OPERATIVOS ({expedition.participants_count})</h3>
-            <div className="column" style={{ gap: '10px', marginTop: '20px' }}>
+          <div className="border-left pl-40">
+            <h3 className="border-bottom pb-10">OPERATIVOS ({expedition.participants_count})</h3>
+            <div className="column gap-10 mt-20">
               {expedition.participants?.length === 0 ? (
-                <p style={{ color: 'var(--text-dim)' }}>NADIE SE HA ATREVIDO TODAVÍA.</p>
+                <p className="text-dim">NADIE SE HA ATREVIDO TODAVÍA.</p>
               ) : (
-                expedition.participants.map(p => (
-                  <div key={p.id} className="flex-center" style={{ gap: '12px', padding: '10px', background: 'var(--shadow-color)', border: '1px solid var(--border)' }}>
-                    <div className="flex-center" style={{ width: '30px', height: '30px', background: 'var(--text)', color: '#000', fontWeight: 'bold', fontSize: '12px' }}>
-                      {p.username[0].toUpperCase()}
+                expedition.participants.map(p => {
+                  const avatarUrl = p.img ? (p.img.startsWith('http') || p.img.startsWith('data:') ? p.img : `http://localhost:8000/storage/${p.img}`) : null;
+                  return (
+                  <div key={p.id} className="participant-box">
+                    <div className="avatar-circle">
+                      {avatarUrl ? (
+                        <img 
+                          src={avatarUrl} 
+                          alt={p.username} 
+                          className="w-100 h-100 object-cover" 
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerText = p.username[0].toUpperCase();
+                          }}
+                        />
+                      ) : (
+                        p.username[0].toUpperCase()
+                      )}
                     </div>
-                    <span style={{ fontSize: '14px' }}>{p.username.toUpperCase()}</span>
+                    <span className="fs-14 uppercase">{p.username}</span>
                   </div>
-                ))
+                )})
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {showEditModal && (
+        <div className="modal-overlay">
+          <form onSubmit={handleUpdate} className="horror-form">
+            <h2 className="ls-2">RE-PROGRAMAR INCURSIÓN</h2>
+            
+            <div className="form-group">
+              <label className="form-label">NOMBRE DE LA OPERACIÓN</label>
+              <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">OBJETIVOS (MÍN. 100 CARACTERES)</label>
+              <textarea required minLength={100} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="min-h-150" />
+              <small className={`fs-10 ${formData.description.length < 100 ? 'text-accent' : 'text-dim'}`}>
+                CARACTERES: {formData.description.length} / 100
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">UBICACIÓN BASE (MÁX. 40 CARACTERES)</label>
+              <input required maxLength={40} value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">FECHA Y HORA</label>
+              <input required type="datetime-local" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">ENTIDAD OBJETIVO</label>
+              <select required value={formData.phantom_id} onChange={e => setFormData({...formData, phantom_id: e.target.value})}>
+                <option value="">SELECCIONAR ENTIDAD...</option>
+                {phantoms && phantoms.map(p => (
+                  <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-center mt-10 gap-20">
+              <button type="submit" className="primary flex-1 p-15">ACTUALIZAR DATOS</button>
+              <button type="button" onClick={() => setShowEditModal(false)} className="outline-red flex-1 p-15">CANCELAR</button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   )
 }

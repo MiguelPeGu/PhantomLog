@@ -34,18 +34,12 @@ export default function Login() {
   return (
     <div className="vh100 flex-center relative overflow-hidden">
       {/* Elemento decorativo de fondo */}
-      <div style={{
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundImage: 'radial-gradient(circle, #050000 0%, #000 70%)',
-        zIndex: 0
-      }} />
+      <div className="absolute-full bg-radial-horror z-0" />
 
       <form onSubmit={handleSubmit} className="horror-form">
         <div className="text-center mb-10">
           <h1>IDENTIFICARSE</h1>
-          <p style={{ color: 'var(--text-dim)', fontSize: '12px', marginTop: '5px' }}>INGRESE AL ARCHIVO CENTRAL</p>
+          <p className="text-dim ls-2 mt-10 fs-12">INGRESE AL ARCHIVO CENTRAL</p>
         </div>
 
         <div className="form-group">
@@ -73,20 +67,19 @@ export default function Login() {
         <button 
           type="submit" 
           disabled={loading}
-          className="primary"
-          style={{ padding: '15px', fontSize: '18px' }}
+          className="primary large"
         >
           {loading ? 'AUTENTICANDO...' : 'INICIAR SESIÓN'}
         </button>
 
         <div className="text-center mt-10">
-          <Link to="/register" style={{ fontSize: '12px', opacity: 0.7 }}>
-            ¿SIN CREDENCIALES? <span style={{ color: 'var(--accent)', textDecoration: 'underline' }}>REGISTRAR NUEVA ALMA</span>
+          <Link to="/register" className="fs-12 opacity-07">
+            ¿SIN CREDENCIALES? <span className="text-accent underline">REGISTRAR NUEVA ALMA</span>
           </Link>
         </div>
       </form>
 
-      <div className="system-status-footer" style={{ fontSize: '10px' }}>
+      <div className="system-status-footer fs-10">
         RESTRICTED AREA // AUTH_SERVER_v2.01
       </div>
     </div>

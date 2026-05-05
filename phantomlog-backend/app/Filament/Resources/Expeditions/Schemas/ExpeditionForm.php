@@ -16,6 +16,7 @@ final class ExpeditionForm
         return $schema
             ->components([
                 Select::make('user_id')
+                    ->label('Investigador Responsable')
                     ->relationship('user', 'username')
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
                     ->searchable(['firstname', 'lastname', 'username'])
@@ -23,20 +24,47 @@ final class ExpeditionForm
                     ->required()
                     ->disabledon('edit'),
                 Select::make('phantom_id')
+                    ->label('Entidad Objetivo')
                     ->relationship('phantom', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 TextInput::make('name')
+                    ->label('Nombre de la Misión')
                     ->required()
+                    ->minLength(5)
+                    ->maxLength(100)
+                    ->regex('/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/')
+                    ->validationMessages([
+                        'regex' => 'El nombre contiene caracteres no permitidos.',
+                        'min' => 'Mínimo 5 caracteres.',
+                    ])
                     ->disabledOn('edit'),
-                TextInput::make('description')
+                \Filament\Forms\Components\Textarea::make('description')
+                    ->label('Objetivos de la Incursión')
                     ->required()
+                    ->minLength(100)
+                    ->maxLength(2000)
+                    ->validationMessages([
+                        'min' => 'Los objetivos deben ser más detallados (mínimo 100 caracteres).',
+                    ])
                     ->disabledOn('edit'),
                 TextInput::make('location')
-                    ->required(),
+                    ->label('Ubicación')
+                    ->required()
+                    ->maxLength(40)
+                    ->regex('/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/')
+                    ->validationMessages([
+                        'max' => 'Máximo 40 caracteres.',
+                        'regex' => 'La ubicación contiene caracteres no permitidos.',
+                    ]),
                 DateTimePicker::make('date')
-                    ->required(),
+                    ->label('Fecha y Hora')
+                    ->required()
+                    ->after('now')
+                    ->validationMessages([
+                        'after' => 'La incursión debe ser en el futuro.',
+                    ]),
             ]);
     }
 }

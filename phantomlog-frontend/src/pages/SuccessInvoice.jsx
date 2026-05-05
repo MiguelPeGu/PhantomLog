@@ -14,37 +14,36 @@ export default function SuccessInvoice() {
       .finally(() => setLoading(false))
   }, [id, navigate])
 
-  if (loading) return <div style={{ color: 'var(--text)', textAlign: 'center', marginTop: '50px' }}>DESENCRIPTANDO FACTURA...</div>
+  if (loading) return <div className="mt-50 text-normal text-center">DESENCRIPTANDO FACTURA...</div>
   if (!invoice) return null
 
   return (
     <div className="page-container flex-center column">
-      <button 
-        onClick={() => navigate('/invoices')} 
-        className="mb-40"
-        style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '10px' }}
+      <button
+        onClick={() => navigate('/invoices')}
+        className="mb-40 flex-center gap-10"
       >
         🡄 VOLVER AL HISTORIAL
       </button>
-      
-      <div className="horror-card max-800" style={{ padding: '40px' }}>
+
+      <div className="horror-card max-800 p-40">
         <header className="invoice-header">
-          <h1 style={{ fontSize: '42px' }}>PHANTOMLOG CORP.</h1>
-          <p style={{ color: 'var(--text-dim)', margin: '5px 0' }}>FACTURA DE TRANSACCIÓN ARCANO-DERECHO</p>
-          <div className="status-badge closed" style={{ position: 'absolute', top: '10px', right: '10px', transform: 'rotate(15deg)', fontSize: '14px', padding: '5px 15px' }}>SELLADO</div>
+          <h1 className="fs-42">PHANTOMLOG CORP.</h1>
+          <p className="text-dim m-5-0">FACTURA DE TRANSACCIÓN ARCANO-DERECHO</p>
+          <div className="status-badge closed invoice-seal">SELLADO</div>
         </header>
 
         <div className="flex-center justify-between mb-40 align-start">
           <div>
-            <h3 style={{ textDecoration: 'underline', marginBottom: '10px' }}>INVOCADOR:</h3>
-            <p style={{ margin: '5px 0' }}>{invoice.first_name} {invoice.last_name}</p>
-            <p style={{ margin: '5px 0' }}>{invoice.address}</p>
-            <p style={{ margin: '5px 0' }}>DNI: {invoice.dni}</p>
+            <h3 className="underline mb-10">INVOCADOR:</h3>
+            <p className="m-5-0">{invoice.first_name} {invoice.last_name}</p>
+            <p className="m-5-0">{invoice.address}</p>
+            <p className="m-5-0">DNI: {invoice.dni}</p>
           </div>
-          <div style={{ textAlign: 'right' }}>
+          <div className="text-right">
             <h3>FACTURA #{invoice.n_invoice || invoice.id}</h3>
-            <p style={{ margin: '5px 0' }}>FECHA: {new Date(invoice.created_at).toLocaleDateString()}</p>
-            <p style={{ margin: '5px 0' }}>MÉTODO: {invoice.payment_method?.toUpperCase()}</p>
+            <p className="m-5-0">FECHA: {new Date(invoice.created_at).toLocaleDateString()}</p>
+            <p className="m-5-0">MÉTODO: {invoice.payment_method?.toUpperCase()}</p>
           </div>
         </div>
 
@@ -72,7 +71,7 @@ export default function SuccessInvoice() {
         </table>
 
         <div className="flex-center justify-end invoice-footer">
-          <div style={{ width: '250px' }}>
+          <div className="w-250">
             <div className="flex-center justify-between mb-10">
               <span>SUBTOTAL:</span>
               <span>{Number(invoice.subtotal || 0).toFixed(2)}€</span>
@@ -81,24 +80,24 @@ export default function SuccessInvoice() {
               <span>IMPUESTOS ({invoice.tax}%):</span>
               <span>{(Number(invoice.total || 0) - Number(invoice.subtotal || 0)).toFixed(2)}€</span>
             </div>
-            <div className="flex-center justify-between mt-10" style={{ fontSize: '24px', color: 'var(--accent)', fontWeight: 'bold' }}>
+            <div className="flex-center justify-between mt-10 fs-24 text-accent bold">
               <span>TOTAL:</span>
               <span>{Number(invoice.total || 0).toFixed(2)}€</span>
             </div>
           </div>
         </div>
 
-        <footer style={{ marginTop: '50px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
+        <footer className="mt-50 text-center fs-12 text-muted">
           <p>ESTE DOCUMENTO ES UNA PRUEBA DE TU VÍNCULO CON PHANTOMLOG CORP. NO HAY DEVOLUCIONES TRAS EL SELLO.</p>
-          <div style={{ marginTop: '20px', border: '1px solid var(--border)', display: 'inline-block', padding: '10px' }}>
+          <div className="auth-stamp">
             SELLO DE AUTENTICIDAD: {Math.random().toString(36).substring(7).toUpperCase()}
           </div>
         </footer>
       </div>
 
-      <div className="mt-60 flex-center" style={{ gap: '20px' }}>
-        <button onClick={() => window.print()} className="outline-red" style={{ padding: '10px 30px' }}>IMPRIMIR ARCHIVO</button>
-        <button onClick={() => navigate('/dashboard')} className="primary" style={{ padding: '10px 30px' }}>VOLVER AL INICIO</button>
+      <div className="mt-60 flex-center gap-20">
+        <button onClick={() => window.print()} className="outline-red p-10-30">IMPRIMIR ARCHIVO</button>
+        <button onClick={() => navigate('/dashboard')} className="primary p-10-30">VOLVER AL INICIO</button>
       </div>
     </div>
   )

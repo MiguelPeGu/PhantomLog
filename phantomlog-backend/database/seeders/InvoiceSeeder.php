@@ -40,6 +40,7 @@ class InvoiceSeeder extends Seeder
                 'first_name' => $user->firstname,
                 'last_name'  => $user->lastname,
                 'address'    => $user->address,
+                'postal_code' => $user->postalCode,
                 'tax'        => $data['tax'],
                 'total'      => $data['total'],
             ]);

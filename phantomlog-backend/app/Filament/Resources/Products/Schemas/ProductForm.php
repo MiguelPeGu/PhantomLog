@@ -15,14 +15,18 @@ final class ProductForm
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Detalles del Producto')
+                \Filament\Schemas\Components\Section::make('Detalles del Suministro')
                     ->schema([
                         TextInput::make('sku')
-                            ->label('SKU')
-                            ->required(),
+                            ->label('Código de Identificación (SKU)')
+                            ->required()
+                            ->unique(ignoreRecord: true),
                         TextInput::make('title')
-                            ->required(),
+                            ->label('Nombre del Objeto')
+                            ->required()
+                            ->maxLength(100),
                         \Filament\Forms\Components\Select::make('category')
+                            ->label('Categoría de Reliquia')
                             ->options([
                                 'EQUIPMENT' => 'EQUIPAMIENTO',
                                 'PROTECTION' => 'PROTECCIÓN',
@@ -31,29 +35,36 @@ final class ProductForm
                             ])
                             ->required(),
                         Textarea::make('description')
+                            ->label('Propiedades Arcanas')
                             ->required()
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Precios e Inventario')
+                \Filament\Schemas\Components\Section::make('Costes e Inventario')
                     ->schema([
                         TextInput::make('price')
+                            ->label('Precio de Adquisición')
                             ->required()
                             ->numeric()
+                            ->minValue(0)
                             ->default(0)
                             ->prefix('€')
                             ->live(),
                         TextInput::make('tax')
+                            ->label('Tasa de Transferencia (IVA)')
                             ->required()
                             ->numeric()
                             ->default(21)
                             ->suffix('%'),
                         TextInput::make('stock')
+                            ->label('Unidades en Archivo')
                             ->required()
                             ->numeric()
+                            ->minValue(0)
                             ->default(0),
                         TextInput::make('provider')
+                            ->label('Proveedor de Origen')
                             ->required(),
                     ])->columns(2),
 

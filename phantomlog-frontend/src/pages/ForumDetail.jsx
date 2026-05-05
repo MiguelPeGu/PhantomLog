@@ -40,7 +40,7 @@ export default function ForumDetail() {
       setForumData({ title: res.data.title, description: res.data.description })
     } catch (error) { 
       setNotFound(true);
-      addToast('Error al cargar foro', 'error');
+      addToast('ERROR AL CARGAR EL EXPEDIENTE', 'error');
     }
   }
 
@@ -48,26 +48,33 @@ export default function ForumDetail() {
     try {
       const res = await getReports(id)
       setReports(res.data.data || res.data)
-    } catch (error) { console.error(error) }
+    } catch (error) { 
+      addToast('ERROR AL CARGAR LAS EVIDENCIAS', 'error')
+    }
   }
 
   const handleUpdateForum = async (e) => {
     e.preventDefault()
     try {
       await updateForum(id, forumData)
-      addToast('Foro actualizado', 'success')
+      addToast('EXPEDICIÓN ACTUALIZADA', 'success')
       setShowForumModal(false)
       fetchForum()
-    } catch (error) { addToast('Error al actualizar', 'error') }
+    } catch (err) { 
+      const msg = err.response?.data?.message || 'ERROR AL ACTUALIZAR'
+      addToast(msg.toUpperCase(), 'error') 
+    }
   }
 
   const handleDeleteForum = async () => {
-    if (!window.confirm('¿Borrar este foro y todos sus reportes?')) return
+    if (!window.confirm('¿BORRAR ESTA EXPEDICIÓN Y TODA SU EVIDENCIA?')) return
     try {
       await deleteForum(id)
-      addToast('Foro eliminado', 'success')
+      addToast('FORO ELIMINADO DEL ARCHIVO', 'success')
       navigate('/forums')
-    } catch (error) { addToast('Error al eliminar', 'error') }
+    } catch (err) { 
+      addToast('ERROR AL ELIMINAR EL FORO', 'error') 
+    }
   }
 
   const handleReportSubmit = async (e) => {
@@ -77,7 +84,7 @@ export default function ForumDetail() {
     try {
       if (isEditingReport) {
         await updateReport(id, currentReportId, { title: reportData.title, description: reportData.description })
-        addToast('Reporte actualizado', 'success')
+        addToast('EVIDENCIA ACTUALIZADA', 'success')
         setShowReportModal(false)
         fetchReports()
       } else {
@@ -89,7 +96,7 @@ export default function ForumDetail() {
         reader.onload = async () => {
           try {
             await createReport(id, { title: reportData.title, description: reportData.description, image: reader.result })
-                        for (let i = 3; i > 0; i--) {
+            for (let i = 3; i > 0; i--) {
               setCountdown(i)
               await new Promise(r => setTimeout(r, 1000))
             }
@@ -97,196 +104,174 @@ export default function ForumDetail() {
             setIsCreatingReport(false)
             setShowReportModal(false)
             fetchReports()
-            addToast('Reporte creado', 'success')
+            addToast('REPORTE SELLADO CON ÉXITO', 'success')
           } catch (err) {
             setIsCreatingReport(false)
-            if (err.response?.data?.errors) {
-              const errors = err.response.data.errors
+            const errors = err.response?.data?.errors
+            if (errors) {
               const firstError = Object.values(errors)[0][0]
-              addToast(firstError, "error")
+              addToast(firstError.toUpperCase(), "error")
             } else {
-              addToast(err.response?.data?.message || "Error al crear reporte", "error")
+              addToast((err.response?.data?.message || "ERROR AL CREAR REPORTE").toUpperCase(), "error")
             }
           }
         }
       }
     } catch (error) { 
       setIsCreatingReport(false)
-      addToast('Error en la comunicación', 'error') 
+      addToast('ERROR CRÍTICO EN LA TRANSMISIÓN', 'error') 
     }
   }
 
   const handleDeleteReport = async (reportId) => {
-    if (!window.confirm('¿Borrar reporte?')) return
+    if (!window.confirm('¿ELIMINAR ESTA EVIDENCIA?')) return
     try {
       await deleteReport(id, reportId)
-      addToast('Reporte eliminado', 'success')
+      addToast('REPORTE ELIMINADO', 'success')
       fetchReports()
-    } catch (error) { addToast('Error al eliminar', 'error') }
+    } catch (err) { 
+      addToast('ERROR AL ELIMINAR LA EVIDENCIA', 'error') 
+    }
   }
 
   if (notFound) return <NotFound />
-
   if (!forum) {
     return (
       <div className="page-container">
-        <div className="shimmer-effect mb-40" style={{ height: '40px', width: '150px' }}></div>
-        <div className="flex-center" style={{ gap: '40px', alignItems: 'flex-start' }}>
-          <div style={{ flex: 1 }}>
-            <div className="shimmer-effect mb-10" style={{ height: '60px', width: '80%' }}></div>
-            <div className="shimmer-effect" style={{ height: '200px', width: '100%' }}></div>
-          </div>
-          <div className="shimmer-effect" style={{ flex: 1, height: '400px' }}></div>
+        <div className="column align-center max-1000 mx-auto gap-40">
+          <div className="shimmer-box h-60 w-60pc"></div>
+          <div className="shimmer-box h-20 w-40pc mb-20"></div>
+          <div className="shimmer-box h-400 w-100"></div>
+          <div className="shimmer-box h-80 w-100"></div>
+          <div className="shimmer-box h-200 w-100"></div>
         </div>
       </div>
     )
   }
 
+  const credibilityMarkerPos = Math.min(Math.max((forum.credibility_score + 5) * 10, 0), 100);
+
   return (
     <div className="page-container">
-      <div className="flex-center mb-40" style={{ justifyContent: 'space-between', borderBottom: '1px solid var(--text-muted)', paddingBottom: '20px' }}>
-        <div className="flex-center" style={{ gap: '10px' }}>
+      <div className="flex-center justify-between mb-40 border-bottom pb-20">
+        <div className="flex-center gap-10">
           <button 
             onClick={() => navigate('/forums')} 
-            style={{ padding: '8px 15px', display: 'flex', alignItems: 'center', gap: '8px' }}
+            className="flex-center gap-5 p-8-15"
           >
             🡄 FOROS
           </button>
         </div>
         {user && String(user.id) === String(forum?.user_id) && (
-          <div className="flex-center" style={{ gap: '10px' }}>
-            <button onClick={() => setShowForumModal(true)} style={{ padding: '8px 15px' }}>EDITAR FORO</button>
-            <button onClick={handleDeleteForum} className="outline-red" style={{ padding: '8px 15px' }}>ELIMINAR FORO</button>
+          <div className="flex-center gap-10">
+            <button onClick={() => setShowForumModal(true)} className="p-8-15">EDITAR FORO</button>
+            <button onClick={handleDeleteForum} className="outline-red p-8-15">ELIMINAR FORO</button>
           </div>
         )}
       </div>
 
-      <div className="flex-center mb-60" style={{ gap: '40px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        <div style={{ flex: 1, minWidth: '300px' }}>
-          <h1 style={{ fontSize: '48px', marginBottom: '20px' }}>{forum.title}</h1>
-          <p style={{ color: 'var(--text-dim)', marginBottom: '10px' }}>
-            EXPEDICIÓN INICIADA POR <span style={{ color: 'var(--text)' }}>{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
+      <div className="column align-center mb-60 gap-40 max-1000 mx-auto">
+        <div className="text-center w-100">
+          <h1 className="mb-20 fs-48">{forum.title}</h1>
+          <p className="text-dim mb-40 fs-16">
+            EXPEDICIÓN INICIADA POR <span className="text-normal">{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
           </p>
-
-          {/* Credibility Bar */}
-          <div style={{ marginBottom: '25px' }}>
-            <div className="flex-center" style={{ justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-dim)', marginBottom: '5px', letterSpacing: '1px' }}>
-              <span>DUBIOUS_DATA</span>
-              <span>VERIFIED_ARCHIVE</span>
-            </div>
-            <div style={{ 
-              height: '10px', 
-              width: '100%', 
-              background: 'linear-gradient(90deg, var(--text) 0%, #333 50%, var(--accent) 100%)', 
-              position: 'relative',
-              borderRadius: '5px',
-              boxShadow: 'inset 0 0 5px #000'
-            }}>
-              <div style={{ 
-                position: 'absolute', 
-                left: `${Math.min(Math.max((forum.credibility_score + 5) * 10, 0), 100)}%`,
-                top: '50%', 
-                transform: 'translate(-50%, -50%)',
-                transition: 'left 1s ease-in-out',
-                zIndex: 2,
-                filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.8))'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2C8.13 2 5 5.13 5 9V22L7 20L9 22L11 20L13 22L15 20L17 22L19 20L21 22V9C21 5.13 17.87 2 14 2H12Z" fill="white" />
-                  <circle cx="9" cy="9" r="1.5" fill="black" />
-                  <circle cx="15" cy="9" r="1.5" fill="black" />
-                  <path d="M10 13C10 13 11 14 12 14C13 14 14 13 14 13" stroke="black" strokeWidth="1" strokeLinecap="round" />
-                </svg>
-              </div>
-              {/* Center marker */}
-              <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: 'rgba(255,255,255,0.2)', zIndex: 1 }}></div>
-            </div>
-            <div className="text-center mt-10" style={{ fontSize: '11px', color: forum.credibility_score >= 0 ? 'var(--text)' : 'var(--accent)', fontWeight: 'bold' }}>
-              GLOBAL_CREDIBILITY: {forum.credibility_score > 0 ? `+${forum.credibility_score.toFixed(1)}` : forum.credibility_score.toFixed(1)}
-            </div>
-          </div>
-          
-          <div className="horror-card" style={{ 
-            fontSize: '18px', 
-            lineHeight: '1.6', 
-            padding: '20px', 
-            borderLeft: '3px solid var(--accent)',
-            minHeight: '120px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <div style={{
-              display: '-webkit-box',
-              WebkitLineClamp: isExpanded ? 'unset' : '3',
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}>
-              {forum.description}
-            </div>
-            
-            {forum.description.length > 150 && (
-              <button 
-                onClick={() => setIsExpanded(!isExpanded)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--accent)',
-                  cursor: 'pointer',
-                  padding: '5px 0',
-                  marginTop: '10px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  textAlign: 'left',
-                  textTransform: 'uppercase',
-                  width: 'fit-content'
-                }}
-              >
-                {isExpanded ? '[ MOSTRAR MENOS ]' : '[ MOSTRAR MÁS ]'}
-              </button>
-            )}
-          </div>
         </div>
+
         {forum.image && (
-          <div className="horror-card" style={{ flex: 1, minWidth: '300px', padding: '10px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="horror-card flex-center w-100 p-10" style={{ maxHeight: '600px' }}>
             <ShimmerImage 
-              src={forum.image_url} 
+              src={forum.image_url?.startsWith('http') ? forum.image_url : `http://localhost:8000/storage/${forum.image_url}`} 
               alt={forum.title}
-              style={{ width: '100%', height: 'auto', maxHeight: '500px', objectFit: 'contain' }}
+              objectFit="contain"
             />
           </div>
         )}
+
+        {/* Credibility Bar */}
+        <div className="credibility-bar-wrapper w-100">
+          <div className="credibility-labels">
+            <span>DUBIOUS_DATA</span>
+            <span>VERIFIED_ARCHIVE</span>
+          </div>
+          <div className="credibility-track">
+            <div 
+              className="credibility-marker"
+              style={{ left: `${credibilityMarkerPos}%` }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C8.13 2 5 5.13 5 9V22L7 20L9 22L11 20L13 22L15 20L17 22L19 20L21 22V9C21 5.13 17.87 2 14 2H12Z" fill="white" />
+                <circle cx="9" cy="9" r="1.5" fill="black" />
+                <circle cx="15" cy="9" r="1.5" fill="black" />
+                <path d="M10 13C10 13 11 14 12 14C13 14 14 13 14 13" stroke="black" strokeWidth="1" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="credibility-center-line"></div>
+          </div>
+          <div 
+            className={`credibility-value ${forum.credibility_score >= 0 ? 'text-normal' : 'text-accent'}`} 
+          >
+            GLOBAL_CREDIBILITY: {forum.credibility_score > 0 ? `+${forum.credibility_score.toFixed(1)}` : forum.credibility_score.toFixed(1)}
+          </div>
+        </div>
+        
+        <div className="horror-card fs-18 column lh-1-6 border-accent-left-3 min-h-120 w-100">
+          <div className={isExpanded ? '' : 'line-clamp-3'}>
+            {forum.description}
+          </div>
+          
+          {forum.description.length > 150 && (
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-accent bold uppercase pointer w-fit mt-10 p-0 fs-12 no-border no-bg text-left"
+            >
+              {isExpanded ? '[ MOSTRAR MENOS ]' : '[ MOSTRAR MÁS ]'}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-60">
-        <div className="flex-center mb-40" style={{ justifyContent: 'space-between' }}>
-          <h2 style={{ fontSize: '32px', margin: 0 }}>REPORTES DE CAMPO</h2>
+        <div className="flex-center justify-between mb-40">
+          <h2 className="fs-32 m-0">REPORTES DE CAMPO</h2>
           {user && String(user.id) === String(forum.user_id) && (
-            <button onClick={() => { setIsEditingReport(false); setReportData({title: '', description: '', image: null}); setShowReportModal(true); }} className="primary" style={{ padding: '10px 30px' }}>+ NUEVO REPORTE</button>
+            <button 
+              onClick={() => { setIsEditingReport(false); setReportData({title: '', description: '', image: null}); setShowReportModal(true); }} 
+              className="primary" 
+              style={{ padding: '10px 30px' }}
+            >
+              + NUEVO REPORTE
+            </button>
           )}
         </div>
 
         <div className="grid-3">
           {reports.length === 0 ? (
-            <div className="text-center" style={{ gridColumn: '1/-1', color: 'var(--text-dim)', padding: '100px', border: '1px dashed var(--border)' }}>NO SE HAN REGISTRADO EVIDENCIAS TODAVÍA.</div>
+            <div className="text-center text-dim border-dashed p-100" style={{ gridColumn: '1/-1' }}>NO SE HAN REGISTRADO EVIDENCIAS TODAVÍA.</div>
           ) : (
             reports.map(r => (
-              <div key={r.id} className="horror-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
-                <Link to={`/forums/${id}/reports/${r.id}`} style={{ flex: 1 }}>
-                  <div style={{ height: '150px', background: '#111', marginBottom: '15px', border: '1px solid var(--border)' }}>
+              <div key={r.id} className="horror-card column p-20 min-h-320">
+                <Link to={`/forums/${id}/reports/${r.id}`} className="flex-1 column">
+                  <div className="card-image-box mb-20">
                     <ShimmerImage 
-                      src={r.image_url} 
+                      src={r.image_url?.startsWith('http') ? r.image_url : `http://localhost:8000/storage/${r.image_url}`} 
                       alt={r.title}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      className="w-100 h-100 object-cover"
                     />
                   </div>
-                  <h3 style={{ margin: '0 0 10px 0' }}>{r.title}</h3>
-                  <p style={{ fontSize: '13px', color: 'var(--text-dim)' }}>{r.description.substring(0, 100)}...</p>
+                  <div className="flex-1">
+                    <h3 className="fs-18 lh-1-2 word-break text-normal m-0 mb-10">
+                      {r.title}
+                    </h3>
+                    <p className="fs-13 text-dim lh-1-4 line-clamp-2">
+                      {r.description}
+                    </p>
+                  </div>
                 </Link>
                 {user && String(user.id) === String(r.user_id) && (
-                  <div className="flex-center mt-20" style={{ gap: '10px' }}>
-                    <button onClick={() => { setCurrentReportId(r.id); setReportData({title: r.title, description: r.description}); setIsEditingReport(true); setShowReportModal(true); }} style={{ flex: 1, fontSize: '12px' }}>EDITAR</button>
-                    <button onClick={() => handleDeleteReport(r.id)} className="outline-red" style={{ flex: 1, fontSize: '12px' }}>BORRAR</button>
+                  <div className="flex-center mt-20 gap-10">
+                    <button onClick={() => { setCurrentReportId(r.id); setReportData({title: r.title, description: r.description}); setIsEditingReport(true); setShowReportModal(true); }} className="flex-1 fs-12">EDITAR</button>
+                    <button onClick={() => handleDeleteReport(r.id)} className="outline-red flex-1 fs-12">BORRAR</button>
                   </div>
                 )}
               </div>
@@ -301,9 +286,9 @@ export default function ForumDetail() {
             <h2>MODIFICAR EXPEDICIÓN</h2>
             <input required value={forumData.title} onChange={e => setForumData({...forumData, title: e.target.value})} />
             <textarea required value={forumData.description} onChange={e => setForumData({...forumData, description: e.target.value})} style={{ minHeight: '200px' }} />
-            <div className="flex-center" style={{ gap: '20px' }}>
-              <button type="submit" className="primary" style={{ flex: 1, padding: '15px' }}>ACTUALIZAR ARCHIVO</button>
-              <button type="button" onClick={() => setShowForumModal(false)} className="outline-red" style={{ flex: 1, padding: '15px' }}>ABORTAR</button>
+            <div className="flex-center gap-20">
+              <button type="submit" className="primary flex-1 p-15">ACTUALIZAR ARCHIVO</button>
+              <button type="button" onClick={() => setShowForumModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
             </div>
           </form>
         </div>
@@ -315,21 +300,35 @@ export default function ForumDetail() {
             <h2>{isEditingReport ? 'MODIFICAR EVIDENCIA' : 'REGISTRAR EVIDENCIA'}</h2>
             
             {isCreatingReport ? (
-              <div className="text-center" style={{ padding: '40px' }}>
-                <p style={{ fontSize: '20px', letterSpacing: '2px' }}>SELLANDO REPORTE EN EL ARCHIVO CENTRAL...</p>
-                <div style={{ fontSize: '64px', color: 'var(--accent)', margin: '30px 0' }}>{countdown}</div>
-                <div style={{ width: '100%', height: '4px', background: '#111' }}>
-                  <div style={{ width: `${(countdown/3)*100}%`, height: '100%', background: 'var(--accent)', transition: 'width 1s linear' }}></div>
+              <div className="text-center p-40">
+                <p className="fs-20 ls-2">SELLANDO REPORTE EN EL ARCHIVO CENTRAL...</p>
+                <div className="fs-64 text-accent m-30-0">{countdown}</div>
+                <div className="w-100 h-4 bg-black">
+                  <div className="h-100 bg-accent transition-width" style={{ width: `${(countdown/3)*100}%` }}></div>
                 </div>
               </div>
             ) : (
               <>
-                <input required placeholder="TITULO" value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} />
-                <textarea required placeholder="DESCRIPCIÓN DE LOS HECHOS..." value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ minHeight: '200px' }} />
-                {!isEditingReport && <input type="file" required onChange={e => setReportData({...reportData, image: e.target.files[0]})} style={{ color: 'var(--text)' }} />}
-                <div className="flex-center" style={{ gap: '20px' }}>
-                  <button type="submit" className="primary" style={{ flex: 1, padding: '15px' }}>{isEditingReport ? 'ACTUALIZAR' : 'REGISTRAR'}</button>
-                  <button type="button" onClick={() => setShowReportModal(false)} className="outline-red" style={{ flex: 1, padding: '15px' }}>CANCELAR</button>
+                <div className="form-group">
+                  <label className="form-label">TÍTULO DEL HALLAZGO</label>
+                  <input required placeholder="Ej: Anomalía detectada en cámara 4" value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">DESCRIPCIÓN DE LA EVIDENCIA</label>
+                  <textarea required placeholder="Relata detalladamente lo observado..." value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ minHeight: '180px' }} />
+                </div>
+
+                {!isEditingReport && (
+                  <div className="form-group">
+                    <label className="form-label">CAPTURA DE EVIDENCIA (IMAGEN)</label>
+                    <input type="file" required onChange={e => setReportData({...reportData, image: e.target.files[0]})} className="text-normal" />
+                  </div>
+                )}
+
+                <div className="flex-center mt-20 gap-20">
+                  <button type="submit" className="primary flex-1 p-15">{isEditingReport ? 'ACTUALIZAR DATOS' : 'REGISTRAR EVIDENCIA'}</button>
+                  <button type="button" onClick={() => setShowReportModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
                 </div>
               </>
             )}

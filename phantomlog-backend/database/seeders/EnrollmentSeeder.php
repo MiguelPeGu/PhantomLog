@@ -29,7 +29,7 @@ class EnrollmentSeeder extends Seeder
         ];
  
         foreach ($pairs as [$user, $expedition]) {
-            $user->joinedExpeditions()->attach($expedition->id, ['id' => Str::uuid()]);
+            $user->joinedExpeditions()->attach($expedition->id);
         }
     }
 }

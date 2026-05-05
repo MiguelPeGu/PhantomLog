@@ -28,10 +28,27 @@ class ForumController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'required|string',
-            'image'       => 'required|string',
+            'title'       => ['required', 'string', 'min:10', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
+            'description' => 'required|string|min:20|max:2000',
+            'image'       => ['required', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
+        ], [
+            'title.required' => 'El título es obligatorio para el archivo.',
+            'title.min' => 'El título debe tener al menos 10 caracteres para ser descriptivo.',
+            'title.max' => 'El título es demasiado extenso (máximo 100 caracteres).',
+            'title.regex' => 'El título contiene caracteres especiales no permitidos (solo letras, números y signos básicos).',
+            'description.required' => 'La descripción de los hechos es obligatoria.',
+            'description.min' => 'La descripción es muy corta (mínimo 20 caracteres).',
+            'description.max' => 'Has excedido el límite de almacenamiento (máximo 2000 caracteres).',
+            'image.required' => 'Es obligatorio adjuntar una evidencia visual.',
+            'image.regex' => 'El archivo debe ser una imagen válida (JPG, PNG o WEBP).',
         ]);
+
+        // Sanitización manual
+        foreach ($data as $key => $value) {
+            if (is_string($value) && $key !== 'image') {
+                $data[$key] = trim(strip_tags($value));
+            }
+        }
 
         if (preg_match('/^data:image\/(\w+);base64,/', $request->image, $type)) {
             $image   = substr($request->image, strpos($request->image, ',') + 1);

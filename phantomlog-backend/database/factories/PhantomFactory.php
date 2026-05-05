@@ -21,7 +21,8 @@ class PhantomFactory extends Factory
         ];
 
         $phantom = $this->faker->randomElement($phantoms);
-        $index = array_search($phantom, $phantoms) + 1;
+        $images = ['spirit.jpg', 'spectre.jpg', 'phantom.jpg', 'poltergeist.jpg', 'banshee.jpg', 'jinn.jpg', 'mare.jpg', 'revenant.jpg', 'shade.jpg', 'demon.jpg', 'yurei.jpg', 'onryo.jpg'];
+        $image = $this->faker->randomElement($images);
 
         return [
             'id' => (string) Str::uuid(),
@@ -29,7 +30,7 @@ class PhantomFactory extends Factory
             'type' => $phantom['type'],
             'description' => $phantom['desc'],
             'location' => $phantom['loc'],
-            'image' => "images/phantoms/phantom_{$index}.jpg",
+            'image' => "images/phantoms/{$image}",
         ];
     }
 }

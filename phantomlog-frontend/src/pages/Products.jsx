@@ -21,18 +21,32 @@ export default function Products() {
   const [addingId, setAddingId] = useState(null)
   const [categories, setCategories] = useState(['ALL'])
 
-  // Extraer categorías dinámicamente
+  // Extraer categorías dinámicamente (solo cuando estamos en vista general para no perderlas)
   useEffect(() => {
-    if (products.length > 0) {
+    if (products.length > 0 && category === 'ALL') {
       const uniqueCats = ['ALL', ...new Set(products.map(p => p.category?.toUpperCase()).filter(Boolean))]
       if (JSON.stringify(uniqueCats) !== JSON.stringify(categories)) {
         setCategories(uniqueCats)
       }
     }
-  }, [products, categories])
+  }, [products, categories, category])
 
   const applyFilters = () => {
+    if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
+      addToast("EL PRECIO MÍNIMO NO PUEDE SER MAYOR AL MÁXIMO", "error");
+      return;
+    }
     setActiveFilters({ category, minPrice, maxPrice, sort });
+    setCurrentPage(1);
+  };
+
+  const resetFilters = () => {
+    setCategory('ALL');
+    setMinPrice('');
+    setMaxPrice('');
+    setSort('newest');
+    setActiveFilters({ category: 'ALL', minPrice: '', maxPrice: '', sort: 'newest' });
+    setGlobalSearch('');
     setCurrentPage(1);
   };
 
@@ -77,144 +91,153 @@ export default function Products() {
     <div className="page-container">
       <header className="mb-100 text-center">
         <h1>SUMINISTROS ARCANOS</h1>
-        <p style={{ color: 'var(--text-dim)', fontStyle: 'italic' }}>Equipamiento vital contra la oscuridad.</p>
+        <p className="text-dim italic">Equipamiento vital contra la oscuridad.</p>
       </header>
 
-      <div className="flex-center" style={{ alignItems: 'flex-start', gap: '40px' }}>
-        {/* Sidebar de Filtros */}
-        <aside className="horror-card" style={{ width: '250px', padding: '20px', position: 'sticky', top: '100px', height: 'fit-content' }}>
-          <h3 style={{ marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>ORDENAR POR</h3>
-          <div className="column" style={{ gap: '10px', marginBottom: '30px' }}>
-            {[
-              { id: 'newest', label: 'NOVEDADES' },
-              { id: 'popular', label: 'MÁS VENDIDOS' },
-              { id: 'price_asc', label: 'MENOR PRECIO' },
-              { id: 'price_desc', label: 'MAYOR PRECIO' }
-            ].map(s => (
-              <button 
-                key={s.id} 
-                onClick={() => setSort(s.id)}
-                className={sort === s.id ? 'primary' : 'outline-red'}
-                style={{ textAlign: 'left', padding: '8px 12px', fontSize: '11px' }}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-
-          <h3 style={{ marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>CATEGORÍAS</h3>
-          <div className="column" style={{ gap: '10px', marginBottom: '30px' }}>
-            {categories.map(cat => (
-              <button 
-                key={cat} 
-                onClick={() => setCategory(cat)}
-                className={category === cat ? 'primary' : 'outline-red'}
-                style={{ textAlign: 'left', padding: '8px 12px', fontSize: '11px' }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <h3 style={{ marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>PRECIO</h3>
-          <div className="column" style={{ gap: '15px', marginBottom: '30px' }}>
-            <div className="relative flex-center" style={{ width: '100%' }}>
-              <input 
-                type="number" 
-                placeholder="MIN" 
-                value={minPrice} 
-                onChange={e => setMinPrice(e.target.value)}
-                style={{ padding: '10px 30px 10px 10px', fontSize: '12px', width: '100%' }}
-              />
-              <span style={{ position: 'absolute', right: '10px', color: 'var(--text-dim)', fontSize: '12px' }}>€</span>
+      <div className="max-1200">
+        <div className="flex-center align-start gap-40">
+          {/* Sidebar de Filtros */}
+          <aside className="horror-card sticky-sidebar max-250 p-20">
+            <h3 className="mb-20 border-bottom pb-10">ORDENAR POR</h3>
+            <div className="column gap-10 mb-50">
+              {[
+                { id: 'newest', label: 'NOVEDADES' },
+                { id: 'popular', label: 'MÁS VENDIDOS' },
+                { id: 'price_asc', label: 'MENOR PRECIO' },
+                { id: 'price_desc', label: 'MAYOR PRECIO' }
+              ].map(s => (
+                <button 
+                  key={s.id} 
+                  onClick={() => setSort(s.id)}
+                  className={`${sort === s.id ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`}
+                >
+                  {s.label}
+                </button>
+              ))}
             </div>
-            <div className="relative flex-center" style={{ width: '100%' }}>
-              <input 
-                type="number" 
-                placeholder="MAX" 
-                value={maxPrice} 
-                onChange={e => setMaxPrice(e.target.value)}
-                style={{ padding: '10px 30px 10px 10px', fontSize: '12px', width: '100%' }}
-              />
-              <span style={{ position: 'absolute', right: '10px', color: 'var(--text-dim)', fontSize: '12px' }}>€</span>
+
+            <h3 className="mb-20 mt-40 border-bottom pb-10">CATEGORÍAS</h3>
+            <div className="column gap-10 mb-50">
+              {categories.map(cat => (
+                <button 
+                  key={cat} 
+                  onClick={() => setCategory(cat)}
+                  className={`${category === cat ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
-          </div>
 
-          <button onClick={applyFilters} className="primary" style={{ width: '100%', padding: '12px', fontWeight: 'bold' }}>
-            APLICAR FILTROS
-          </button>
-        </aside>
-
-        {/* Lista de Productos */}
-        <div style={{ flex: 1 }}>
-          {loading && products.length === 0 ? (
-            <div className="text-center" style={{ fontSize: '20px', padding: '100px', color: 'var(--text)' }}>Invocando objetos...</div>
-          ) : (
-            <>
-              <div className="grid-3" style={{ opacity: loading ? 0.4 : 1, transition: 'opacity 0.2s' }}>
-                {products.map(p => (
-                  <div key={p.id} className="horror-card column" style={{ padding: '0', overflow: 'hidden' }}>
-                    <div onClick={() => navigate(`/products/${p.id}`)} style={{ 
-                      width: '100%', height: '200px', cursor: 'pointer', 
-                      background: '#111', borderBottom: '1px solid var(--border)' 
-                    }}>
-                      <ShimmerImage 
-                        src={p.image?.startsWith('http') ? p.image : `http://localhost:8000/storage/${p.image}`} 
-                        alt={p.title} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                      />
-                    </div>
-                    <div className="column" style={{ padding: '20px', flex: 1, justifyContent: 'space-between' }}>
-                      <div>
-                        <h3 onClick={() => navigate(`/products/${p.id}`)} style={{ cursor: 'pointer', fontSize: '18px', margin: '0 0 10px 0' }}>{p.title.toUpperCase()}</h3>
-                        <div className="flex-center" style={{ justifyContent: 'space-between', marginBottom: '15px' }}>
-                          <span style={{ fontSize: '20px', color: 'var(--accent)', fontWeight: 'bold' }}>{Number(p.price).toFixed(2)}€</span>
-                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>STOCK: {p.stock}</span>
-                        </div>
-                      </div>
-                      <button 
-                        disabled={p.stock <= 0 || addingId === p.id}
-                        onClick={() => handleBuy(p.id)} 
-                        className="horror-card"
-                        style={{ 
-                          background: 'var(--card-bg)',
-                          width: '100%', padding: '10px', cursor: p.stock <= 0 ? 'not-allowed' : 'pointer'
-                        }}
-                      >
-                        {addingId === p.id ? 'AÑADIENDO...' : p.stock <= 0 ? 'SIN EXISTENCIAS' : 'ADQUIRIR'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+            <h3 className="mb-20 mt-40 border-bottom pb-10">PRECIO</h3>
+            <div className="column gap-15 mb-50">
+              <div className="form-group">
+                <label className="form-label fs-9 mb-5">PRECIO MÍNIMO</label>
+                <div className="price-input-wrapper">
+                  <input 
+                    type="number" 
+                    min="0"
+                    placeholder="0" 
+                    className="w-100 fs-12 p-10-30-10-10"
+                    value={minPrice} 
+                    onChange={e => setMinPrice(e.target.value)}
+                  />
+                  <span className="price-symbol">€</span>
+                </div>
               </div>
 
-              {totalPages > 1 && (
-                <div className="mt-60 flex-center" style={{ gap: '20px' }}>
-                  <button 
-                    disabled={currentPage === 1} 
-                    onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
-                  >
-                    🡄 ANTERIOR
-                  </button>
-                  <span style={{ fontWeight: 'bold', fontSize: '18px' }}>
-                    {currentPage} / {totalPages}
-                  </span>
-                  <button 
-                    disabled={currentPage === totalPages} 
-                    onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}
-                  >
-                    SIGUIENTE 🡆
-                  </button>
+              <div className="form-group">
+                <label className="form-label fs-9 mb-5">PRECIO MÁXIMO</label>
+                <div className="price-input-wrapper">
+                  <input 
+                    type="number" 
+                    min="0"
+                    placeholder="999" 
+                    className="w-100 fs-12 p-10-30-10-10"
+                    value={maxPrice} 
+                    onChange={e => setMaxPrice(e.target.value)}
+                  />
+                  <span className="price-symbol">€</span>
                 </div>
-              )}
-            </>
-          )}
-
-          {!loading && products.length === 0 && (
-            <div className="text-center" style={{ border: '1px dashed var(--accent)', padding: '100px', color: 'var(--accent)' }}>
-              NO SE HAN ENCONTRADO RELIQUIAS EN ESTE SECTOR DEL ARCHIVO.
+              </div>
             </div>
-          )}
+
+            <button onClick={applyFilters} className="primary w-100 bold p-12 mt-20">
+              APLICAR FILTROS
+            </button>
+            
+            <button 
+              onClick={resetFilters} 
+              className="outline w-100 mt-20 fs-10 ls-2 p-10" 
+            >
+              RESETEAR FILTROS
+            </button>
+          </aside>
+
+          {/* Lista de Productos */}
+          <div className="flex-1">
+            {loading && products.length === 0 ? (
+              <div className="text-center fs-24 p-100">Invocando objetos...</div>
+            ) : (
+              <>
+                <div className={`grid-catalog mb-60 ${loading ? 'opacity-04' : ''}`}>
+                  {products.map(p => (
+                    <div key={p.id} className="horror-card column p-0 overflow-hidden">
+                      <div onClick={() => navigate(`/products/${p.id}`)} className="product-img-container">
+                        <ShimmerImage 
+                          src={p.image?.startsWith('http') ? p.image : `http://localhost:8000/storage/${p.image}`} 
+                          alt={p.title} 
+                          objectFit="cover"
+                        />
+                      </div>
+                      <div className="column flex-1 justify-between card-padding">
+                        <div>
+                          <h3 onClick={() => navigate(`/products/${p.id}`)} className="pointer fs-18 m-0 mb-10">{p.title.toUpperCase()}</h3>
+                          <div className="flex-center justify-between mb-15">
+                            <span className="fs-24 text-accent bold">{Number(p.price).toFixed(2)}€</span>
+                            <span className="fs-10 text-muted">STOCK: {p.stock}</span>
+                          </div>
+                        </div>
+                        <button 
+                          disabled={p.stock <= 0 || addingId === p.id}
+                          onClick={() => handleBuy(p.id)} 
+                          className={`horror-card w-100 p-10 ${p.stock <= 0 ? 'opacity-02' : 'pointer'}`}
+                        >
+                          {addingId === p.id ? 'AÑADIENDO...' : p.stock <= 0 ? 'SIN EXISTENCIAS' : 'ADQUIRIR'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="pagination-controls">
+                    <button 
+                      disabled={currentPage === 1} 
+                      onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
+                    >
+                      🡄 ANTERIOR
+                    </button>
+                    <span className="bold fs-18">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <button 
+                      disabled={currentPage === totalPages} 
+                      onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}
+                    >
+                      SIGUIENTE 🡆
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {!loading && products.length === 0 && (
+              <div className="text-center border-dashed text-accent p-100">
+                NO SE HAN ENCONTRADO RELIQUIAS EN ESTE SECTOR DEL ARCHIVO.
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

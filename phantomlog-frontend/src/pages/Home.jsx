@@ -42,46 +42,38 @@ export default function Home() {
     <div className="vh100 flex-center column text-center relative overflow-hidden">
       {/* Fondo del chico con parpadeo y repetición controlada */}
       <div 
-        className="flicker-overlay"
+        className="flicker-overlay bg-flicker-space"
         style={{
           backgroundImage: 'url("/boy.png")',   
-          backgroundRepeat: 'space', 
-          backgroundPosition: 'center',
           opacity: flickerOpacity,
           transform: `translate(${offset.x}px, ${offset.y}px)`,
         }} 
       />
 
       <div className="relative w-100 flex-center column" style={{ zIndex: 1 }}>
-        <h1 style={{ 
-          fontSize: '100px', 
-          textShadow: '0 0 30px var(--accent)',
-          letterSpacing: '10px'
-        }}>
+        <h1 className="hero-title">
           PHANTOMLOG
         </h1>
-        <p style={{ letterSpacing: '8px', fontSize: '20px' }} className="mb-40">NO DEBERÍAS ESTAR AQUÍ</p>
+        <p className="hero-subtitle mb-40">NO DEBERÍAS ESTAR AQUÍ</p>
         
         {/* BOTONES CENTRADOS */}
-        <div className="flex-center w-100" style={{ gap: '30px' }}>
+        <div className="flex-center w-100 gap-30">
           <button 
             onClick={() => navigate('/register')} 
-            className="primary"
-            style={{ padding: '20px 40px', fontSize: '24px' }}
+            className="primary hero-btn"
           >
             ENTRAR
           </button>
           <button 
             onClick={() => navigate('/login')} 
-            className="outline-red"
-            style={{ padding: '20px 40px', fontSize: '24px' }}
+            className="outline-red hero-btn"
           >
             LOGIN
           </button>
         </div>
       </div>
 
-      <div className="system-status-footer" style={{ bottom: '30px' }}>
+      <div className="system-status-footer">
         SYSTEM.ACCESS_DENIED // ERROR_00X12 // ALMA_NO_DETECTADA
       </div>
     </div>

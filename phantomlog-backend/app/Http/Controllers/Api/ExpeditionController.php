@@ -11,7 +11,7 @@ class ExpeditionController extends Controller
     public function index()
     {
         return response()->json(
-            Expedition::with(['user', 'phantom'])
+            Expedition::with(['creator', 'phantom'])
                 ->withCount('participants')
                 ->latest()
                 ->get()
@@ -22,21 +22,40 @@ class ExpeditionController extends Controller
     {
         $data = $request->validate([
             'phantom_id'  => 'required|uuid|exists:phantoms,id',
-            'name'        => 'required|string|max:255',
-            'description' => 'required|string',
-            'location'    => 'required|string',
+            'name'        => ['required', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
+            'description' => 'required|string|min:100|max:2000',
+            'location'    => ['required', 'string', 'max:40', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
             'date'        => 'required|date|after:now',
+        ], [
+            'phantom_id.required' => 'Debes seleccionar una entidad objetivo válida.',
+            'name.required' => 'El nombre de la misión es obligatorio.',
+            'name.min' => 'El nombre de la misión debe tener al menos 5 caracteres.',
+            'name.regex' => 'El nombre de la misión contiene caracteres no permitidos.',
+            'description.required' => 'Los objetivos y descripción son obligatorios.',
+            'description.min' => 'Los objetivos de la incursión deben ser más detallados (mínimo 100 caracteres).',
+            'location.required' => 'La ubicación de la incursión es obligatoria.',
+            'location.max' => 'La ubicación no puede exceder los 40 caracteres.',
+            'location.regex' => 'La ubicación contiene caracteres especiales no permitidos.',
+            'date.required' => 'La fecha y hora son obligatorias.',
+            'date.after' => 'La incursión debe programarse para una fecha futura.',
         ]);
+
+        // Sanitización manual
+        foreach ($data as $key => $value) {
+            if (is_string($value)) {
+                $data[$key] = trim(strip_tags($value));
+            }
+        }
 
         $expedition = $request->user()->createdExpeditions()->create($data);
 
-        return response()->json($expedition->load(['phantom', 'user']), 201);
+        return response()->json($expedition->load(['phantom', 'creator']), 201);
     }
 
     public function show(Expedition $expedition)
     {
         return response()->json(
-            $expedition->load(['user', 'phantom', 'participants'])
+            $expedition->load(['creator', 'phantom', 'participants'])
                 ->loadCount('participants')
         );
     }
@@ -49,15 +68,26 @@ class ExpeditionController extends Controller
 
         $data = $request->validate([
             'phantom_id'  => 'sometimes|uuid|exists:phantoms,id',
-            'name'        => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'location'    => 'sometimes|string',
+            'name'        => ['sometimes', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
+            'description' => 'sometimes|string|min:100|max:2000',
+            'location'    => ['sometimes', 'string', 'max:40', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
             'date'        => 'sometimes|date|after:now',
+        ], [
+            'name.regex' => 'El nombre contiene caracteres no permitidos.',
+            'description.min' => 'Los objetivos deben ser más detallados (mínimo 100 caracteres).',
+            'location.max' => 'La ubicación no puede exceder los 40 caracteres.',
+            'location.regex' => 'La ubicación contiene caracteres no permitidos.',
         ]);
+
+        foreach ($data as $key => $value) {
+            if (is_string($value)) {
+                $data[$key] = trim(strip_tags($value));
+            }
+        }
 
         $expedition->update($data);
 
-        return response()->json($expedition->load(['phantom', 'user']));
+        return response()->json($expedition->load(['phantom', 'creator']));
     }
 
     public function destroy(Request $request, Expedition $expedition)

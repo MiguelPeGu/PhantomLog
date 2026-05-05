@@ -18,22 +18,29 @@ class PhantomController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'type'        => 'required|string|max:255',
-            'description' => 'required|string',
-            'location'    => 'required|string',
+            'name'        => 'required|string|min:3|max:100',
+            'type'        => 'required|string|max:50',
+            'description' => 'required|string|max:2000',
+            'location'    => 'required|string|max:255',
             'image'       => 'nullable|string',
         ]);
+
+        foreach ($data as $key => $value) {
+            if (is_string($value) && $key !== 'image') {
+                $data[$key] = trim(strip_tags($value));
+            }
+        }
 
         $phantom = Phantom::create($data);
 
         return response()->json($phantom, 201);
     }
 
-    public function show(Phantom $phantom)
+    public function show(string $phantom)
     {
+        $record = Phantom::findOrFail($phantom);
         return response()->json(
-            $phantom->load('expeditions.user')
+            $record->load('expeditions.creator')
         );
     }
 
