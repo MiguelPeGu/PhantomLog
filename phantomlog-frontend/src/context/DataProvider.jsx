@@ -21,12 +21,13 @@ export function DataProvider({ children }) {
   const [loadingInvoices, setLoadingInvoices] = useState(false)
   const [loadingPhantoms, setLoadingPhantoms] = useState(false)
   const [loadingExpeditions, setLoadingExpeditions] = useState(false)
-  const requestRefs = useRef({ products: 0, forums: 0, invoices: 0 })
+  const requestRefs = useRef({ products: 0, forums: 0, invoices: 0, expeditions: 0 })
 
   const [globalSearch, setGlobalSearch] = useState('')
   const [productsPagination, setProductsPagination] = useState({ currentPage: 1, totalPages: 1 })
   const [forumsPagination, setForumsPagination] = useState({ currentPage: 1, totalPages: 1 })
   const [invoicesPagination, setInvoicesPagination] = useState({ currentPage: 1, totalPages: 1 })
+  const [expeditionsPagination, setExpeditionsPagination] = useState({ currentPage: 1, totalPages: 1 })
 
   const refreshProducts = useCallback(async (params = {}) => {
     const requestId = ++requestRefs.current.products
@@ -100,11 +101,19 @@ export function DataProvider({ children }) {
     }
   }, [])
 
-  const refreshExpeditions = useCallback(async () => {
+  const refreshExpeditions = useCallback(async (params = {}) => {
+    const requestId = ++requestRefs.current.expeditions || (requestRefs.current.expeditions = 1)
     setLoadingExpeditions(true)
     try {
-      const res = await getExpeditions()
-      setExpeditions(res.data)
+      const res = await getExpeditions(params)
+      if (requestId !== requestRefs.current.expeditions) return
+
+      const data = res.data.data || res.data
+      setExpeditions(Array.isArray(data) ? data : [])
+      setExpeditionsPagination({
+        currentPage: res.data.current_page || 1,
+        totalPages: res.data.last_page || 1
+      })
     } catch (error) {
       console.error('Error fetching expeditions:', error)
     } finally {
@@ -118,7 +127,7 @@ export function DataProvider({ children }) {
       refreshForums({ page: 1, per_page: 9 }),
       refreshInvoices({ page: 1, per_page: 5 }),
       refreshPhantoms(),
-      refreshExpeditions()
+      refreshExpeditions({ page: 1, per_page: 9 })
     ])
   }, [refreshProducts, refreshForums, refreshInvoices])
 
@@ -133,7 +142,7 @@ export function DataProvider({ children }) {
     forums, loadingForums, forumsPagination, refreshForums,
     invoices, loadingInvoices, invoicesPagination, refreshInvoices,
     phantoms, loadingPhantoms, refreshPhantoms,
-    expeditions, loadingExpeditions, refreshExpeditions,
+    expeditions, loadingExpeditions, expeditionsPagination, refreshExpeditions,
     globalSearch, setGlobalSearch,
     refreshAll
   }), [
@@ -141,7 +150,7 @@ export function DataProvider({ children }) {
     forums, loadingForums, forumsPagination, refreshForums,
     invoices, loadingInvoices, invoicesPagination, refreshInvoices,
     phantoms, loadingPhantoms, refreshPhantoms,
-    expeditions, loadingExpeditions, refreshExpeditions,
+    expeditions, loadingExpeditions, expeditionsPagination, refreshExpeditions,
     globalSearch,
     refreshAll
   ])

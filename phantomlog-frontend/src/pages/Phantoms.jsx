@@ -13,20 +13,20 @@ export default function Phantoms() {
 
       <div className="max-1200">
         <div className="grid-3">
-          {phantoms.map(p => (
+          {phantoms.map(phantom => (
             <Link 
-              key={p.id} 
-              to={`/phantoms/${p.id}`} 
+              key={phantom.id} 
+              to={`/phantoms/${phantom.id}`} 
               className="horror-card relative"
             >
               <div className="flex-center justify-between mb-15">
-                <h2 className="m-0 fs-28 ls-2">{p.name.toUpperCase()}</h2>
-                <span className="text-muted fs-12 nowrap">TYPE: {p.type.toUpperCase()}</span>
+                <h2 className="m-0 fs-28 ls-2">{phantom.name.toUpperCase()}</h2>
+                <span className="text-muted fs-12 nowrap">TYPE: {phantom.type.toUpperCase()}</span>
               </div>
               
               <div className="fs-11 border-top mt-10 pt-10">
                 <strong className="text-muted">EVIDENCIA:</strong><br />
-                {p.evidence}
+                {phantom.evidence}
               </div>
   
               <div className="absolute-br opacity-02 fs-24 bold">

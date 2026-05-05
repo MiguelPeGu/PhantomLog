@@ -1,30 +1,32 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getInvoice } from '../api/invoices'
+import NotFound from './NotFound'
 
 export default function SuccessInvoice() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [invoice, setInvoice] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
     getInvoice(id).then(res => setInvoice(res.data))
-      .catch(() => navigate('/dashboard'))
+      .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
-  }, [id, navigate])
+  }, [id])
 
   if (loading) return <div className="mt-50 text-normal text-center">DESENCRIPTANDO FACTURA...</div>
-  if (!invoice) return null
+  if (notFound || !invoice) return <NotFound />
 
   return (
     <div className="page-container flex-center column">
-      <button
-        onClick={() => navigate('/invoices')}
-        className="mb-40 flex-center gap-10"
+      <Link
+        to="/invoices"
+        className="btn mb-40 flex-center gap-10"
       >
         🡄 VOLVER AL HISTORIAL
-      </button>
+      </Link>
 
       <div className="horror-card max-800 p-40">
         <header className="invoice-header">
@@ -97,7 +99,7 @@ export default function SuccessInvoice() {
 
       <div className="mt-60 flex-center gap-20">
         <button onClick={() => window.print()} className="outline-red p-10-30">IMPRIMIR ARCHIVO</button>
-        <button onClick={() => navigate('/dashboard')} className="primary p-10-30">VOLVER AL INICIO</button>
+        <Link to="/dashboard" className="btn primary p-10-30">VOLVER AL INICIO</Link>
       </div>
     </div>
   )

@@ -37,13 +37,13 @@ export default function Cart() {
       }
     }
 
-    const currentItem = cartData?.items.find(i => i.product.id === productId);
+    const currentItem = cartData?.items.find(item => item.product.id === productId);
     if (intent === 'add' && currentItem && currentItem.quantity >= currentItem.product.stock) {
       addToast("Has alcanzado el límite de existencias.", "error");
       return;
     }
 
-    setUpdatingState(prev => ({ ...prev, [productId]: intent }));
+    setUpdatingState(prev => ({ ...prev, [productId]: intent })); //explicame esto porque no entiendo prev
 
     // Optimistic Update
     setCartData(prev => {
@@ -51,15 +51,15 @@ export default function Cart() {
       const newItems = prev.items.map(item => {
         if (item.product.id === productId) {
           if (intent === 'add') return { ...item, quantity: item.quantity + 1 };
-          if (intent === 'sub') return { ...item, quantity: Math.max(0, item.quantity - 1) };
+          if (intent === 'sub') return { ...item, quantity: Math.max(0, item.quantity - 1) }; // por que es max y no min
         }
         return item;
-      }).filter(item => item.quantity > 0);
+      }).filter(item => item.quantity > 0); //sigo sin entender que hace y para que sirve prev
 
       if (intent === 'rem') {
-        return { ...prev, items: prev.items.filter(i => i.product.id !== productId) };
+        return { ...prev, items: prev.items.filter(item => item.product.id !== productId) };
       }
-      return { ...prev, items: newItems };
+      return { ...prev, items: newItems };// explicame prev
     });
 
     try {
@@ -96,12 +96,12 @@ export default function Cart() {
         <p className="text-dim">Tus adquisiciones a la espera de ser consagradas.</p>
       </header>
 
-      <button 
-        onClick={() => navigate('/products')} 
-        className="mb-40 flex-center gap-10"
+      <Link 
+        to="/products" 
+        className="btn mb-40 flex-center gap-10"
       >
         🡄 VOLVER AL CATÁLOGO
-      </button>
+      </Link>
       
       {items.length === 0 ? (
         <div className="text-center column align-center p-60">
@@ -144,8 +144,8 @@ export default function Cart() {
             <h2 className="fs-32 m-5-0">TOTAL: {Number(cartData.totalWithTax || 0).toFixed(2)}€</h2>
             
             <div className="mt-60 flex-center justify-end gap-15">
-              <button onClick={() => navigate('/products')}>SEGUIR BUSCANDO</button>
-              <button onClick={() => navigate('/checkout')} className="primary fs-18 p-10-20">SELLAR PACTO (CHECKOUT)</button>
+              <Link to="/products" className="btn">SEGUIR BUSCANDO</Link>
+              <Link to="/checkout" className="btn primary fs-18 p-10-20">SELLAR PACTO (CHECKOUT)</Link>
             </div>
           </div>
         </div>

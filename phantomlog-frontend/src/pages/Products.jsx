@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { addToCart } from '../api/cart'
 import { useToast } from '../context/ToastContext'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useData } from '../context/DataProvider'
 import ShimmerImage from '../components/ShimmerImage'
@@ -9,22 +9,20 @@ import ShimmerImage from '../components/ShimmerImage'
 export default function Products() {
   const { products, loadingProducts: loading, productsPagination, refreshProducts, globalSearch, setGlobalSearch } = useData()
   const { addToast } = useToast()
-  const navigate = useNavigate()
   const { setCartCount } = useCart()
-  
+
   const [currentPage, setCurrentPage] = useState(1)
-  const [category, setCategory] = useState('ALL')
+  const [category, setCategory] = useState('ALL') //diferente al otro category, por favor?
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
   const [sort, setSort] = useState('newest')
   const [activeFilters, setActiveFilters] = useState({ category: 'ALL', minPrice: '', maxPrice: '', sort: 'newest' })
   const [addingId, setAddingId] = useState(null)
-  const [categories, setCategories] = useState(['ALL'])
+  const [categories, setCategories] = useState(['ALL']) //cual es la diferencia con el otro?
 
-  // Extraer categorías dinámicamente (solo cuando estamos en vista general para no perderlas)
   useEffect(() => {
     if (products.length > 0 && category === 'ALL') {
-      const uniqueCats = ['ALL', ...new Set(products.map(p => p.category?.toUpperCase()).filter(Boolean))]
+      const uniqueCats = ['ALL', ...new Set(products.map(product => product.category?.toUpperCase()).filter(Boolean))] // necesito mejor explicacion
       if (JSON.stringify(uniqueCats) !== JSON.stringify(categories)) {
         setCategories(uniqueCats)
       }
@@ -50,16 +48,14 @@ export default function Products() {
     setCurrentPage(1);
   };
 
-  // Reset page to 1 when search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [globalSearch]);
 
-  // Effect for both search and page changes
   useEffect(() => {
-    const params = { 
-      search: globalSearch, 
-      page: currentPage, 
+    const params = {
+      search: globalSearch,
+      page: currentPage,
       per_page: 9,
       sort: activeFilters.sort
     };
@@ -83,11 +79,11 @@ export default function Products() {
       const res = await addToCart(productId, 1)
       addToast("Objeto guardado en tu contenedor.", "success")
       if (res.data?.items) {
-        setCartCount(res.data.items.reduce((acc, item) => acc + item.quantity, 0))
+        setCartCount(res.data.items.reduce((acc, item) => acc + item.quantity, 0)) // explicame esta operacion
       }
-    } catch (e) { 
-      const msg = e.response?.data?.message || "Error al añadir.";
-      addToast(msg.toUpperCase(), "error") 
+    } catch (e) {
+      const msg = e.response?.data?.message || "Error al añadir."; // el mesnaje de error es el que yo personalizo en el backend verdad?
+      addToast(msg.toUpperCase(), "error")
     }
     finally { setAddingId(null) }
   }
@@ -112,13 +108,13 @@ export default function Products() {
                 { id: 'popular', label: 'MÁS VENDIDOS' },
                 { id: 'price_asc', label: 'MENOR PRECIO' },
                 { id: 'price_desc', label: 'MAYOR PRECIO' }
-              ].map(s => (
-                <button 
-                  key={s.id} 
-                  onClick={() => setSort(s.id)}
-                  className={`${sort === s.id ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`}
+              ].map(sortOption => (
+                <button
+                  key={sortOption.id}
+                  onClick={() => setSort(sortOption.id)}
+                  className={`${sort === sortOption.id ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`} // que hace aqui al clicar
                 >
-                  {s.label}
+                  {sortOption.label}
                 </button>
               ))}
             </div>
@@ -126,10 +122,10 @@ export default function Products() {
             <h3 className="mb-20 mt-40 border-bottom pb-10">CATEGORÍAS</h3>
             <div className="column gap-10 mb-50">
               {categories.map(cat => (
-                <button 
-                  key={cat} 
+                <button
+                  key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`${category === cat ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`}
+                  className={`${category === cat ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`} // que hace aqui
                 >
                   {cat}
                 </button>
@@ -141,12 +137,12 @@ export default function Products() {
               <div className="form-group">
                 <label className="form-label fs-9 mb-5">PRECIO MÍNIMO</label>
                 <div className="price-input-wrapper">
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     min="0"
-                    placeholder="0" 
+                    placeholder="0"
                     className="w-100 fs-12 p-10-30-10-10"
-                    value={minPrice} 
+                    value={minPrice}
                     onChange={e => setMinPrice(e.target.value)}
                   />
                   <span className="price-symbol">€</span>
@@ -156,12 +152,12 @@ export default function Products() {
               <div className="form-group">
                 <label className="form-label fs-9 mb-5">PRECIO MÁXIMO</label>
                 <div className="price-input-wrapper">
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     min="0"
-                    placeholder="999" 
+                    placeholder="999"
                     className="w-100 fs-12 p-10-30-10-10"
-                    value={maxPrice} 
+                    value={maxPrice}
                     onChange={e => setMaxPrice(e.target.value)}
                   />
                   <span className="price-symbol">€</span>
@@ -172,10 +168,10 @@ export default function Products() {
             <button onClick={applyFilters} className="primary w-100 bold p-12 mt-20">
               APLICAR FILTROS
             </button>
-            
-            <button 
-              onClick={resetFilters} 
-              className="outline w-100 mt-20 fs-10 ls-2 p-10" 
+
+            <button
+              onClick={resetFilters}
+              className="outline w-100 mt-20 fs-10 ls-2 p-10"
             >
               RESETEAR FILTROS
             </button>
@@ -190,24 +186,26 @@ export default function Products() {
                 <div className={`grid-catalog mb-60 ${loading ? 'opacity-04' : ''}`}>
                   {products.map(p => (
                     <div key={p.id} className="horror-card column p-0 overflow-hidden">
-                      <div onClick={() => navigate(`/products/${p.id}`)} className="product-img-container">
-                        <ShimmerImage 
-                          src={p.image?.startsWith('http') ? p.image : `http://localhost:8000/storage/${p.image}`} 
-                          alt={p.title} 
+                      <Link to={`/products/${p.id}`} className="product-img-container block no-underline">
+                        <ShimmerImage
+                          src={p.image?.startsWith('http') ? p.image : `http://localhost:8000/storage/${p.image}`}
+                          alt={p.title}
                           objectFit="cover"
                         />
-                      </div>
+                      </Link>
                       <div className="column flex-1 justify-between card-padding">
                         <div>
-                          <h3 onClick={() => navigate(`/products/${p.id}`)} className="pointer fs-18 m-0 mb-10">{p.title.toUpperCase()}</h3>
+                          <Link to={`/products/${p.id}`} className="no-underline block mb-10">
+                            <h3 className="pointer fs-18 m-0 text-normal hover-accent">{p.title.toUpperCase()}</h3>
+                          </Link>
                           <div className="flex-center justify-between mb-15">
                             <span className="fs-24 text-accent bold">{Number(p.price).toFixed(2)}€</span>
                             <span className="fs-10 text-muted">STOCK: {p.stock}</span>
                           </div>
                         </div>
-                        <button 
+                        <button
                           disabled={p.stock <= 0 || addingId === p.id}
-                          onClick={() => handleBuy(p.id)} 
+                          onClick={() => handleBuy(p.id)}
                           className={`horror-card w-100 p-10 ${p.stock <= 0 ? 'opacity-02' : 'pointer'}`}
                         >
                           {addingId === p.id ? 'AÑADIENDO...' : p.stock <= 0 ? 'SIN EXISTENCIAS' : 'ADQUIRIR'}
@@ -219,18 +217,18 @@ export default function Products() {
 
                 {totalPages > 1 && (
                   <div className="pagination-controls">
-                    <button 
-                      disabled={currentPage === 1} 
-                      onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0, 0); }}
                     >
                       🡄 ANTERIOR
                     </button>
                     <span className="bold fs-18">
                       {currentPage} / {totalPages}
                     </span>
-                    <button 
-                      disabled={currentPage === totalPages} 
-                      onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0, 0); }}
                     >
                       SIGUIENTE 🡆
                     </button>

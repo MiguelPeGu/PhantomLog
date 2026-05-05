@@ -19,7 +19,7 @@ class AuthController extends Controller
             'lastname'   => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'email'      => 'required|email|unique:users',
             'password'   => 'required|string|min:8|confirmed',
-            'address'    => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s,.\-\/ºª]+$/'],
+            'address'    => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
             'postalCode' => 'nullable|numeric|digits:5',
         ], [
             'dni.required' => 'El DNI es obligatorio.',
@@ -96,7 +96,7 @@ class AuthController extends Controller
             'firstname'  => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'lastname'   => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'dni'        => ['sometimes', 'string', 'unique:users,dni,' . $user->id, 'regex:/^[0-9]{8}[A-Z]$/i'],
-            'address'    => ['sometimes', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s,.\-\/ºª]+$/'],
+            'address'    => ['sometimes', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
             'postalCode' => 'sometimes|numeric|digits:5',
             'img'        => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'], 
         ], [

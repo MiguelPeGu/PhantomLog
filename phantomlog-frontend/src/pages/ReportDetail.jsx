@@ -10,6 +10,7 @@ export default function ReportDetail() {
   const { id: forumId, reportId } = useParams()
   const [report, setReport] = useState(null)
   const [comments, setComments] = useState([])
+  const [loadingComments, setLoadingComments] = useState(true)
   const [newComment, setNewComment] = useState('')
   const { user } = useAuth()
   const { addToast } = useToast()
@@ -39,11 +40,14 @@ export default function ReportDetail() {
   }
 
   const fetchComments = async () => {
+    setLoadingComments(true)
     try {
       const res = await getComments(reportId)
-      setComments(res.data.data || res.data)
+      setComments(res.data.data)
     } catch (error) { 
       console.error(error) 
+    } finally {
+      setLoadingComments(false)
     }
   }
 
@@ -87,7 +91,7 @@ export default function ReportDetail() {
       if (res.data.user_vote === 0) {
         addToast('VOTO RETIRADO DEL ARCHIVO', 'info')
       } else {
-        addToast(value === 1 ? 'HAS CREÍDO EN LA EVIDENCIA' : 'HAS MARCADO COMO FALSEDAD', 'success')
+        addToast(value === 1 ? 'HAS DECIDIDO CREER' : 'HAS PREFERIDO LA DUDA', 'success')
       }
     } catch (error) { 
       setUserVote(prevVote)
@@ -98,11 +102,30 @@ export default function ReportDetail() {
 
   const handleReportUpdate = async (e) => {
     e.preventDefault()
+    
+    if (!reportData.title.trim() || !reportData.description.trim()) {
+      return addToast('EL TÍTULO Y LA DESCRIPCIÓN SON OBLIGATORIOS', 'error')
+    }
+
     try {
-      await updateReport(forumId, reportId, reportData)
-      addToast('REPORTE ACTUALIZADO EN EL SISTEMA', 'success')
-      setShowReportModal(false)
-      fetchReport()
+      const sendUpdate = async (data) => {
+        await updateReport(forumId, reportId, data)
+        addToast('REPORTE ACTUALIZADO EN EL SISTEMA', 'success')
+        setShowReportModal(false)
+        fetchReport()
+      }
+
+      if (reportData.image) {
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+        if (!validTypes.includes(reportData.image.type)) {
+          return addToast('EL ARCHIVO DEBE SER UNA IMAGEN (JPG, PNG O WEBP)', 'error')
+        }
+        const reader = new FileReader()
+        reader.readAsDataURL(reportData.image)
+        reader.onload = () => sendUpdate({ ...reportData, image: reader.result })
+      } else {
+        await sendUpdate({ title: reportData.title, description: reportData.description })
+      }
     } catch (err) { 
       const msg = err.response?.data?.message || 'ERROR AL ACTUALIZAR'
       addToast(msg.toUpperCase(), 'error') 
@@ -181,18 +204,18 @@ export default function ReportDetail() {
       {/* Header Navigation */}
       <div className="flex-center justify-between mb-40 border-bottom pb-20">
         <div className="flex-center gap-10">
-          <button 
-            onClick={() => navigate('/forums')} 
-            className="flex-center gap-8 p-8-15"
+          <Link 
+            to="/forums" 
+            className="btn flex-center gap-8 p-8-15"
           >
             🡄 INICIO
-          </button>
-          <button 
-            onClick={() => navigate(`/forums/${forumId}`)} 
-            className="flex-center gap-8 p-8-15"
+          </Link>
+          <Link 
+            to={`/forums/${forumId}`} 
+            className="btn flex-center gap-8 p-8-15"
           >
             🡄 FORO
-          </button>
+          </Link>
         </div>
         {user && String(user.id) === String(report?.user_id) && (
           <div className="flex-center gap-10">
@@ -208,12 +231,12 @@ export default function ReportDetail() {
       </p>
       
       {report.image_url && (
-        <div className="horror-card mb-30 p-0 overflow-hidden" style={{ minHeight: '400px' }}>
+        <div className="horror-card mx-auto p-10 mb-30" style={{ width: 'fit-content', minWidth: 'min(800px, 100%)', minHeight: '500px', maxHeight: '600px', display: 'block' }}>
           <ShimmerImage 
             src={report.image_url?.startsWith('http') ? report.image_url : `http://localhost:8000/storage/${report.image_url}`} 
             alt="Evidencia"
             objectFit="contain"
-            style={{ height: '500px' }}
+            style={{ minHeight: '480px' }}
           />
         </div>
       )}
@@ -297,8 +320,10 @@ export default function ReportDetail() {
         )}
 
         <div className="column gap-20">
-          {comments.length === 0 ? (
-            <p className="text-center text-dim">NO HAY TRANSMISIONES ADICIONALES.</p>
+          {loadingComments ? (
+            <p className="text-center text-dim border-dashed p-40 ls-1">[ ESCANEANDO TRANSMISIONES RELACIONADAS... ]</p>
+          ) : comments.length === 0 ? (
+            <p className="text-center text-dim">NO HAY TRANSMISIONES ADICIONALES EN ESTA FRECUENCIA.</p>
           ) : (
             comments.map(c => (
               <div key={c.id} className="comment-box horror-card">
@@ -360,7 +385,12 @@ export default function ReportDetail() {
 
             <div className="form-group">
               <label className="form-label">DESCRIPCIÓN DETALLADA</label>
-              <textarea required value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} className="min-h-200" />
+              <textarea required value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ minHeight: '200px' }} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">ACTUALIZAR EVIDENCIA VISUAL (OPCIONAL)</label>
+              <input type="file" onChange={e => setReportData({ ...reportData, image: e.target.files[0] })} className="text-normal" />
             </div>
 
             <div className="flex-center gap-20">

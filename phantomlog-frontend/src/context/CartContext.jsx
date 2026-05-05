@@ -12,7 +12,6 @@ export function CartProvider({ children }) {
     try {
       const res = await getCart();
       if (res.data && res.data.items) {
-        // Sumamos las cantidades de todos los ítems
         const totalItems = res.data.items.reduce((acc, item) => acc + item.quantity, 0);
         setCartCount(totalItems);
       } else {

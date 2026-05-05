@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getPhantom } from '../api/phantoms'
+import { getExpeditions } from '../api/expeditions'
 import { useToast } from '../context/ToastContext'
 import { useData } from '../context/DataProvider'
 import ShimmerImage from '../components/ShimmerImage'
@@ -10,16 +11,13 @@ export default function PhantomDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { addToast } = useToast()
-  const { expeditions } = useData()
+  const { expeditions, loadingExpeditions } = useData()
   const [phantom, setPhantom] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [localExpeditions, setLocalExpeditions] = useState([])
+  const [loadingLocals, setLoadingLocals] = useState(true)
   const [showExpeditions, setShowExpeditions] = useState(false)
-
-  useEffect(() => {
-    fetchPhantom()
-  }, [id])
-
   const [error, setError] = useState(null)
 
   const fetchPhantom = async () => {
@@ -37,11 +35,21 @@ export default function PhantomDetail() {
     }
   }
 
-  // Filtra las expediciones que investigan a ESTE fantasma
-  const phantomExpeditions = useMemo(
-    () => expeditions.filter(exp => String(exp.phantom_id) === String(id)),
-    [expeditions, id]
-  )
+  useEffect(() => {
+    fetchPhantom()
+    const fetchLocals = async () => {
+      setLoadingLocals(true)
+      try {
+        const res = await getExpeditions({ phantom_id: id, per_page: 100 })
+        setLocalExpeditions(res.data.data || res.data)
+      } catch (e) {
+        console.error("Error al rastrear incursiones")
+      } finally {
+        setLoadingLocals(false)
+      }
+    }
+    fetchLocals()
+  }, [id])
 
   if (error) return (
     <div className="vh100 flex-center column">
@@ -57,12 +65,12 @@ export default function PhantomDetail() {
 
   return (
     <div className="page-container max-900">
-      <button 
-        onClick={() => navigate('/phantoms')} 
-        className="mb-40"
+      <Link 
+        to="/phantoms" 
+        className="btn mb-40"
       >
         🡄 VOLVER AL BESTIARIO
-      </button>
+      </Link>
 
       <div className="horror-card p-25 mb-40">
         <div className="grid-2 gap-40 grid-1-15">
@@ -123,9 +131,9 @@ export default function PhantomDetail() {
         >
           <div className="flex-center gap-15">
             <span className="fs-18 ls-2">INCURSIONES RELACIONADAS</span>
-            {phantomExpeditions.length > 0 && (
+            {localExpeditions.length > 0 && (
               <span className="status-badge active fs-10">
-                {phantomExpeditions.length} REGISTRADAS
+                {localExpeditions.length} REGISTRADAS
               </span>
             )}
           </div>
@@ -134,12 +142,16 @@ export default function PhantomDetail() {
 
         {showExpeditions && (
           <div className="column gap-15">
-            {phantomExpeditions.length === 0 ? (
+            {loadingLocals ? (
+              <div className="text-center text-dim border-dashed p-60 fs-14 ls-2">
+                RASTREANDO INCURSIONES ASOCIADAS...
+              </div>
+            ) : localExpeditions.length === 0 ? (
               <div className="text-center text-dim border-dashed p-60 fs-14 ls-2">
                 NO HAY INCURSIONES PROGRAMADAS PARA ESTA ENTIDAD.
               </div>
             ) : (
-              phantomExpeditions.map(exp => {
+              localExpeditions.map(exp => {
                 const isClosed = new Date(exp.date) < new Date()
                 return (
                   <Link
@@ -156,7 +168,7 @@ export default function PhantomDetail() {
                         </span>
                       </div>
                       <p className="m-0 fs-12 text-dim">
-                        📍 {exp.location.toUpperCase()} &nbsp;·&nbsp; 🕐 {new Date(exp.date).toLocaleDateString()}
+                         {exp.location.toUpperCase()} &nbsp;·&nbsp;  {new Date(exp.date).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="text-right text-dim fs-11 nowrap">

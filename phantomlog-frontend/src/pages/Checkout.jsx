@@ -63,6 +63,11 @@ export default function Checkout() {
       addToast("CÓDIGO POSTAL INVÁLIDO (5 NÚMEROS)", "error")
       return false
     }
+    const addressRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/
+    if (!addressRegex.test(formData.address)) {
+      addToast("LA DIRECCIÓN CONTIENE CARACTERES NO PERMITIDOS", "error")
+      return false
+    }
 
     if (paymentMethod !== 'bizum') {
       const cardRegex = /^[0-9]{16}$/
@@ -190,7 +195,7 @@ export default function Checkout() {
             </div>
 
             <button type="submit" disabled={isSubmitting} className="primary mt-20 fs-20 p-15">
-              {isSubmitting ? 'PROCESANDO...' : `CONSECRAR PAGO: ${Number(cartData.totalWithTax || 0).toFixed(2)}€`}
+              {isSubmitting ? 'PROCESANDO...' : `TERMINAR PAGO: ${Number(cartData.totalWithTax || 0).toFixed(2)}€`}
             </button>
           </form>
         </div>

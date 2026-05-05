@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { createForum, deleteForum, updateForum } from '../api/forums'
 import { useAuth } from '../context/AuthContext'
@@ -7,7 +7,6 @@ import { useData } from '../context/DataProvider'
 import ShimmerImage from '../components/ShimmerImage'
 
 export default function Forums() {
-  const navigate = useNavigate()
   const { forums, loadingForums: loading, forumsPagination, refreshForums } = useData()
   const [showModal, setShowModal] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -18,12 +17,10 @@ export default function Forums() {
   const { user } = useAuth()
   const { addToast } = useToast()
 
-  // Reset page to 1 when local search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [localSearch]);
 
-  // Effect for both search and page changes
   useEffect(() => {
     // Evitar recarga redundante al montar si ya tenemos foros y estamos en estado inicial
     const isInitialDefault = localSearch === '' && currentPage === 1;
@@ -47,8 +44,6 @@ export default function Forums() {
         addToast('Investigación actualizada con éxito.', 'success')
       } else {
         if (!formData.image) return addToast('Debes adjuntar una evidencia visual.', 'error')
-        
-        // Client-side type check
         const validTypes = ['image/jpeg', 'image/png', 'image/webp']
         if (!validTypes.includes(formData.image.type)) {
           return addToast('El archivo debe ser una imagen (JPG, PNG o WEBP).', 'error')
@@ -127,7 +122,7 @@ export default function Forums() {
           <div className={`grid-3 ${loading ? 'opacity-04' : ''}`}>
             {forums.map(f => (
               <div key={f.id} className="horror-card column">
-                <div onClick={() => navigate(`/forums/${f.id}`)} className="pointer flex-1">
+                <Link to={`/forums/${f.id}`} className="no-underline flex-1">
                   <div className="card-image-box">
                     <ShimmerImage 
                       src={f.image_url}
@@ -137,7 +132,7 @@ export default function Forums() {
                   </div>
                   <h3 className="fs-24 mb-10">{f.title.toUpperCase()}</h3>
                   <p className="fs-15 lh-1-6 text-dim text-break">{f.description.substring(0, 120)}...</p>
-                </div>
+                </Link>
                 {user && String(user.id) === String(f.user_id) && (
                   <div className="flex-center mt-10 gap-10">
                     <button onClick={() => { setFormData({title: f.title, description: f.description}); setCurrentEditId(f.id); setIsEditing(true); setShowModal(true); }} className="flex-1">EDITAR</button>

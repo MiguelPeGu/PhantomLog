@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useData } from '../context/DataProvider'
 
 export default function Invoices() {
-  const { invoices, loadingInvoices: loading, invoicesPagination, refreshInvoices } = useData()
+  const { invoices, loadingInvoices: loading, invoicesPagination, refreshInvoices } = useData() //recordar mirar lo del usedata
   const [currentPage, setCurrentPage] = useState(1)
   const navigate = useNavigate()
 
@@ -27,7 +27,7 @@ export default function Invoices() {
           <div className="text-center border-dashed-accent p-40">NO EXISTEN PACTOS SELLADOS.</div>
         ) : (
           invoices.map(i => (
-            <div key={i.id} className="horror-card flex-center invoice-item-card">
+            <div key={i.id} className="horror-card flex-between invoice-item-card mb-20">
               <div>
                 <h2 className="m-0 mb-5">CONTRATO #{i.n_invoice || i.id}</h2>
                 <p className="m-0 fs-14">FECHA: {new Date(i.created_at).toLocaleString()}</p>
@@ -35,7 +35,7 @@ export default function Invoices() {
               </div>
               <div className="text-right">
                 <div className="fs-24 bold text-normal mb-10">{i.total}€</div>
-                <button onClick={() => navigate(`/success/${i.id}`)}>VER DETALLE</button>
+                <Link to={`/success/${i.id}`} className="btn">VER DETALLE</Link>
               </div>
             </div>
           ))

@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getForum, deleteForum, updateForum } from '../api/forums'
 import { createReport, getReports, updateReport, deleteReport } from '../api/reports'
-import { useAuth } from '../context/AuthContext' //asi mantiene al usuario logueado?
+import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import ShimmerImage from '../components/ShimmerImage'
 import NotFound from './NotFound'
@@ -12,18 +12,19 @@ export default function ForumDetail() {
   const [forum, setForum] = useState(null)
   const [notFound, setNotFound] = useState(false)
   const [reports, setReports] = useState([])
+  const [loadingReports, setLoadingReports] = useState(true)
   const { user } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
 
   const [showForumModal, setShowForumModal] = useState(false)
-  const [forumData, setForumData] = useState({ title: '', description: '' })
-  
+  const [forumData, setForumData] = useState({ title: '', description: '', image: null })
+
   const [showReportModal, setShowReportModal] = useState(false)
   const [isEditingReport, setIsEditingReport] = useState(false)
   const [currentReportId, setCurrentReportId] = useState(null)
   const [reportData, setReportData] = useState({ title: '', description: '', image: null })
-  
+
   const [isCreatingReport, setIsCreatingReport] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -37,73 +38,117 @@ export default function ForumDetail() {
     try {
       const res = await getForum(id)
       setForum(res.data)
-      setForumData({ title: res.data.title, description: res.data.description })
-    } catch (error) { 
+      setForumData({ title: res.data.title, description: res.data.description, image: null })
+    } catch (error) {
       setNotFound(true);
       addToast('ERROR AL CARGAR EL EXPEDIENTE', 'error');
     }
   }
 
   const fetchReports = async () => {
+    setLoadingReports(true)
     try {
       const res = await getReports(id)
-      setReports(res.data.data || res.data)
-    } catch (error) { 
+      setReports(res.data.data)
+    } catch (error) {
       addToast('ERROR AL CARGAR LAS EVIDENCIAS', 'error')
+    } finally {
+      setLoadingReports(false)
     }
   }
 
   const handleUpdateForum = async (e) => {
     e.preventDefault()
+    
+    if (!forumData.title.trim() || !forumData.description.trim()) {
+      return addToast('EL TÍTULO Y LA DESCRIPCIÓN SON OBLIGATORIOS', 'error')
+    }
+
     try {
-      await updateForum(id, forumData)
-      addToast('EXPEDICIÓN ACTUALIZADA', 'success')
-      setShowForumModal(false)
-      fetchForum()
-    } catch (err) { 
+      const sendData = async (data) => {
+        await updateForum(id, data)
+        addToast('FORO ACTUALIZADO', 'success')
+        setShowForumModal(false)
+        fetchForum()
+      }
+
+      if (forumData.image) {
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+        if (!validTypes.includes(forumData.image.type)) {
+          return addToast('EL ARCHIVO DEBE SER UNA IMAGEN (JPG, PNG O WEBP)', 'error')
+        }
+
+        const reader = new FileReader()
+        reader.readAsDataURL(forumData.image)
+        reader.onload = () => sendData({ ...forumData, image: reader.result })
+      } else {
+        await sendData({ title: forumData.title, description: forumData.description })
+      }
+    } catch (err) {
       const msg = err.response?.data?.message || 'ERROR AL ACTUALIZAR'
-      addToast(msg.toUpperCase(), 'error') 
+      addToast(msg.toUpperCase(), 'error')
     }
   }
 
   const handleDeleteForum = async () => {
-    if (!window.confirm('¿BORRAR ESTA EXPEDICIÓN Y TODA SU EVIDENCIA?')) return
+    if (!window.confirm('¿BORRAR ESTE FORO Y TODA SU EVIDENCIA?')) return
     try {
       await deleteForum(id)
       addToast('FORO ELIMINADO DEL ARCHIVO', 'success')
       navigate('/forums')
-    } catch (err) { 
-      addToast('ERROR AL ELIMINAR EL FORO', 'error') 
+    } catch (err) {
+      addToast('ERROR AL ELIMINAR EL FORO', 'error')
     }
   }
 
   const handleReportSubmit = async (e) => {
     e.preventDefault()
     if (isCreatingReport) return;
+    
+    if (!reportData.title.trim() || !reportData.description.trim()) {
+      return addToast('EL TÍTULO Y LA DESCRIPCIÓN SON OBLIGATORIOS', 'error')
+    }
 
     try {
       if (isEditingReport) {
-        await updateReport(id, currentReportId, { title: reportData.title, description: reportData.description })
-        addToast('EVIDENCIA ACTUALIZADA', 'success')
-        setShowReportModal(false)
-        fetchReports()
+        const sendUpdate = async (data) => {
+          await updateReport(id, currentReportId, data)
+          addToast('EVIDENCIA ACTUALIZADA', 'success')
+          setShowReportModal(false)
+          fetchReports()
+        }
+
+        if (reportData.image) {
+          const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+          if (!validTypes.includes(reportData.image.type)) {
+            return addToast('EL ARCHIVO DEBE SER UNA IMAGEN (JPG, PNG O WEBP)', 'error')
+          }
+          const reader = new FileReader()
+          reader.readAsDataURL(reportData.image)
+          reader.onload = () => sendUpdate({ ...reportData, image: reader.result })
+        } else {
+          await sendUpdate({ title: reportData.title, description: reportData.description })
+        }
       } else {
-        // Empezar contador inmediatamente
+        if (!reportData.image) return addToast('DEBES ADJUNTAR UNA EVIDENCIA VISUAL', 'error')
+
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+        if (!validTypes.includes(reportData.image.type)) {
+          return addToast('EL ARCHIVO DEBE SER UNA IMAGEN (JPG, PNG O WEBP)', 'error')
+        }
+
         setIsCreatingReport(true)
         setCountdown(3)
-        
-        // Iniciar proceso de archivo en paralelo
+
         const reader = new FileReader()
         reader.readAsDataURL(reportData.image)
-        
-        // El proceso de envío ocurre mientras el contador baja
+
         reader.onload = async () => {
           try {
-            // Enviamos la petición
-            const apiPromise = createReport(id, { 
-              title: reportData.title, 
-              description: reportData.description, 
-              image: reader.result 
+            const apiPromise = createReport(id, {
+              title: reportData.title,
+              description: reportData.description,
+              image: reader.result
             })
 
             // El contador visual baja cada segundo
@@ -111,12 +156,11 @@ export default function ForumDetail() {
               await new Promise(r => setTimeout(r, 1000))
               setCountdown(i)
             }
-            
-            // Esperamos a que la API termine si no ha terminado ya
+
             await apiPromise
-            
+
             setIsCreatingReport(false)
-            setShowReportModal(false)
+            setShowReportModal(false) // explicar el ciclo de abrir, set creating report a true y set showreportmodal, countdown, api promise, api response false, set creating report a false, close report modal, fetch reports, display toast and repeat.
             fetchReports()
             addToast('REPORTE SELLADO CON ÉXITO', 'success')
           } catch (err) {
@@ -131,9 +175,9 @@ export default function ForumDetail() {
           }
         }
       }
-    } catch (error) { 
+    } catch (error) {
       setIsCreatingReport(false)
-      addToast('ERROR CRÍTICO EN LA TRANSMISIÓN', 'error') 
+      addToast('ERROR CRÍTICO EN LA TRANSMISIÓN', 'error')
     }
   }
 
@@ -143,8 +187,8 @@ export default function ForumDetail() {
       await deleteReport(id, reportId)
       addToast('REPORTE ELIMINADO', 'success')
       fetchReports()
-    } catch (err) { 
-      addToast('ERROR AL ELIMINAR LA EVIDENCIA', 'error') 
+    } catch (err) {
+      addToast('ERROR AL ELIMINAR LA EVIDENCIA', 'error')
     }
   }
 
@@ -163,18 +207,18 @@ export default function ForumDetail() {
     )
   }
 
-  const credibilityMarkerPos = Math.min(Math.max((forum.credibility_score + 5) * 10, 0), 100);
+  const credibilityMarkerPos = Math.min(Math.max((forum.credibility_score + 20) * 2.5, 0), 100);
 
   return (
     <div className="page-container">
       <div className="flex-center justify-between mb-40 border-bottom pb-20">
         <div className="flex-center gap-10">
-          <button 
-            onClick={() => navigate('/forums')} 
-            className="flex-center gap-5 p-8-15"
+          <Link
+            to="/forums"
+            className="btn flex-center gap-5 p-8-15"
           >
             🡄 FOROS
-          </button>
+          </Link>
         </div>
         {user && String(user.id) === String(forum?.user_id) && (
           <div className="flex-center gap-10">
@@ -188,16 +232,17 @@ export default function ForumDetail() {
         <div className="text-center w-100">
           <h1 className="mb-20 fs-48">{forum.title}</h1>
           <p className="text-dim mb-40 fs-16">
-            EXPEDICIÓN INICIADA POR <span className="text-normal">{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
+            FORO INICIADO POR <span className="text-normal">{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
           </p>
         </div>
 
         {forum.image && (
-          <div className="horror-card flex-center w-100 p-10" style={{ maxHeight: '600px' }}>
-            <ShimmerImage 
-              src={forum.image_url?.startsWith('http') ? forum.image_url : `http://localhost:8000/storage/${forum.image_url}`} 
+          <div className="horror-card mx-auto p-10 mb-40" style={{ width: 'fit-content', minWidth: 'min(800px, 100%)', minHeight: '500px', maxHeight: '600px', display: 'block' }}>
+            <ShimmerImage
+              src={forum.image_url?.startsWith('http') ? forum.image_url : `http://localhost:8000/storage/${forum.image_url}`}
               alt={forum.title}
               objectFit="contain"
+              style={{ minHeight: '480px' }}
             />
           </div>
         )}
@@ -209,7 +254,7 @@ export default function ForumDetail() {
             <span>VERIFIED_ARCHIVE</span>
           </div>
           <div className="credibility-track">
-            <div 
+            <div
               className="credibility-marker"
               style={{ left: `${credibilityMarkerPos}%` }}
             >
@@ -222,20 +267,20 @@ export default function ForumDetail() {
             </div>
             <div className="credibility-center-line"></div>
           </div>
-          <div 
-            className={`credibility-value ${forum.credibility_score >= 0 ? 'text-normal' : 'text-accent'}`} 
+          <div
+            className={`credibility-value ${forum.credibility_score >= 0 ? 'text-normal' : 'text-accent'}`}
           >
             GLOBAL_CREDIBILITY: {forum.credibility_score > 0 ? `+${forum.credibility_score.toFixed(1)}` : forum.credibility_score.toFixed(1)}
           </div>
         </div>
-        
+
         <div className="horror-card fs-18 column lh-1-6 border-accent-left-3 min-h-120 w-100 text-break">
           <div className={isExpanded ? '' : 'line-clamp-3'}>
             {forum.description}
           </div>
-          
+
           {forum.description.length > 150 && (
-            <button 
+            <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-accent bold uppercase pointer w-fit mt-10 p-0 fs-12 no-border no-bg text-left"
             >
@@ -249,9 +294,9 @@ export default function ForumDetail() {
         <div className="flex-center justify-between mb-40">
           <h2 className="fs-32 m-0">REPORTES DE CAMPO</h2>
           {user && String(user.id) === String(forum.user_id) && (
-            <button 
-              onClick={() => { setIsEditingReport(false); setReportData({title: '', description: '', image: null}); setShowReportModal(true); }} 
-              className="primary" 
+            <button
+              onClick={() => { setIsEditingReport(false); setReportData({ title: '', description: '', image: null }); setShowReportModal(true); }}
+              className="primary"
               style={{ padding: '10px 30px' }}
             >
               + NUEVO REPORTE
@@ -260,15 +305,17 @@ export default function ForumDetail() {
         </div>
 
         <div className="grid-3">
-          {reports.length === 0 ? (
+          {loadingReports ? (
+            <div className="text-center text-dim border-dashed p-100 ls-2" style={{ gridColumn: '1/-1' }}>[ ESCANEANDO ARCHIVOS DE CAMPO... ]</div>
+          ) : reports.length === 0 ? (
             <div className="text-center text-dim border-dashed p-100" style={{ gridColumn: '1/-1' }}>NO SE HAN REGISTRADO EVIDENCIAS TODAVÍA.</div>
           ) : (
             reports.map(r => (
               <div key={r.id} className="horror-card column p-20 min-h-320">
                 <Link to={`/forums/${id}/reports/${r.id}`} className="flex-1 column">
                   <div className="card-image-box mb-20">
-                    <ShimmerImage 
-                      src={r.image_url?.startsWith('http') ? r.image_url : `http://localhost:8000/storage/${r.image_url}`} 
+                    <ShimmerImage
+                      src={r.image_url?.startsWith('http') ? r.image_url : `http://localhost:8000/storage/${r.image_url}`}
                       alt={r.title}
                       className="w-100 h-100 object-cover"
                     />
@@ -284,7 +331,7 @@ export default function ForumDetail() {
                 </Link>
                 {user && String(user.id) === String(r.user_id) && (
                   <div className="flex-center mt-20 gap-10">
-                    <button onClick={() => { setCurrentReportId(r.id); setReportData({title: r.title, description: r.description}); setIsEditingReport(true); setShowReportModal(true); }} className="flex-1 fs-12">EDITAR</button>
+                    <button onClick={() => { setCurrentReportId(r.id); setReportData({ title: r.title, description: r.description }); setIsEditingReport(true); setShowReportModal(true); }} className="flex-1 fs-12">EDITAR</button>
                     <button onClick={() => handleDeleteReport(r.id)} className="outline-red flex-1 fs-12">BORRAR</button>
                   </div>
                 )}
@@ -297,9 +344,23 @@ export default function ForumDetail() {
       {showForumModal && (
         <div className="modal-overlay">
           <form onSubmit={handleUpdateForum} className="horror-form">
-            <h2>MODIFICAR EXPEDICIÓN</h2>
-            <input required value={forumData.title} onChange={e => setForumData({...forumData, title: e.target.value})} />
-            <textarea required value={forumData.description} onChange={e => setForumData({...forumData, description: e.target.value})} style={{ minHeight: '200px' }} />
+            <h2>MODIFICAR FORO</h2>
+            
+            <div className="form-group">
+              <label className="form-label">TÍTULO DEL FORO</label>
+              <input required value={forumData.title} onChange={e => setForumData({ ...forumData, title: e.target.value })} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">BITÁCORA DE HALLAZGOS</label>
+              <textarea required value={forumData.description} onChange={e => setForumData({ ...forumData, description: e.target.value })} style={{ minHeight: '200px' }} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">ACTUALIZAR EVIDENCIA VISUAL (OPCIONAL)</label>
+              <input type="file" onChange={e => setForumData({ ...forumData, image: e.target.files[0] })} className="text-normal" />
+            </div>
+
             <div className="flex-center gap-20">
               <button type="submit" className="primary flex-1 p-15">ACTUALIZAR ARCHIVO</button>
               <button type="button" onClick={() => setShowForumModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
@@ -312,33 +373,31 @@ export default function ForumDetail() {
         <div className="modal-overlay">
           <form onSubmit={handleReportSubmit} className="horror-form">
             <h2>{isEditingReport ? 'MODIFICAR EVIDENCIA' : 'REGISTRAR EVIDENCIA'}</h2>
-            
+
             {isCreatingReport ? (
               <div className="text-center p-40">
                 <p className="fs-20 ls-2">SELLANDO REPORTE EN EL ARCHIVO CENTRAL...</p>
                 <div className="fs-64 m-30-0" style={{ color: 'var(--text)' }}>{countdown}</div>
                 <div className="w-100 h-4 bg-black">
-                  <div className="h-100 bg-accent transition-width" style={{ width: `${(countdown/3)*100}%` }}></div>
+                  <div className="h-100 bg-accent transition-width" style={{ width: `${(countdown / 3) * 100}%` }}></div>
                 </div>
               </div>
             ) : (
               <>
                 <div className="form-group">
                   <label className="form-label">TÍTULO DEL HALLAZGO</label>
-                  <input required placeholder="Ej: Anomalía detectada en cámara 4" value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} />
+                  <input required placeholder="Ej: Anomalía detectada en cámara 4" value={reportData.title} onChange={e => setReportData({ ...reportData, title: e.target.value })} />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">DESCRIPCIÓN DE LA EVIDENCIA</label>
-                  <textarea required placeholder="Relata detalladamente lo observado..." value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ minHeight: '180px' }} />
+                  <textarea required placeholder="Relata detalladamente lo observado..." value={reportData.description} onChange={e => setReportData({ ...reportData, description: e.target.value })} style={{ minHeight: '180px' }} />
                 </div>
 
-                {!isEditingReport && (
-                  <div className="form-group">
-                    <label className="form-label">CAPTURA DE EVIDENCIA (IMAGEN)</label>
-                    <input type="file" required onChange={e => setReportData({...reportData, image: e.target.files[0]})} className="text-normal" />
-                  </div>
-                )}
+                <div className="form-group">
+                  <label className="form-label">{isEditingReport ? 'ACTUALIZAR EVIDENCIA (OPCIONAL)' : 'CAPTURA DE EVIDENCIA (IMAGEN)'}</label>
+                  <input type="file" required={!isEditingReport} onChange={e => setReportData({ ...reportData, image: e.target.files[0] })} className="text-normal" />
+                </div>
 
                 <div className="flex-center mt-20 gap-20">
                   <button type="submit" className="primary flex-1 p-15">{isEditingReport ? 'ACTUALIZAR DATOS' : 'REGISTRAR EVIDENCIA'}</button>

@@ -1,6 +1,6 @@
 import api from './axios'
 
-export const getExpeditions   = ()          => api.get('/expeditions')
+export const getExpeditions   = (params = {}) => api.get('/expeditions', { params })
 export const getExpedition    = (id)        => api.get(`/expeditions/${id}`)
 export const createExpedition = (data)      => api.post('/expeditions', data)
 export const updateExpedition = (id, data)  => api.put(`/expeditions/${id}`, data)

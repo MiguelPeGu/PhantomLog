@@ -23,18 +23,31 @@ class InvoiceController extends Controller
     {
         $data = $request->validate([
             'dni'            => ['required', 'string', 'regex:/^[0-9]{8}[A-Z]$/i'],
-            'first_name'     => 'required|string|max:50',
-            'last_name'      => 'required|string|max:50',
-            'address'        => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s,.\-\/ºª]+$/'],
+            'first_name'     => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'last_name'      => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'mobile'         => ['required', 'string', 'regex:/^[0-9]+$/'],
+            'address'        => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
             'postal_code'    => 'required|numeric|digits:5',
             'payment_method' => 'required|string|in:credito,debito,bizum',
+            
+            // Campos de tarjeta opcionales si es bizum
+            'card'           => ['required_if:payment_method,credito,debito', 'nullable', 'string', 'regex:/^[0-9\s]{16,19}$/'],
+            'expiry'         => ['required_if:payment_method,credito,debito', 'nullable', 'string', 'regex:/^[0-9]{2}\/[0-9]{2}$/'],
+            'cvv'            => ['required_if:payment_method,credito,debito', 'nullable', 'string', 'regex:/^[0-9]{3}$/'],
+
             'items'          => 'required|array|min:1',
             'items.*.product_id' => 'required|uuid|exists:products,id',
             'items.*.quantity'   => 'required|integer|min:1',
         ], [
             'dni.regex' => 'El DNI debe tener 8 números y una letra.',
+            'first_name.regex' => 'El nombre no puede contener números ni símbolos.',
+            'last_name.regex' => 'Los apellidos no pueden contener números ni símbolos.',
+            'mobile.regex' => 'El teléfono debe contener únicamente números.',
             'address.regex' => 'La dirección contiene caracteres no permitidos.',
             'postal_code.numeric' => 'El código postal debe ser únicamente numérico.',
+            'card.regex' => 'El número de tarjeta debe tener 16 dígitos.',
+            'expiry.regex' => 'La fecha de caducidad debe tener formato MM/AA.',
+            'cvv.regex' => 'El CVV debe tener 3 números.',
         ]);
 
         // Sanitización manual

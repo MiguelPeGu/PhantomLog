@@ -39,6 +39,11 @@ export default function Register() {
       addToast('LAS CONTRASEÑAS NO COINCIDEN.', 'error')
       return false
     }
+    const addressRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/
+    if (!addressRegex.test(form.address)) {
+      addToast('LA DIRECCIÓN CONTIENE CARACTERES NO PERMITIDOS.', 'error')
+      return false
+    }
     return true
   }
 

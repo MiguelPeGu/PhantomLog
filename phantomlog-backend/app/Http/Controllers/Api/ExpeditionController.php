@@ -8,14 +8,25 @@ use Illuminate\Http\Request;
 
 class ExpeditionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            Expedition::with(['creator', 'phantom'])
-                ->withCount('participants')
-                ->latest()
-                ->get()
-        );
+        $query = Expedition::with(['creator', 'phantom'])
+            ->withCount('participants')
+            ->latest();
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('name', 'like', "%$s%")
+                  ->orWhere('location', 'like', "%$s%");
+            });
+        }
+
+        if ($request->filled('phantom_id')) {
+            $query->where('phantom_id', $request->phantom_id);
+        }
+
+        return response()->json($query->paginate($request->get('per_page', 9)));
     }
 
     public function store(Request $request)

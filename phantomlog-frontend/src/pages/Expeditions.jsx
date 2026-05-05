@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { createExpedition, updateExpedition, deleteExpedition } from '../api/expeditions'
 import { useAuth } from '../context/AuthContext'
@@ -6,16 +6,42 @@ import { useToast } from '../context/ToastContext'
 import { useData } from '../context/DataProvider'
 
 export default function Expeditions() {
-  const { expeditions, phantoms, refreshExpeditions, loadingExpeditions } = useData()
-  const [search, setSearch] = useState('')
+  const { expeditions, phantoms, refreshExpeditions, loadingExpeditions, expeditionsPagination } = useData()
+  const [localSearch, setLocalSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [currentExpId, setCurrentExpId] = useState(null)
   const [formData, setFormData] = useState({
     name: '', description: '', location: '', date: '', phantom_id: ''
   })
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false)
   const { user } = useAuth()
   const { addToast } = useToast()
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [localSearch]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        if (localSearch !== '') {
+          const delayDebounceFn = setTimeout(async () => {
+            await refreshExpeditions({ search: localSearch, page: currentPage, per_page: 9 });
+            setHasAttemptedLoad(true)
+          }, 400);
+          return () => clearTimeout(delayDebounceFn);
+        } else {
+          await refreshExpeditions({ search: '', page: currentPage, per_page: 9 });
+          setHasAttemptedLoad(true)
+        }
+      } catch (e) {
+        setHasAttemptedLoad(true)
+      }
+    }
+    fetch()
+  }, [localSearch, currentPage, refreshExpeditions]);
 
   const handleOpenCreate = () => {
     setFormData({ name: '', description: '', location: '', date: '', phantom_id: '' })
@@ -23,9 +49,9 @@ export default function Expeditions() {
     setShowModal(true)
   }
 
-  const handleOpenEdit = (e, exp) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleOpenEdit = (event, exp) => {
+    event.preventDefault()
+    event.stopPropagation()
     setFormData({
       name: exp.name,
       description: exp.description,
@@ -38,21 +64,8 @@ export default function Expeditions() {
     setShowModal(true)
   }
 
-  const handleDelete = async (e, id) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!window.confirm('¿ESTÁS SEGURO DE ELIMINAR ESTA INCURSIÓN?')) return
-    try {
-      await deleteExpedition(id)
-      addToast('Incursión purgada del sistema', 'success')
-      refreshExpeditions()
-    } catch (e) {
-      addToast('Error al eliminar', 'error')
-    }
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleExpeditionSubmit = async (event) => {
+    event.preventDefault()
     try {
       if (isEditing) {
         await updateExpedition(currentExpId, formData)
@@ -62,7 +75,7 @@ export default function Expeditions() {
         addToast('INCURSIÓN DESPLEGADA EN EL CALENDARIO', 'success')
       }
       setShowModal(false)
-      refreshExpeditions()
+      refreshExpeditions({ search: localSearch, page: currentPage, per_page: 9 })
     } catch (err) { 
       const errors = err.response?.data?.errors
       if (errors) {
@@ -75,19 +88,20 @@ export default function Expeditions() {
     }
   }
 
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 15 // 5 rows of 3
+  const handleDeleteExpedition = async (event, id) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (!window.confirm('¿ESTÁS SEGURO DE ELIMINAR ESTA INCURSIÓN?')) return
+    try {
+      await deleteExpedition(id)
+      addToast('INCURSIÓN PURGADA DEL SISTEMA', 'success')
+      refreshExpeditions({ search: localSearch, page: currentPage, per_page: 9 })
+    } catch (e) {
+      addToast('FALLO AL ELIMINAR LA ENTRADA', 'error')
+    }
+  }
 
-  const filteredExpeditions = useMemo(() => {
-    return expeditions.filter(exp => 
-      exp.name.toLowerCase().includes(search.toLowerCase()) ||
-      exp.location.toLowerCase().includes(search.toLowerCase())
-    )
-  }, [expeditions, search])
-
-  const totalPages = useMemo(() => Math.ceil(filteredExpeditions.length / itemsPerPage), [filteredExpeditions])
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedExpeditions = useMemo(() => filteredExpeditions.slice(startIndex, startIndex + itemsPerPage), [filteredExpeditions, startIndex])
+  const { totalPages } = expeditionsPagination
 
   return (
     <div className="page-container">
@@ -100,8 +114,8 @@ export default function Expeditions() {
             type="text" 
             placeholder="BUSCAR INCURSIÓN O UBICACIÓN..." 
             className="search-bar w-100 max-400 m-0"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
           />
           {user && (
             <button 
@@ -119,11 +133,11 @@ export default function Expeditions() {
           <div className="text-center fs-24 p-100 italic">Estableciendo conexión con el archivo de campo...</div>
         ) : (
           <>
-            <div className="grid-3">
-              {filteredExpeditions.length === 0 ? (
+            <div className={`grid-3 ${loadingExpeditions ? 'opacity-04' : ''}`}>
+              {hasAttemptedLoad && !loadingExpeditions && expeditions.length === 0 ? (
                 <p className="text-muted text-center flex-1 p-100" style={{ gridColumn: '1/-1' }}>NO HAY INCURSIONES PROGRAMADAS EN ESTE SECTOR.</p>
               ) : (
-                paginatedExpeditions.map(exp => {
+                expeditions.map(exp => {
                   const isClosed = new Date(exp.date) < new Date()
                   const isCreator = user && String(user.id) === String(exp.user_id)
 
@@ -157,7 +171,7 @@ export default function Expeditions() {
                         {isCreator && (
                           <div className="flex-center mt-20 gap-10 border-top pt-10 border-faded-05">
                             <button onClick={(e) => handleOpenEdit(e, exp)} className="flex-1 fs-10 p-5">[EDITAR]</button>
-                            <button onClick={(e) => handleDelete(e, exp.id)} className="outline-red flex-1 fs-10 p-5">[PURGAR]</button>
+                            <button onClick={(e) => handleDeleteExpedition(e, exp.id)} className="outline-red flex-1 fs-10 p-5">[PURGAR]</button>
                           </div>
                         )}
                       </Link>
@@ -192,7 +206,7 @@ export default function Expeditions() {
 
       {showModal && (
         <div className="modal-overlay">
-          <form onSubmit={handleSubmit} className="horror-form">
+          <form onSubmit={handleExpeditionSubmit} className="horror-form">
             <h2 className="ls-2">{isEditing ? 'RE-PROGRAMAR' : 'NUEVA'} INCURSIÓN</h2>
             
             <div className="form-group">

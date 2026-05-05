@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getProduct } from '../api/products'
 import { addToCart } from '../api/cart'
 import { useToast } from '../context/ToastContext'
@@ -15,7 +15,8 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const { fetchGlobalCart } = useCart()
+  const [isAdding, setIsAdding] = useState(false)
+  const { setCartCount } = useCart()
 
   useEffect(() => {
     getProduct(id).then(res => setProduct(res.data))
@@ -24,13 +25,20 @@ export default function ProductDetail() {
   }, [id])
 
   const handleBuy = async () => {
+    if (isAdding) return
+    setIsAdding(true)
     try {
-      await addToCart(product.id, 1)
-      await fetchGlobalCart()
-      addToast("Añadido", "success")
+      const res = await addToCart(product.id, 1)
+      if (res.data?.items) {
+        const total = res.data.items.reduce((acc, item) => acc + item.quantity, 0)
+        setCartCount(total)
+      }
+      addToast("AÑADIDO AL CONTENEDOR", "success")
     } catch (e) { 
       const msg = e.response?.data?.message || "Error al añadir";
       addToast(msg.toUpperCase(), "error") 
+    } finally {
+      setIsAdding(false)
     }
   }
 
@@ -40,12 +48,12 @@ export default function ProductDetail() {
 
   return (
     <div className="page-container">
-      <button 
-        onClick={() => navigate('/products')} 
-        className="mb-20 flex-center gap-10"
+      <Link 
+        to="/products" 
+        className="btn mb-20 flex-center gap-10"
       >
         🡄 VOLVER AL CATÁLOGO
-      </button>
+      </Link>
 
       <div className="horror-card product-detail-grid">
         <div className="product-image-large">
@@ -67,11 +75,11 @@ export default function ProductDetail() {
           </div>
 
           <button 
-            className="primary mt-20 p-15" 
+            className={`primary mt-20 p-15 ${isAdding ? 'opacity-05' : ''}`} 
             onClick={handleBuy} 
-            disabled={product.stock <= 0}
+            disabled={product.stock <= 0 || isAdding}
           >
-            {product.stock > 0 ? 'ADQUIRIR RELIQUIA' : 'FUERA DE STOCK'}
+            {isAdding ? 'AÑADIENDO...' : product.stock > 0 ? 'ADQUIRIR RELIQUIA' : 'FUERA DE STOCK'}
           </button>
         </div>
       </div>

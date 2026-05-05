@@ -1,8 +1,7 @@
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
 export default function Home() {
-  const navigate = useNavigate()
   const [flickerOpacity, setFlickerOpacity] = useState(0)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
@@ -58,18 +57,18 @@ export default function Home() {
         
         {/* BOTONES CENTRADOS */}
         <div className="flex-center w-100 gap-30">
-          <button 
-            onClick={() => navigate('/register')} 
-            className="primary hero-btn"
+          <Link 
+            to="/register" 
+            className="btn primary hero-btn"
           >
             ENTRAR
-          </button>
-          <button 
-            onClick={() => navigate('/login')} 
-            className="outline-red hero-btn"
+          </Link>
+          <Link 
+            to="/login" 
+            className="btn outline-red hero-btn"
           >
             LOGIN
-          </button>
+          </Link>
         </div>
       </div>
 

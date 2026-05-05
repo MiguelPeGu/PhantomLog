@@ -18,7 +18,6 @@ export default function ExpeditionDetail() {
   const [notFound, setNotFound] = useState(false)
   const [isJoined, setIsJoined] = useState(false)
 
-  // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false)
   const [formData, setFormData] = useState({
     name: '', description: '', location: '', date: '', phantom_id: ''
@@ -33,10 +32,9 @@ export default function ExpeditionDetail() {
       const res = await getExpedition(id)
       setExpedition(res.data)
       if (user) {
-        const joined = res.data.participants.some(p => String(p.id) === String(user.id))
+        const joined = res.data.participants.some(person => String(person.id) === String(user.id))
         setIsJoined(joined)
       }
-      // Initialize form data for editing
       setFormData({
         name: res.data.name,
         description: res.data.description,
@@ -104,7 +102,7 @@ export default function ExpeditionDetail() {
   return (
     <div className="page-container max-1000">
       <div className="flex-center justify-between mb-40">
-        <button onClick={() => navigate('/expeditions')}>🡄 VOLVER AL CALENDARIO</button>
+        <Link to="/expeditions" className="btn">🡄 VOLVER AL CALENDARIO</Link>
         {user && String(user.id) === String(expedition.user_id) && (
           <div className="flex-center gap-15">
             <button onClick={() => setShowEditModal(true)} className="outline">EDITAR INCURSIÓN</button>

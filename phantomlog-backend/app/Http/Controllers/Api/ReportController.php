@@ -80,9 +80,9 @@ class ReportController extends Controller
         }
 
         $data = $request->validate([
-            'title'       => 'sometimes|string|min:5|max:255',
+            'title'       => ['sometimes', 'string', 'min:5', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
             'description' => 'sometimes|string|max:5000',
-            'image'       => 'nullable|string',
+            'image'       => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
         ]);
 
         // Sanitización manual
@@ -92,8 +92,13 @@ class ReportController extends Controller
             }
         }
 
-        if ($request->has('image') && !empty($request->image) && strpos($request->image, 'data:image') === 0) {
+        if ($request->has('image') && !empty($request->image)) {
             if (preg_match('/^data:image\/(\w+);base64,/', $request->image, $type)) {
+                // Borrar imagen vieja si existe
+                if ($report->image) {
+                    Storage::disk('public')->delete($report->image);
+                }
+
                 $image   = substr($request->image, strpos($request->image, ',') + 1);
                 $type    = strtolower($type[1]);
                 $image   = base64_decode($image);

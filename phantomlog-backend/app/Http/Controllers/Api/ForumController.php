@@ -83,9 +83,36 @@ class ForumController extends Controller
         }
 
         $data = $request->validate([
-            'title'       => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
+            'title'       => ['sometimes', 'string', 'min:10', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
+            'description' => 'sometimes|string|min:20|max:2000',
+            'image'       => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
         ]);
+
+        // Sanitización manual
+        foreach ($data as $key => $value) {
+            if (is_string($value) && $key !== 'image') {
+                $data[$key] = trim(strip_tags($value));
+            }
+        }
+
+        if ($request->has('image') && !empty($request->image)) {
+            if (preg_match('/^data:image\/(\w+);base64,/', $request->image, $type)) {
+                // Borrar imagen vieja si existe
+                if ($forum->image) {
+                    Storage::disk('public')->delete($forum->image);
+                }
+
+                $image   = substr($request->image, strpos($request->image, ',') + 1);
+                $type    = strtolower($type[1]);
+                $image   = base64_decode($image);
+                $imgName = Str::random(40) . '.' . $type;
+
+                $storagePath = 'forums/' . $imgName;
+                Storage::disk('public')->put($storagePath, $image);
+
+                $data['image'] = $storagePath;
+            }
+        }
 
         $forum->update($data);
 
