@@ -20,11 +20,14 @@ class ExpeditionController extends Controller
             $s = $request->search;
             $query->where(function($q) use ($s) {
                 $q->where('name', 'like', "%$s%")
-                  ->orWhere('location', 'like', "%$s%");
+                  ->orWhere('location', 'like', "%$s%")
+                  ->orWhereHas('phantom', function($pq) use ($s) {
+                      $pq->where('name', 'like', "%$s%");
+                  });
             });
         }
 
-        if ($request->filled('phantom_id')) {
+        if ($request->filled('phantom_id') && $request->phantom_id !== 'ALL') {
             $query->where('phantom_id', $request->phantom_id);
         }
 

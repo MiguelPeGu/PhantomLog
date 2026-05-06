@@ -31,7 +31,7 @@ class BootstrapController extends Controller
     {
         $user = $request->user();
 
-        // Phantoms: cacheados 10 min (datos casi estáticos)
+        // Phantoms
         $phantoms = Phantom::select('id', 'name', 'type', 'evidence', 'location')
             ->withCount('expeditions')
             ->latest()

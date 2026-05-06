@@ -21,8 +21,9 @@ const ExpeditionSkeleton = () => (
 )
 
 export default function Expeditions() {
-  const { expeditions, refreshExpeditions, loadingExpeditions, expeditionsPagination } = useData()
+  const { expeditions, refreshExpeditions, loadingExpeditions, expeditionsPagination, phantoms } = useData()
   const [localSearch, setLocalSearch] = useState('')
+  const [selectedPhantom, setSelectedPhantom] = useState('ALL')
   const [showModal, setShowModal] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [currentExpId, setCurrentExpId] = useState(null)
@@ -39,22 +40,29 @@ export default function Expeditions() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [localSearch]);
+  }, [localSearch, selectedPhantom]);
 
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
       return // datos ya cargados por DataProvider
     }
+    const params = { 
+      search: localSearch, 
+      page: currentPage, 
+      per_page: 9,
+      phantom_id: selectedPhantom 
+    };
+
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
-        refreshExpeditions({ search: localSearch, page: currentPage, per_page: 9 });
+        refreshExpeditions(params);
       }, 400);
       return () => clearTimeout(delayDebounceFn);
     } else {
-      refreshExpeditions({ search: '', page: currentPage, per_page: 9 });
+      refreshExpeditions(params);
     }
-  }, [localSearch, currentPage, refreshExpeditions]);
+  }, [localSearch, currentPage, selectedPhantom, refreshExpeditions]);
 
   const handleOpenCreate = () => {
     setFormData({ name: '', description: '', location: '', date: '', phantom_id: '' })
@@ -130,6 +138,18 @@ export default function Expeditions() {
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
           />
+
+          <select 
+            className="search-bar max-250 m-0"
+            value={selectedPhantom}
+            onChange={(e) => setSelectedPhantom(e.target.value)}
+          >
+            <option value="ALL">TODAS LAS ENTIDADES</option>
+            {phantoms.map(p => (
+              <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>
+            ))}
+          </select>
+
           {user && (
             <button 
               onClick={handleOpenCreate}
@@ -142,7 +162,7 @@ export default function Expeditions() {
       </header>
 
       <div className="max-1200">
-        <div className={`grid-3 loading-fade${loadingExpeditions && expeditions.length > 0 && currentPage > 1 ? ' is-loading' : ''}`}>
+        <div className={`grid-3 loading-fade${loadingExpeditions && expeditions.length > 0 ? ' is-loading' : ''}`}>
           {loadingExpeditions && expeditions.length === 0 ? (
             [...Array(6)].map((_, i) => <ExpeditionSkeleton key={i} />)
           ) : expeditions.length === 0 ? (

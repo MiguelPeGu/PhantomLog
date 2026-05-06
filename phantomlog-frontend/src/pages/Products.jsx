@@ -196,7 +196,7 @@ export default function Products() {
 
           {/* Lista de Productos */}
           <div className="flex-1">
-            <div className={`grid-catalog mb-60 loading-fade${loading && products.length > 0 && currentPage > 1 ? ' is-loading' : ''}`}>
+            <div className={`grid-catalog mb-60 loading-fade${loading && products.length > 0 ? ' is-loading' : ''}`}>
               {loading && products.length === 0 ? (
                 [...Array(6)].map((_, i) => <ProductSkeleton key={i} />)
               ) : products.length === 0 ? (

@@ -132,13 +132,10 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
 
     public function getImgAttribute($value)
     {
-        // Si el usuario tiene una imagen guardada (ej: subida por él), la devolvemos.
         if ($value) {
             return $value;
         }
 
-        // Si no tiene imagen, generamos una automática usando su username como semilla (seed)
-        // Así cada usuario tendrá un avatar único por defecto.
         return "https://api.dicebear.com/9.x/lorelei/svg?seed=" . urlencode($this->username);
     }
 

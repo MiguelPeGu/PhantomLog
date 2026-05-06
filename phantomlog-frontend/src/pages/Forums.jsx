@@ -130,7 +130,7 @@ export default function Forums() {
       </header>
 
       <div className="max-1200">
-        <div className={`grid-3 loading-fade${loading && forums.length > 0 && currentPage > 1 ? ' is-loading' : ''}`}>
+        <div className={`grid-3 loading-fade${loading && forums.length > 0 ? ' is-loading' : ''}`}>
           {loading && forums.length === 0 ? (
             [...Array(6)].map((_, i) => <ForumSkeleton key={i} />)
           ) : forums.length === 0 ? (
