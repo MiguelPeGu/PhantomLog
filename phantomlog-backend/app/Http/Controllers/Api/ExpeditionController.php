@@ -10,7 +10,9 @@ class ExpeditionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Expedition::with(['creator', 'phantom'])
+        // Columnas específicas para reducir el payload — las tarjetas no necesitan description completa
+        $query = Expedition::select('id','user_id','phantom_id','name','location','date','created_at')
+            ->with(['creator:id,username,img', 'phantom:id,name,type'])
             ->withCount('participants')
             ->latest();
 

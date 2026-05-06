@@ -16,7 +16,57 @@ export default function SuccessInvoice() {
       .finally(() => setLoading(false))
   }, [id])
 
-  if (loading) return <div className="mt-50 text-normal text-center">DESENCRIPTANDO FACTURA...</div>
+  if (loading) {
+    return (
+      <div className="page-container flex-center column">
+        <div className="skeleton mb-40" style={{ width: '200px', height: '36px', borderRadius: '4px' }}></div>
+        <div className="horror-card max-800 p-40 w-100">
+          {/* Header */}
+          <div className="invoice-header mb-40">
+            <div className="skeleton mx-auto mb-10" style={{ width: '260px', height: '44px' }}></div>
+            <div className="skeleton mx-auto mb-10" style={{ width: '220px', height: '18px' }}></div>
+            <div className="skeleton mx-auto" style={{ width: '100px', height: '30px', borderRadius: '4px' }}></div>
+          </div>
+
+          {/* Datos cliente */}
+          <div className="flex-center justify-between mb-40 align-start">
+            <div>
+              <div className="skeleton mb-10" style={{ width: '120px', height: '20px' }}></div>
+              <div className="skeleton skeleton-text mb-5" style={{ width: '180px' }}></div>
+              <div className="skeleton skeleton-text mb-5" style={{ width: '200px' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '120px' }}></div>
+            </div>
+            <div>
+              <div className="skeleton mb-5" style={{ width: '160px', height: '20px' }}></div>
+              <div className="skeleton skeleton-text mb-5" style={{ width: '140px' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '120px' }}></div>
+            </div>
+          </div>
+
+          {/* Tabla */}
+          <div className="skeleton w-100 mb-10" style={{ height: '44px' }}></div>
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex-center justify-between mb-10 p-10" style={{ borderBottom: '1px solid var(--border)' }}>
+              <div className="skeleton skeleton-text" style={{ width: '40%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '8%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '10%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '8%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '12%' }}></div>
+            </div>
+          ))}
+
+          {/* Totales */}
+          <div className="flex-center justify-end mt-40">
+            <div style={{ width: '250px' }}>
+              <div className="skeleton skeleton-text mb-10" style={{ width: '100%' }}></div>
+              <div className="skeleton skeleton-text mb-10" style={{ width: '100%' }}></div>
+              <div className="skeleton mt-10" style={{ width: '100%', height: '32px' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   if (notFound || !invoice) return <NotFound />
 
   return (

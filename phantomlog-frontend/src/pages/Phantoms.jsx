@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../context/DataProvider'
 
@@ -17,11 +16,10 @@ const PhantomSkeleton = () => (
 )
 
 export default function Phantoms() {
-  const { phantoms, refreshPhantoms, loadingPhantoms } = useData()
-
-  useEffect(() => {
-    refreshPhantoms()
-  }, [refreshPhantoms])
+  // DataProvider ya carga los phantoms al arrancar la app con refreshAll().
+  // No se necesita un useEffect local aquí — evita una petición HTTP duplicada
+  // cada vez que el usuario navega a /phantoms.
+  const { phantoms, loadingPhantoms } = useData()
 
   return (
     <div className="page-container">

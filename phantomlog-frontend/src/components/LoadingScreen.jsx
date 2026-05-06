@@ -12,7 +12,7 @@ export default function LoadingScreen() {
           position: fixed;
           inset: 0;
           z-index: 9999;
-          background: #050305;
+          background: rgba(5, 3, 5, 0.7);
           display: flex;
           align-items: center;
           justify-content: center;

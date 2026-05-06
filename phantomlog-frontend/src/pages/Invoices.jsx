@@ -56,7 +56,7 @@ export default function Invoices() {
       </header>
 
       <div className="max-800">
-        <div className="column gap-20">
+        <div className={`column gap-20 loading-fade${loading && invoices.length > 0 && currentPage > 1 ? ' is-loading' : ''}`}>
           {loading && invoices.length === 0 ? (
             [...Array(5)].map((_, i) => <InvoiceSkeleton key={i} />)
           ) : invoices.length === 0 ? (

@@ -18,6 +18,7 @@
   --shimmer-bg: #0a0a0a;
   --shimmer-gradient: rgba(255, 255, 255, 0.05);
   --believe-color: #00ff00;
+  --liar-color: #ff0000;
   --sans: 'Inter', 'Roboto', 'Outfit', sans-serif;
   --mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
@@ -59,7 +60,8 @@ body.light-mode {
   --shadow-color: rgba(0, 0, 0, 0.1);
   --shimmer-bg: #d0d7de;
   --shimmer-gradient: rgba(255, 255, 255, 0.8);
-  --believe-color: #0077ff;
+  --believe-color: #00ff00;
+  --liar-color: #ff0000;
 }
 
 body.light-mode .horror-card {
@@ -249,6 +251,19 @@ a:hover {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
   border-radius: 2px;
+}
+
+.loading-fade {
+  transition: opacity 0.35s ease-in-out, filter 0.35s ease-in-out;
+}
+
+.is-loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.opacity-0 {
+  opacity: 0;
 }
 
 @keyframes shimmer {
@@ -764,6 +779,22 @@ body.light-mode .status-badge.active {
 body.light-mode .status-badge.closed {
   background: #666;
   border-color: #333;
+}
+
+body.light-mode .vote-btn {
+  background: #ffffff;
+  border-color: #ccddee;
+  color: #333333;
+}
+
+body.light-mode .vote-btn:hover {
+  background: #f8f9fa;
+  border-color: var(--i);
+  color: var(--i);
+}
+
+body.light-mode .vote-btn.active {
+  color: #000000;
 }
 
 /* Footer */

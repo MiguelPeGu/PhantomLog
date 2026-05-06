@@ -59,7 +59,7 @@ export default function ForumDetail() {
 
   const handleUpdateForum = async (e) => {
     e.preventDefault()
-    
+
     if (!forumData.title.trim() || !forumData.description.trim()) {
       return addToast('EL TÍTULO Y LA DESCRIPCIÓN SON OBLIGATORIOS', 'error')
     }
@@ -104,7 +104,7 @@ export default function ForumDetail() {
   const handleReportSubmit = async (e) => {
     e.preventDefault()
     if (isCreatingReport) return;
-    
+
     if (!reportData.title.trim() || !reportData.description.trim()) {
       return addToast('EL TÍTULO Y LA DESCRIPCIÓN SON OBLIGATORIOS', 'error')
     }
@@ -196,12 +196,56 @@ export default function ForumDetail() {
   if (!forum) {
     return (
       <div className="page-container">
-        <div className="column align-center max-1000 mx-auto gap-40">
-          <div className="shimmer-box h-60 w-60pc"></div>
-          <div className="shimmer-box h-20 w-40pc mb-20"></div>
-          <div className="shimmer-box h-400 w-100"></div>
-          <div className="shimmer-box h-80 w-100"></div>
-          <div className="shimmer-box h-200 w-100"></div>
+        {/* Nav */}
+        <div className="flex-center justify-between mb-40">
+          <div className="skeleton" style={{ width: '180px', height: '36px', borderRadius: '4px' }}></div>
+          <div className="flex-center gap-10">
+            <div className="skeleton" style={{ width: '110px', height: '36px', borderRadius: '4px' }}></div>
+            <div className="skeleton" style={{ width: '130px', height: '36px', borderRadius: '4px' }}></div>
+          </div>
+        </div>
+
+        {/* Título + autor */}
+        <div className="column align-center max-1000 mx-auto gap-20 mb-60">
+          <div className="skeleton w-100 text-center" style={{ height: '52px', maxWidth: '700px' }}></div>
+          <div className="skeleton skeleton-text" style={{ width: '40%' }}></div>
+
+          {/* Imagen */}
+          <div className="horror-card mx-auto p-10 w-100" style={{ minHeight: '420px', maxWidth: '800px' }}>
+            <div className="skeleton w-100" style={{ height: '400px' }}></div>
+          </div>
+
+          {/* Credibility bar */}
+          <div className="w-100" style={{ maxWidth: '800px' }}>
+            <div className="flex-center justify-between mb-10">
+              <div className="skeleton" style={{ width: '110px', height: '12px' }}></div>
+              <div className="skeleton" style={{ width: '130px', height: '12px' }}></div>
+            </div>
+            <div className="skeleton w-100" style={{ height: '8px', borderRadius: '4px' }}></div>
+            <div className="skeleton skeleton-text mt-10" style={{ width: '180px' }}></div>
+          </div>
+
+          {/* Descripción */}
+          <div className="horror-card w-100" style={{ maxWidth: '800px' }}>
+            <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+            <div className="skeleton skeleton-text" style={{ width: '95%' }}></div>
+            <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
+          </div>
+        </div>
+
+        {/* Report cards */}
+        <div className="flex-center justify-between mb-40">
+          <div className="skeleton" style={{ width: '200px', height: '36px' }}></div>
+        </div>
+        <div className="grid-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="horror-card column p-20" style={{ minHeight: '320px' }}>
+              <div className="skeleton w-100 mb-20" style={{ height: '180px' }}></div>
+              <div className="skeleton skeleton-title" style={{ width: '80%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '60%' }}></div>
+            </div>
+          ))}
         </div>
       </div>
     )
@@ -211,15 +255,8 @@ export default function ForumDetail() {
 
   return (
     <div className="page-container">
-      <div className="flex-center justify-between mb-40 border-bottom pb-20">
-        <div className="flex-center gap-10">
-          <Link
-            to="/forums"
-            className="btn flex-center gap-5 p-8-15"
-          >
-            🡄 FOROS
-          </Link>
-        </div>
+      <div className="flex-center justify-between mb-40">
+        <Link to="/forums" className="btn">🡄 VOLVER A LOS FOROS</Link>
         {user && String(user.id) === String(forum?.user_id) && (
           <div className="flex-center gap-10">
             <button onClick={() => setShowForumModal(true)} className="p-8-15">EDITAR FORO</button>
@@ -345,7 +382,7 @@ export default function ForumDetail() {
         <div className="modal-overlay">
           <form onSubmit={handleUpdateForum} className="horror-form">
             <h2>MODIFICAR FORO</h2>
-            
+
             <div className="form-group">
               <label className="form-label">TÍTULO DEL FORO</label>
               <input required value={forumData.title} onChange={e => setForumData({ ...forumData, title: e.target.value })} />

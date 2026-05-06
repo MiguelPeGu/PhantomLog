@@ -189,12 +189,73 @@ export default function ReportDetail() {
   // SKELETON LOADERS
   if (!report) {
     return (
-      <div className="page-container">
-        <div className="shimmer-effect mb-40 h-40 w-200"></div>
-        <div className="shimmer-effect mb-40 h-60 w-80pc"></div>
-        <div className="shimmer-effect mb-40 h-400 w-100 border-1"></div>
-        <div className="shimmer-effect mb-10 h-20 w-100"></div>
-        <div className="shimmer-effect mb-10 h-20 w-90pc"></div>
+      <div className="page-container max-1000">
+        {/* Navigation Buttons */}
+        <div className="mb-40 flex gap-10">
+          <div className="skeleton" style={{ width: '100px', height: '36px', borderRadius: '4px' }}></div>
+          <div className="skeleton" style={{ width: '80px', height: '36px', borderRadius: '4px' }}></div>
+        </div>
+
+        {/* Edit/Delete Actions */}
+        <div className="flex-center justify-end mb-40 border-bottom pb-20">
+          <div className="flex-center gap-10">
+            <div className="skeleton" style={{ width: '130px', height: '36px', borderRadius: '4px' }}></div>
+            <div className="skeleton" style={{ width: '140px', height: '36px', borderRadius: '4px' }}></div>
+          </div>
+        </div>
+
+        {/* Título + autor */}
+        <div className="skeleton skeleton-title mb-10" style={{ width: '70%', height: '48px' }}></div>
+        <div className="skeleton skeleton-text mb-30" style={{ width: '35%' }}></div>
+
+        {/* Imagen grande */}
+        <div className="horror-card mx-auto p-10 mb-30 w-100" style={{ minHeight: '500px' }}>
+          <div className="skeleton w-100" style={{ height: '480px' }}></div>
+        </div>
+
+        {/* Descripción */}
+        <div className="horror-card p-30 mb-30">
+          <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+          <div className="skeleton skeleton-text" style={{ width: '97%' }}></div>
+          <div className="skeleton skeleton-text" style={{ width: '85%' }}></div>
+          <div className="skeleton skeleton-text" style={{ width: '90%' }}></div>
+        </div>
+
+        {/* Score box */}
+        <div className="horror-card p-30 mb-50 flex-center gap-40">
+          <div className="flex-center gap-30">
+            <div>
+              <div className="skeleton skeleton-text mb-5" style={{ width: '120px' }}></div>
+              <div className="skeleton" style={{ width: '60px', height: '36px' }}></div>
+            </div>
+            <div>
+              <div className="skeleton skeleton-text mb-5" style={{ width: '100px' }}></div>
+              <div className="skeleton" style={{ width: '50px', height: '36px' }}></div>
+            </div>
+          </div>
+          <div className="flex-center gap-20">
+            <div className="skeleton" style={{ width: '80px', height: '80px', borderRadius: '50%' }}></div>
+            <div className="skeleton" style={{ width: '80px', height: '80px', borderRadius: '50%' }}></div>
+          </div>
+        </div>
+
+        {/* Comentarios */}
+        <div className="skeleton" style={{ width: '260px', height: '28px', marginBottom: '30px' }}></div>
+        <div className="column gap-20">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="horror-card">
+              <div className="flex-center justify-between mb-10">
+                <div className="flex-center gap-10">
+                  <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></div>
+                  <div className="skeleton skeleton-text" style={{ width: '100px' }}></div>
+                </div>
+                <div className="skeleton skeleton-text" style={{ width: '120px' }}></div>
+              </div>
+              <div className="skeleton skeleton-text" style={{ width: '90%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '70%' }}></div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -278,7 +339,7 @@ export default function ReportDetail() {
 
           <button 
             className={`vote-btn ${userVote === -1 ? 'active' : ''}`} 
-            style={{ "--i": "var(--border-red, #ff0000)", "--j": "var(--accent-dim)" }}
+            style={{ "--i": "var(--liar-color, #ff0000)", "--j": "var(--accent-dim)" }}
             onClick={() => handleVote(-1)}
           >
             <span className="icon">

@@ -43,7 +43,32 @@ export default function ProductDetail() {
   }
 
   if (notFound) return <NotFound />
-  if (loading) return <div className="text-normal text-center mt-50">CARGANDO...</div>
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="skeleton mb-20" style={{ width: '160px', height: '36px', borderRadius: '4px' }}></div>
+        <div className="horror-card product-detail-grid">
+          {/* Imagen */}
+          <div className="product-image-large">
+            <div className="skeleton w-100 h-100" style={{ minHeight: '400px' }}></div>
+          </div>
+          {/* Info */}
+          <div className="product-info-panel column">
+            <div className="skeleton skeleton-title mb-20" style={{ width: '75%', height: '40px' }}></div>
+            <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+            <div className="skeleton skeleton-text" style={{ width: '95%' }}></div>
+            <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
+            <div className="skeleton skeleton-text mb-30" style={{ width: '60%' }}></div>
+            <div className="flex-center justify-between mt-auto border-top pt-20">
+              <div className="skeleton" style={{ width: '100px', height: '32px' }}></div>
+              <div className="skeleton" style={{ width: '120px', height: '20px' }}></div>
+            </div>
+            <div className="skeleton w-100 mt-20" style={{ height: '54px', borderRadius: '4px' }}></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   if (!product) return null
 
   return (

@@ -12,7 +12,7 @@ export default function ExpeditionDetail() {
   const { user } = useAuth()
   const { addToast } = useToast()
   const { phantoms } = useData()
-  
+
   const [expedition, setExpedition] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -94,7 +94,69 @@ export default function ExpeditionDetail() {
   }
 
   if (notFound) return <NotFound />
-  if (loading) return <div className="p-100 text-normal text-center">ESCANEANDO FRECUENCIAS...</div>
+  if (loading) {
+    return (
+      <div className="page-container max-1000">
+        {/* Nav */}
+        <div className="flex-center justify-between mb-40">
+          <div className="skeleton" style={{ width: '180px', height: '36px', borderRadius: '4px' }}></div>
+          <div className="flex-center gap-15">
+            <div className="skeleton" style={{ width: '150px', height: '36px', borderRadius: '4px' }}></div>
+            <div className="skeleton" style={{ width: '160px', height: '36px', borderRadius: '4px' }}></div>
+          </div>
+        </div>
+
+        {/* Tarjeta principal */}
+        <div className="horror-card p-40">
+          {/* Header */}
+          <div className="border-bottom pb-30 mb-30">
+            <div className="flex-center justify-between mb-20">
+              <div>
+                <div className="skeleton skeleton-title mb-10" style={{ width: '380px', height: '52px' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '200px' }}></div>
+              </div>
+              <div className="skeleton" style={{ width: '160px', height: '40px', borderRadius: '4px' }}></div>
+            </div>
+            <div className="flex-center gap-30 mt-20">
+              <div className="skeleton skeleton-text" style={{ width: '120px' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '100px' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '130px' }}></div>
+            </div>
+          </div>
+
+          {/* Grid descripción + participantes */}
+          <div className="grid-2 gap-40">
+            <div>
+              <div className="skeleton" style={{ width: '200px', height: '24px', marginBottom: '15px' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '95%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '88%' }}></div>
+              <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
+
+              <div className="horror-card mt-30 p-20">
+                <div className="skeleton skeleton-text mb-10" style={{ width: '140px' }}></div>
+                <div className="skeleton" style={{ width: '180px', height: '28px' }}></div>
+              </div>
+
+              <div className="skeleton w-100 mt-40" style={{ height: '64px', borderRadius: '4px' }}></div>
+            </div>
+
+            <div className="border-left pl-40">
+              <div className="skeleton" style={{ width: '160px', height: '24px', marginBottom: '20px' }}></div>
+              <div className="column gap-10">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="flex-center gap-10">
+                    <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></div>
+                    <div className="skeleton skeleton-text" style={{ width: '100px' }}></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   if (!expedition) return null
 
   const isClosed = new Date(expedition.date) < new Date()
@@ -136,7 +198,7 @@ export default function ExpeditionDetail() {
           <div>
             <h3 className="border-bottom pb-10">OBJETIVOS DE LA MISIÓN</h3>
             <p className="fs-18 lh-1-6 pre-wrap word-break">{expedition.description}</p>
-            
+
             <div className="horror-card mt-30 p-20">
               <h4 className="text-dim m-0 mb-10">ENTIDAD DETECTADA</h4>
               <div className="text-accent fs-24 bold">
@@ -145,7 +207,7 @@ export default function ExpeditionDetail() {
             </div>
 
             {!isClosed && (
-              <button 
+              <button
                 onClick={handleJoin}
                 className={`w-100 mt-40 fs-24 ${isJoined ? 'outline-red' : 'primary'} p-20`}
               >
@@ -163,25 +225,26 @@ export default function ExpeditionDetail() {
                 expedition.participants.map(p => {
                   const avatarUrl = p.img ? (p.img.startsWith('http') || p.img.startsWith('data:') ? p.img : `http://localhost:8000/storage/${p.img}`) : null;
                   return (
-                  <div key={p.id} className="participant-box">
-                    <div className="avatar-circle">
-                      {avatarUrl ? (
-                        <img 
-                          src={avatarUrl} 
-                          alt={p.username} 
-                          className="w-100 h-100 object-cover" 
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.parentElement.innerText = p.username[0].toUpperCase();
-                          }}
-                        />
-                      ) : (
-                        p.username[0].toUpperCase()
-                      )}
+                    <div key={p.id} className="participant-box">
+                      <div className="avatar-circle">
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt={p.username}
+                            className="w-100 h-100 object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.innerText = p.username[0].toUpperCase();
+                            }}
+                          />
+                        ) : (
+                          p.username[0].toUpperCase()
+                        )}
+                      </div>
+                      <span className="fs-14 uppercase">{p.username}</span>
                     </div>
-                    <span className="fs-14 uppercase">{p.username}</span>
-                  </div>
-                )})
+                  )
+                })
               )}
             </div>
           </div>
@@ -192,15 +255,15 @@ export default function ExpeditionDetail() {
         <div className="modal-overlay">
           <form onSubmit={handleUpdate} className="horror-form">
             <h2 className="ls-2">RE-PROGRAMAR INCURSIÓN</h2>
-            
+
             <div className="form-group">
               <label className="form-label">NOMBRE DE LA OPERACIÓN</label>
-              <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+              <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
             </div>
 
             <div className="form-group">
               <label className="form-label">OBJETIVOS (MÍN. 100 CARACTERES)</label>
-              <textarea required minLength={100} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="min-h-150" />
+              <textarea required minLength={100} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="min-h-150" />
               <small className={`fs-10 ${formData.description.length < 100 ? 'text-accent' : 'text-dim'}`}>
                 CARACTERES: {formData.description.length} / 100
               </small>
@@ -208,17 +271,17 @@ export default function ExpeditionDetail() {
 
             <div className="form-group">
               <label className="form-label">UBICACIÓN BASE (MÁX. 40 CARACTERES)</label>
-              <input required maxLength={40} value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
+              <input required maxLength={40} value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
             </div>
 
             <div className="form-group">
               <label className="form-label">FECHA Y HORA</label>
-              <input required type="datetime-local" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+              <input required type="datetime-local" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} />
             </div>
-            
+
             <div className="form-group">
               <label className="form-label">ENTIDAD OBJETIVO</label>
-              <select required value={formData.phantom_id} onChange={e => setFormData({...formData, phantom_id: e.target.value})}>
+              <select required value={formData.phantom_id} onChange={e => setFormData({ ...formData, phantom_id: e.target.value })}>
                 <option value="">SELECCIONAR ENTIDAD...</option>
                 {phantoms && phantoms.map(p => (
                   <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>

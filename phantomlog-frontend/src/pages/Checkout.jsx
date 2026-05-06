@@ -115,7 +115,55 @@ export default function Checkout() {
     }
   }
 
-  if (loading || !cartData) return <div className="mt-50 text-normal text-center">SINCRONIZANDO PACTO...</div>
+  if (loading || !cartData) {
+    return (
+      <div className="page-container mx-auto" style={{ maxWidth: '1100px' }}>
+        <header className="text-center mb-40">
+          <div className="skeleton mx-auto mb-10" style={{ width: '320px', height: '44px' }}></div>
+          <div className="skeleton mx-auto" style={{ width: '220px', height: '18px' }}></div>
+        </header>
+        <div className="flex-center align-start gap-40 wrap">
+          {/* Formulario */}
+          <div className="horror-card flex-2 p-30">
+            <div className="skeleton mb-20" style={{ width: '240px', height: '28px' }}></div>
+            <div className="grid-2 gap-20 mb-20">
+              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+            </div>
+            <div className="grid-2 gap-20 mb-20">
+              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+            </div>
+            <div className="skeleton mb-20" style={{ height: '44px', borderRadius: '4px' }}></div>
+            <div className="skeleton mb-30" style={{ width: '120px', height: '44px', borderRadius: '4px' }}></div>
+            <div className="skeleton mb-20" style={{ width: '180px', height: '28px' }}></div>
+            <div className="skeleton mb-15" style={{ height: '44px', borderRadius: '4px' }}></div>
+            <div className="grid-2 gap-20 mb-20">
+              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+            </div>
+            <div className="skeleton w-100 mt-20" style={{ height: '58px', borderRadius: '4px' }}></div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="horror-card flex-1 p-30">
+            <div className="skeleton mb-20" style={{ width: '200px', height: '28px' }}></div>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex-center justify-between mb-15">
+                <div className="skeleton skeleton-text" style={{ width: '55%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '20%' }}></div>
+              </div>
+            ))}
+            <div className="mt-40 text-right">
+              <div className="skeleton skeleton-text mb-5" style={{ width: '120px', marginLeft: 'auto' }}></div>
+              <div className="skeleton skeleton-text mb-5" style={{ width: '160px', marginLeft: 'auto' }}></div>
+              <div className="skeleton mt-10" style={{ width: '180px', height: '32px', marginLeft: 'auto' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (ghostLoading) {
     return (

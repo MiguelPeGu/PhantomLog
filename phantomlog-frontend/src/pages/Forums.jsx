@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { createForum, deleteForum, updateForum } from '../api/forums'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -27,11 +27,19 @@ export default function Forums() {
   const { user } = useAuth()
   const { addToast } = useToast()
 
+  // Guard para evitar petición duplicada en el primer render:
+  // DataProvider ya cargó los foros con refreshAll() al arrancar la app.
+  const isFirstRender = useRef(true)
+
   useEffect(() => {
     setCurrentPage(1);
   }, [localSearch]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return // datos ya cargados por DataProvider
+    }
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
         refreshForums({ search: localSearch, page: currentPage, per_page: 9 })
@@ -122,7 +130,7 @@ export default function Forums() {
       </header>
 
       <div className="max-1200">
-        <div className="grid-3">
+        <div className={`grid-3 loading-fade${loading && forums.length > 0 && currentPage > 1 ? ' is-loading' : ''}`}>
           {loading && forums.length === 0 ? (
             [...Array(6)].map((_, i) => <ForumSkeleton key={i} />)
           ) : forums.length === 0 ? (
@@ -139,7 +147,7 @@ export default function Forums() {
                     />
                   </div>
                   <h3 className="fs-24 mb-10">{f.title.toUpperCase()}</h3>
-                  <p className="fs-15 lh-1-6 text-dim text-break">{f.description.substring(0, 120)}...</p>
+                  <p className="fs-15 lh-1-6 text-dim text-break">{(f.description ?? '').substring(0, 120)}...</p>
                 </Link>
                 {user && String(user.id) === String(f.user_id) && (
                   <div className="flex-center mt-10 gap-10">

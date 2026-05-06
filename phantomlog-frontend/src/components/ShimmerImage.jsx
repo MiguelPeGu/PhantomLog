@@ -6,7 +6,11 @@ const ShimmerImage = ({ src, alt, style, className = "", objectFit = "cover" }) 
   const imgRef = useRef(null)
 
   useEffect(() => {
-    if (imgRef.current && imgRef.current.complete) {
+    // Resetear al cambiar src para que el shimmer vuelva a aparecer
+    // con cada imagen nueva (ej: al paginar o navegar entre cards)
+    setLoaded(false)
+    setError(false)
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
       setLoaded(true)
     }
   }, [src])

@@ -67,12 +67,10 @@ final class Forum extends Model
         return $this->belongsToMany(User::class, 'followers');
     }
 
-    protected $appends = ['credibility_score', 'image_url'];
+    protected $appends = ['image_url'];
 
-    public function getCredibilityScoreAttribute()
-    {
-        return (float) $this->reports()->avg('score') ?? 0;
-    }
+    // credibility_score se calcula en el controlador con withAvg()
+    // para evitar 1 query SQL extra por cada foro en el listado (N+1)
 
     public function getImageUrlAttribute()
     {

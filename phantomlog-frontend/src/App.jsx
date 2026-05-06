@@ -5,7 +5,6 @@ import { CartProvider } from './context/CartContext'
 import { DataProvider } from './context/DataProvider'
 import PrivateRoute from './components/PrivateRoute'
 import PhantomLayout from './components/PhantomLayout'
-import LoadingTrigger from './components/LoadingTrigger'
 
 import Home           from './pages/Home'
 import Login          from './pages/Login'
@@ -29,12 +28,7 @@ import NotFound       from './pages/NotFound'
 
 export const router = createBrowserRouter([
   {
-    element: (
-      <>
-        <LoadingTrigger />
-        <Outlet />
-      </>
-    ),
+    element: <Outlet />,
     children: [
       {
         path: "/",

@@ -7,18 +7,8 @@ export default function LoadingTrigger() {
   const { triggerLoading } = useLoading()
 
   useEffect(() => {
-    const path = location.pathname
-    
-    // Define exact paths or patterns to trigger
-    const exactTargets = ['/cart']
-    const detailBases = ['/forums/', '/products/', '/expeditions/', '/success/', '/phantoms/']
-
-    const isExactMatch = exactTargets.includes(path)
-    const isDetailMatch = detailBases.some(base => path.startsWith(base))
-    
-    if (isExactMatch || isDetailMatch) {
-      triggerLoading(1000)
-    }
+    // Trigger loading on every page change for consistent transitions
+    triggerLoading(400)
   }, [location.pathname, triggerLoading])
 
   return null

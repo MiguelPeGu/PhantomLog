@@ -60,7 +60,67 @@ export default function PhantomDetail() {
   )
 
   if (notFound) return <NotFound />
-  if (loading) return <div className="p-100 text-normal text-center ls-5">DESENCRIPTANDO ARCHIVO...</div>
+  
+  if (loading) {
+    return (
+      <div className="page-container max-900">
+        <div className="skeleton mb-40" style={{ width: '220px', height: '36px', borderRadius: '4px' }}></div>
+        
+        <div className="horror-card p-25 mb-40">
+          <div className="grid-2 gap-40 grid-1-15">
+            {/* Visual Evidence Skeleton */}
+            <div className="column gap-20">
+              <div className="bestiary-img-box">
+                <div className="skeleton w-100 h-100"></div>
+              </div>
+              <div className="bestiary-evidence-box">
+                <div className="skeleton mb-10" style={{ width: '120px', height: '12px' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
+              </div>
+            </div>
+
+            {/* Data Skeleton */}
+            <div>
+              <div className="border-bottom pb-20 mb-20">
+                <div className="skeleton skeleton-title" style={{ width: '70%', height: '42px' }}></div>
+                <div className="skeleton" style={{ width: '140px', height: '14px' }}></div>
+              </div>
+
+              <div className="mb-40">
+                <div className="skeleton mb-10" style={{ width: '160px', height: '14px' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '95%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '90%' }}></div>
+              </div>
+
+              <div className="grid-2 gap-20">
+                <div className="stat-box">
+                  <div className="skeleton mb-10" style={{ width: '100px', height: '12px' }}></div>
+                  <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+                </div>
+                <div className="stat-box-red">
+                  <div className="skeleton mb-10" style={{ width: '100px', height: '12px' }}></div>
+                  <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+                </div>
+              </div>
+
+              <div className="investigator-note">
+                <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '40%' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Related Expeditions Skeleton */}
+        <div className="border-top pt-30">
+          <div className="skeleton w-100" style={{ height: '70px', borderRadius: '4px' }}></div>
+        </div>
+      </div>
+    )
+  }
+
   if (!phantom) return null
 
   return (

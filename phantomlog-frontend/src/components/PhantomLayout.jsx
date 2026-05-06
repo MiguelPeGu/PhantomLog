@@ -1,6 +1,6 @@
 import { useData } from '../context/DataProvider'
 import { useEffect, useState } from 'react'
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate, useNavigation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
@@ -8,11 +8,17 @@ import { useToast } from '../context/ToastContext'
 export default function PhantomLayout() {
   const location = useLocation()
   const navigate = useNavigate()
+  const navigation = useNavigation()
   const { logout, user } = useAuth()
   const { cartCount } = useCart()
   const { addToast } = useToast()
   const { globalSearch, setGlobalSearch } = useData()
   const [showContent, setShowContent] = useState(false)
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [location.pathname])
   
   // Theme Management
   const [theme, setTheme] = useState(localStorage.getItem('phantom-theme') || 'dark')
@@ -140,7 +146,7 @@ export default function PhantomLayout() {
       </header>
 
       {/* Content Area */}
-      <main className={`flex-1 transition-opacity-05 ${showContent ? 'opacity-1' : 'opacity-0'}`}>
+      <main className={`flex-1 ${!showContent ? 'opacity-0' : ''}`}>
         <Outlet />
       </main>
 

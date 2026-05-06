@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { addToCart } from '../api/cart'
 import { useToast } from '../context/ToastContext'
 import { Link } from 'react-router-dom'
@@ -23,22 +23,19 @@ export default function Products() {
   const { setCartCount } = useCart()
 
   const [currentPage, setCurrentPage] = useState(1)
-  const [category, setCategory] = useState('ALL') //diferente al otro category, por favor?
+  const [category, setCategory] = useState('ALL')
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
   const [sort, setSort] = useState('newest')
   const [activeFilters, setActiveFilters] = useState({ category: 'ALL', minPrice: '', maxPrice: '', sort: 'newest' })
   const [addingId, setAddingId] = useState(null)
-  const [categories, setCategories] = useState(['ALL']) //cual es la diferencia con el otro?
 
-  useEffect(() => {
-    if (products.length > 0 && category === 'ALL') {
-      const uniqueCats = ['ALL', ...new Set(products.map(product => product.category?.toUpperCase()).filter(Boolean))] // necesito mejor explicacion
-      if (JSON.stringify(uniqueCats) !== JSON.stringify(categories)) {
-        setCategories(uniqueCats)
-      }
-    }
-  }, [products, categories, category])
+  // Derivar categorías con useMemo — evita JSON.stringify en cada render
+  // y el ciclo de dependencias que causaba re-renders innecesarios.
+  const categories = useMemo(() => {
+    if (products.length === 0) return ['ALL']
+    return ['ALL', ...new Set(products.map(p => p.category?.toUpperCase()).filter(Boolean))]
+  }, [products])
 
   const applyFilters = () => {
     if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
@@ -59,11 +56,19 @@ export default function Products() {
     setCurrentPage(1);
   };
 
+  // Guard para evitar petición duplicada en el primer render:
+  // DataProvider ya cargó los productos con refreshAll() al arrancar la app.
+  const isFirstRender = useRef(true)
+
   useEffect(() => {
     setCurrentPage(1);
   }, [globalSearch]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return // datos ya cargados por DataProvider
+    }
     const params = {
       search: globalSearch,
       page: currentPage,
@@ -190,7 +195,7 @@ export default function Products() {
 
           {/* Lista de Productos */}
           <div className="flex-1">
-            <div className="grid-catalog mb-60">
+            <div className={`grid-catalog mb-60 loading-fade${loading && products.length > 0 && currentPage > 1 ? ' is-loading' : ''}`}>
               {loading && products.length === 0 ? (
                 [...Array(6)].map((_, i) => <ProductSkeleton key={i} />)
               ) : products.length === 0 ? (

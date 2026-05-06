@@ -12,7 +12,12 @@ class ForumController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Forum::with('user')->withCount('reports');
+        // select() optimiza la query excluyendo campos no usados en tarjetas
+        // description SÍ se necesita para el preview de 120 chars en cada card
+        $query = Forum::select('id','title','description','image','user_id','created_at','updated_at')
+            ->with('user:id,username,img')
+            ->withCount('reports')
+            ->withAvg('reports', 'score');
 
         if ($request->has('search') && !empty($request->search)) {
             $term = $request->search;
@@ -71,9 +76,13 @@ class ForumController extends Controller
 
     public function show(Forum $forum)
     {
-        return response()->json(
-            $forum->load(['user', 'reports.user', 'reports' => fn($q) => $q->withCount('comments')])
-        );
+        $forum->load(['user', 'reports.user', 'reports' => fn($q) => $q->withCount('comments')])
+              ->loadAvg('reports', 'score');
+
+        // Exponer credibility_score con el mismo nombre esperado por el frontend
+        $forum->credibility_score = (float) ($forum->reports_avg_score ?? 0);
+
+        return response()->json($forum);
     }
 
     public function update(Request $request, Forum $forum)

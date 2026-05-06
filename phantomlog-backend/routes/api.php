@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BootstrapController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ExpeditionController;
 use App\Http\Controllers\Api\ForumController;
@@ -21,6 +22,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user',    [AuthController::class, 'me']);
     Route::put('/user',    [AuthController::class, 'update']);
+
+    // Bootstrap: carga todos los datos iniciales en 1 sola petición
+    Route::get('/bootstrap', [BootstrapController::class, 'index']);
 
     Route::apiResource('forums',           ForumController::class);
     Route::apiResource('forums.reports',   ReportController::class);

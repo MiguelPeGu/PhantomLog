@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { createExpedition, updateExpedition, deleteExpedition } from '../api/expeditions'
 import { useAuth } from '../context/AuthContext'
@@ -33,11 +33,19 @@ export default function Expeditions() {
   const { user } = useAuth()
   const { addToast } = useToast()
 
+  // Guard para evitar petición duplicada en el primer render:
+  // DataProvider ya cargó las expediciones con refreshAll() al arrancar la app.
+  const isFirstRender = useRef(true)
+
   useEffect(() => {
     setCurrentPage(1);
   }, [localSearch]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return // datos ya cargados por DataProvider
+    }
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
         refreshExpeditions({ search: localSearch, page: currentPage, per_page: 9 });
@@ -134,7 +142,7 @@ export default function Expeditions() {
       </header>
 
       <div className="max-1200">
-        <div className="grid-3">
+        <div className={`grid-3 loading-fade${loadingExpeditions && expeditions.length > 0 && currentPage > 1 ? ' is-loading' : ''}`}>
           {loadingExpeditions && expeditions.length === 0 ? (
             [...Array(6)].map((_, i) => <ExpeditionSkeleton key={i} />)
           ) : expeditions.length === 0 ? (

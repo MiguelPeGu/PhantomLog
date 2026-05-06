@@ -10,7 +10,10 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::withCount('invoiceDetails');
+        // Solo las columnas necesarias para las tarjetas del catálogo
+        // description, provider y sku no se muestran en el listado
+        $query = Product::select('id','title','price','stock','category','image','created_at')
+            ->withCount('invoiceDetails');
 
         if ($request->has('search') && !empty($request->search)) {
             $term = $request->search;

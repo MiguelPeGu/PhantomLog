@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getCart, subtractCart, addToCart, removeCart } from '../api/cart'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useCart } from '../context/CartContext'
 
@@ -85,7 +85,42 @@ export default function Cart() {
     }
   }
 
-  if (loading) return <div className="mt-50 text-normal text-center">INSPECCIONANDO EL VACÍO...</div>
+  if (loading) {
+    return (
+      <div className="page-container mx-auto" style={{ maxWidth: '900px' }}>
+        <header className="text-center mb-40">
+          <div className="skeleton mx-auto mb-10" style={{ width: '260px', height: '44px' }}></div>
+          <div className="skeleton mx-auto" style={{ width: '200px', height: '18px' }}></div>
+        </header>
+        <div className="skeleton mb-40" style={{ width: '200px', height: '36px', borderRadius: '4px' }}></div>
+
+        <div className="horror-card p-30">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="cart-item-row flex-center" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '20px', marginBottom: '20px' }}>
+              <div className="flex-1">
+                <div className="skeleton skeleton-title mb-5" style={{ width: '55%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '30%' }}></div>
+              </div>
+              <div className="flex-center gap-20">
+                <div className="skeleton" style={{ width: '110px', height: '40px', borderRadius: '4px' }}></div>
+                <div className="skeleton" style={{ width: '110px', height: '40px', borderRadius: '4px' }}></div>
+              </div>
+            </div>
+          ))}
+
+          <div className="cart-totals-panel">
+            <div className="skeleton skeleton-text mb-5" style={{ width: '160px' }}></div>
+            <div className="skeleton skeleton-text mb-5" style={{ width: '200px' }}></div>
+            <div className="skeleton mt-10 mb-15" style={{ width: '220px', height: '36px' }}></div>
+            <div className="flex-center justify-end gap-15 mt-60">
+              <div className="skeleton" style={{ width: '150px', height: '44px', borderRadius: '4px' }}></div>
+              <div className="skeleton" style={{ width: '220px', height: '44px', borderRadius: '4px' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const items = cartData?.items || []
 
