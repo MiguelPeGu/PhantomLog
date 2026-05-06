@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use App\Models\Product;
+
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
+ * @extends Factory<Product>
  */
-class ProductFactory extends Factory
+final class ProductFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -34,13 +37,13 @@ class ProductFactory extends Factory
 
         return [
             'id' => (string) Str::uuid(),
-            'sku' => 'PL-'.strtoupper($this->faker->bothify('####-####')),
+            'sku' => 'PL-'.mb_strtoupper($this->faker->bothify('####-####')),
             'title' => $product['title'],
             'provider' => $this->faker->randomElement(['Arcane Industries', 'Specter Tech', 'Vatican Supplies', 'GhostGear Pro']),
             'price' => $this->faker->randomFloat(2, 20, 1500),
             'tax' => 21,
             'stock' => $this->faker->numberBetween(5, 50),
-            'image' => "images/products/{$product['img']}",
+            'image' => 'images/products/'.$product['img'],
             'description' => $product['desc'],
         ];
     }

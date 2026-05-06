@@ -1,17 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Invoices\RelationManagers;
 
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Override;
 
-class InvoiceDetailsRelationManager extends RelationManager
+final class InvoiceDetailsRelationManager extends RelationManager
 {
+    #[Override]
     protected static string $relationship = 'details';
 
+    #[Override]
     protected static ?string $recordTitleAttribute = 'title';
 
     public function form(Schema $schema): Schema
@@ -50,8 +57,8 @@ class InvoiceDetailsRelationManager extends RelationManager
                 //
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
                 //

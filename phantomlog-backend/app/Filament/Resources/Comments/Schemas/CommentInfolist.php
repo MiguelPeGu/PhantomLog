@@ -1,15 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Comments\Schemas;
 
-use Filament\Forms\Components\TextInput;
-use App\Filament\Resources\Comments\CommentResource;
-use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
-use Filament\Schemas\Schema;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
-class CommentInfolist
+use Filament\Schemas\Schema;
+
+final class CommentInfolist
 {
     public static function configure(Schema $schema): Schema
     {

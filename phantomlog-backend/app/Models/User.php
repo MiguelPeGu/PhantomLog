@@ -9,12 +9,13 @@ use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Override;
 
 /**
  * @property-read string $id
@@ -35,15 +36,17 @@ use Illuminate\Notifications\Notifiable;
  */
 final class User extends Authenticatable implements FilamentUser, HasName, MustVerifyEmail
 {
+    use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-    use HasApiTokens;
     use HasUuids;
     use Notifiable;
 
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'id',
         'dni',
@@ -61,6 +64,7 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
     /**
      * @var list<string>
      */
+    #[Override]
     protected $hidden = [
         'password',
         'remember_token',
@@ -127,20 +131,20 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
 
     public function getFilamentName(): string
     {
-        return "{$this->firstname} {$this->lastname}";
-    }
-
-    public function getImgAttribute($value)
-    {
-        if ($value) {
-            return $value;
-        }
-
-        return "https://api.dicebear.com/9.x/lorelei/svg?seed=" . urlencode($this->username);
+        return sprintf('%s %s', $this->firstname, $this->lastname);
     }
 
     public function joinedExpeditions()
     {
         return $this->belongsToMany(Expedition::class, 'enrollment');
+    }
+
+    protected function getImgAttribute($value)
+    {
+        if ($value) {
+            return $value;
+        }
+
+        return 'https://api.dicebear.com/9.x/lorelei/svg?seed='.urlencode($this->username);
     }
 }

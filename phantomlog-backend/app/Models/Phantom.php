@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use Database\Factories\PhantomFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Expedition;
-
-use Carbon\CarbonInterface;
+use Override;
 
 /**
  * @property-read string $id
@@ -26,7 +26,7 @@ use Carbon\CarbonInterface;
  */
 final class Phantom extends Model
 {
-    /** @use HasFactory<\Database\Factories\PhantomFactory> */
+    /** @use HasFactory<PhantomFactory> */
     use HasFactory;
 
     use HasUuids;
@@ -34,6 +34,7 @@ final class Phantom extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'name',
         'type',
@@ -69,6 +70,4 @@ final class Phantom extends Model
     {
         return $this->hasMany(Expedition::class);
     }
-
-
 }

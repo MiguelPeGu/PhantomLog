@@ -1,18 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Reports\RelationManagers;
 
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Override;
 
-class CommentsRelationManager extends RelationManager
+final class CommentsRelationManager extends RelationManager
 {
+    #[Override]
     protected static string $relationship = 'comments';
 
+    #[Override]
     protected static ?string $recordTitleAttribute = 'content';
 
     public function form(Schema $schema): Schema
@@ -48,12 +57,12 @@ class CommentsRelationManager extends RelationManager
                 //
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

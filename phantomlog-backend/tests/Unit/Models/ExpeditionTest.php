@@ -3,16 +3,16 @@
 declare(strict_types=1);
 
 use App\Models\Expedition;
-use App\Models\User;
 use App\Models\Phantom;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('expedition belongs to a creator and a phantom', function () {
+test('expedition belongs to a creator and a phantom', function (): void {
     $user = User::factory()->create();
     $phantom = Phantom::factory()->create();
-    
+
     $expedition = Expedition::factory()->create([
         'user_id' => $user->id,
         'phantom_id' => $phantom->id,
@@ -22,10 +22,10 @@ test('expedition belongs to a creator and a phantom', function () {
         ->and($expedition->phantom->id)->toBe($phantom->id);
 });
 
-test('expedition can have many participants', function () {
+test('expedition can have many participants', function (): void {
     $expedition = Expedition::factory()->create();
     $users = User::factory()->count(5)->create();
-    
+
     $expedition->participants()->attach($users);
 
     expect($expedition->participants)->toHaveCount(5);

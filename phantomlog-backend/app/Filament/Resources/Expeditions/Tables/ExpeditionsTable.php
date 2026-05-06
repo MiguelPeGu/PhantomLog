@@ -1,15 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Expeditions\Tables;
 
+use App\Filament\Resources\Expeditions\ExpeditionResource;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use App\Filament\Resources\Expeditions\ExpeditionResource;
 use Filament\Tables\Table;
 
-class ExpeditionsTable
+final class ExpeditionsTable
 {
     public static function configure(Table $table): Table
     {
@@ -34,11 +38,11 @@ class ExpeditionsTable
             ->filters([
                 //
             ])
-            ->recordUrl(fn ($record) => ExpeditionResource::getUrl('view', ['record' => $record]))
+            ->recordUrl(fn ($record): string => ExpeditionResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                \Filament\Actions\ViewAction::make()->label('Ver'),
-                \Filament\Actions\EditAction::make()->label('Editar'),
-                \Filament\Actions\DeleteAction::make()->label('Borrar'),
+                ViewAction::make()->label('Ver'),
+                EditAction::make()->label('Editar'),
+                DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

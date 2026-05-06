@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\InvoiceDetails;
 
 use App\Filament\Resources\InvoiceDetails\Pages\CreateInvoiceDetail;
 use App\Filament\Resources\InvoiceDetails\Pages\EditInvoiceDetail;
 use App\Filament\Resources\InvoiceDetails\Pages\ListInvoiceDetails;
+use App\Filament\Resources\InvoiceDetails\Pages\ViewInvoiceDetail;
 use App\Filament\Resources\InvoiceDetails\Schemas\InvoiceDetailForm;
 use App\Filament\Resources\InvoiceDetails\Schemas\InvoiceDetailInfolist;
 use App\Filament\Resources\InvoiceDetails\Tables\InvoiceDetailsTable;
@@ -14,15 +17,20 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Override;
 
-class InvoiceDetailResource extends Resource
+final class InvoiceDetailResource extends Resource
 {
+    #[Override]
     protected static ?string $model = InvoiceDetail::class;
 
+    #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;
 
+    #[Override]
     protected static bool $shouldRegisterNavigation = false;
 
+    #[Override]
     protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema
@@ -52,7 +60,7 @@ class InvoiceDetailResource extends Resource
         return [
             'index' => ListInvoiceDetails::route('/'),
             'create' => CreateInvoiceDetail::route('/create'),
-            'view' => Pages\ViewInvoiceDetail::route('/{record}'),
+            'view' => ViewInvoiceDetail::route('/{record}'),
             'edit' => EditInvoiceDetail::route('/{record}/edit'),
         ];
     }

@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Invoices;
 
 use App\Filament\Resources\Invoices\Pages\CreateInvoice;
 use App\Filament\Resources\Invoices\Pages\EditInvoice;
 use App\Filament\Resources\Invoices\Pages\ListInvoices;
+use App\Filament\Resources\Invoices\Pages\ViewInvoice;
+use App\Filament\Resources\Invoices\RelationManagers\InvoiceDetailsRelationManager;
 use App\Filament\Resources\Invoices\Schemas\InvoiceForm;
 use App\Filament\Resources\Invoices\Schemas\InvoiceInfolist;
 use App\Filament\Resources\Invoices\Tables\InvoicesTable;
@@ -14,17 +18,23 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Override;
 
-class InvoiceResource extends Resource
+final class InvoiceResource extends Resource
 {
+    #[Override]
     protected static ?string $model = Invoice::class;
 
+    #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedReceiptRefund;
 
+    #[Override]
     protected static ?string $recordTitleAttribute = 'n_invoice';
 
+    #[Override]
     protected static ?string $modelLabel = 'Factura';
 
+    #[Override]
     protected static ?string $pluralModelLabel = 'Facturas';
 
     public static function form(Schema $schema): Schema
@@ -45,7 +55,7 @@ class InvoiceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\InvoiceDetailsRelationManager::class,
+            InvoiceDetailsRelationManager::class,
         ];
     }
 
@@ -54,7 +64,7 @@ class InvoiceResource extends Resource
         return [
             'index' => ListInvoices::route('/'),
             'create' => CreateInvoice::route('/create'),
-            'view' => Pages\ViewInvoice::route('/{record}'),
+            'view' => ViewInvoice::route('/{record}'),
             'edit' => EditInvoice::route('/{record}/edit'),
         ];
     }

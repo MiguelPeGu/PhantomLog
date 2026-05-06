@@ -1,30 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Forums;
 
 use App\Filament\Resources\Forums\Pages\CreateForum;
 use App\Filament\Resources\Forums\Pages\EditForum;
 use App\Filament\Resources\Forums\Pages\ListForums;
+use App\Filament\Resources\Forums\Pages\ViewForum;
+use App\Filament\Resources\Forums\RelationManagers\ReportsRelationManager;
 use App\Filament\Resources\Forums\Schemas\ForumForm;
-use App\Filament\Resources\Forums\Tables\ForumsTable;
 use App\Filament\Resources\Forums\Schemas\ForumInfolist;
+use App\Filament\Resources\Forums\Tables\ForumsTable;
 use App\Models\Forum;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Override;
 
-class ForumResource extends Resource
+final class ForumResource extends Resource
 {
+    #[Override]
     protected static ?string $model = Forum::class;
 
+    #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
+    #[Override]
     protected static ?string $recordTitleAttribute = 'title';
 
+    #[Override]
     protected static ?string $modelLabel = 'Foro';
 
+    #[Override]
     protected static ?string $pluralModelLabel = 'Foros';
 
     public static function form(Schema $schema): Schema
@@ -45,7 +55,7 @@ class ForumResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ReportsRelationManager::class,
+            ReportsRelationManager::class,
         ];
     }
 
@@ -54,7 +64,7 @@ class ForumResource extends Resource
         return [
             'index' => ListForums::route('/'),
             'create' => CreateForum::route('/create'),
-            'view' => Pages\ViewForum::route('/{record}'),
+            'view' => ViewForum::route('/{record}'),
             'edit' => EditForum::route('/{record}/edit'),
         ];
     }

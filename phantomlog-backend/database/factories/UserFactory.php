@@ -22,7 +22,7 @@ final class UserFactory extends Factory
     {
         return [
             'id' => (string) Str::uuid(),
-            'dni' => $this->faker->unique()->regexify('[0-9]{8}[A-Z]'),
+            'dni' => $this->faker->unique()->regexify('\d{8}[A-Z]'),
             'username' => $this->faker->unique()->userName(),
             'img' => 'https://api.dicebear.com/9.x/lorelei/svg?seed='.$this->faker->firstName(),
             'firstname' => $this->faker->firstName(),
@@ -31,7 +31,7 @@ final class UserFactory extends Factory
             'postalCode' => $this->faker->postcode(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => bcrypt('password'), 
+            'password' => bcrypt('password'),
             'remember_token' => Str::random(10),
         ];
     }

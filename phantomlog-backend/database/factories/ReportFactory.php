@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\Forum;
+use App\Models\Report;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use App\Models\Report;
-use App\Models\Forum;
-use App\Models\User;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Report>
+ * @extends Factory<Report>
  */
-class ReportFactory extends Factory
+final class ReportFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -32,11 +34,11 @@ class ReportFactory extends Factory
 
         return [
             'id' => (string) Str::uuid(),
-            'forum_id' => Forum::inRandomOrder()->first()?->id ?? Forum::factory(),
-            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'forum_id' => Forum::query()->inRandomOrder()->first()?->id ?? Forum::factory(),
+            'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
             'title' => $finding['title'],
             'description' => $finding['desc'],
-            'image' => "images/reports/{$finding['img']}",
+            'image' => 'images/reports/'.$finding['img'],
             'score' => $this->faker->numberBetween(-10, 50),
         ];
     }

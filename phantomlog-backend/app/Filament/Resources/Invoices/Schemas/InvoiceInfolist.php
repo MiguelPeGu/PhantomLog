@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Invoices\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
-class InvoiceInfolist
+final class InvoiceInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -15,7 +18,7 @@ class InvoiceInfolist
             ->components([
                 Tabs::make('Detalles de la Factura')
                     ->tabs([
-                        Tabs\Tab::make('Facturación')
+                        Tab::make('Facturación')
                             ->icon('heroicon-o-receipt-refund')
                             ->schema([
                                 Section::make('Datos del Cliente')

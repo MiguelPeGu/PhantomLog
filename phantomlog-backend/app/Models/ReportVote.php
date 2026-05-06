@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Override;
 
 /**
  * @property-read int $id
@@ -14,28 +17,17 @@ use Carbon\CarbonInterface;
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
-class ReportVote extends Model
+final class ReportVote extends Model
 {
+    use HasFactory;
+    use HasFactory;
+
+    #[Override]
     protected $fillable = [
         'report_id',
         'user_id',
         'value',
     ];
-
-    protected static function booted()
-    {
-        static::created(function ($vote) {
-            $vote->report->updateScore();
-        });
-
-        static::updated(function ($vote) {
-            $vote->report->updateScore();
-        });
-
-        static::deleted(function ($vote) {
-            $vote->report->updateScore();
-        });
-    }
 
     public function report()
     {
@@ -45,5 +37,20 @@ class ReportVote extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected static function booted()
+    {
+        self::created(function ($vote): void {
+            $vote->report->updateScore();
+        });
+
+        self::updated(function ($vote): void {
+            $vote->report->updateScore();
+        });
+
+        self::deleted(function ($vote): void {
+            $vote->report->updateScore();
+        });
     }
 }

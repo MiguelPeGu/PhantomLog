@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use Database\Factories\InvoiceFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\InvoiceDetail;
-
-use Carbon\CarbonInterface;
+use Override;
 
 /**
  * @property-read string $id
@@ -29,7 +28,7 @@ use Carbon\CarbonInterface;
  */
 final class Invoice extends Model
 {
-    /** @use HasFactory<\Database\Factories\InvoiceFactory> */
+    /** @use HasFactory<InvoiceFactory> */
     use HasFactory;
 
     use HasUuids;
@@ -37,6 +36,7 @@ final class Invoice extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'n_invoice',
         'user_id',
@@ -48,14 +48,10 @@ final class Invoice extends Model
         'tax',
         'total',
         'payment_method',
-        ];
+    ];
 
+    #[Override]
     protected $appends = ['subtotal'];
-
-    public function getSubtotalAttribute()
-    {
-        return $this->total / (1 + ($this->tax / 100));
-    }
 
     /**
      * @return array<string, string>
@@ -76,6 +72,7 @@ final class Invoice extends Model
             'updated_at' => 'datetime',
         ];
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -84,5 +81,10 @@ final class Invoice extends Model
     public function details()
     {
         return $this->hasMany(InvoiceDetail::class);
+    }
+
+    protected function getSubtotalAttribute(): int|float
+    {
+        return $this->total / (1 + ($this->tax / 100));
     }
 }

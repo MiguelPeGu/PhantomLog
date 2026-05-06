@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BootstrapController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ExpeditionController;
 use App\Http\Controllers\Api\ForumController;
@@ -9,32 +12,31 @@ use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\PhantomController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReportController;
-use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ReportVoteController;
 use Illuminate\Support\Facades\Route;
 
 // Públicas
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login',    [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']);
 
 // Protegidas
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user',    [AuthController::class, 'me']);
-    Route::put('/user',    [AuthController::class, 'update']);
+    Route::get('/user', [AuthController::class, 'me']);
+    Route::put('/user', [AuthController::class, 'update']);
 
     // Bootstrap: carga todos los datos iniciales en 1 sola petición
     Route::get('/bootstrap', [BootstrapController::class, 'index']);
 
-    Route::apiResource('forums',           ForumController::class);
-    Route::apiResource('forums.reports',   ReportController::class);
+    Route::apiResource('forums', ForumController::class);
+    Route::apiResource('forums.reports', ReportController::class);
     Route::apiResource('reports.comments', CommentController::class);
-    Route::apiResource('expeditions',      ExpeditionController::class);
-    Route::apiResource('phantoms',         PhantomController::class);
-    Route::apiResource('products',         ProductController::class);
-    Route::apiResource('invoices',         InvoiceController::class)->only(['index', 'store', 'show']);
+    Route::apiResource('expeditions', ExpeditionController::class);
+    Route::apiResource('phantoms', PhantomController::class);
+    Route::apiResource('products', ProductController::class);
+    Route::apiResource('invoices', InvoiceController::class)->only(['index', 'store', 'show']);
 
-    Route::prefix('cart')->group(function () {
+    Route::prefix('cart')->group(function (): void {
         Route::get('/', [CartController::class, 'index']);
         Route::post('/add/{product}', [CartController::class, 'add']);
         Route::post('/subtract/{product}', [CartController::class, 'subtract']);
@@ -43,8 +45,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Extras
-    Route::post('forums/{forum}/follow',           [ForumController::class,     'toggleFollow']);
-    Route::post('expeditions/{expedition}/join',   [ExpeditionController::class, 'toggleJoin']);
-    Route::post('reports/{report}/vote',           [ReportVoteController::class, 'vote']);
-    Route::get('reports/{report}/vote',            [ReportVoteController::class, 'getVote']);
+    Route::post('forums/{forum}/follow', [ForumController::class,     'toggleFollow']);
+    Route::post('expeditions/{expedition}/join', [ExpeditionController::class, 'toggleJoin']);
+    Route::post('reports/{report}/vote', [ReportVoteController::class, 'vote']);
+    Route::get('reports/{report}/vote', [ReportVoteController::class, 'getVote']);
 });

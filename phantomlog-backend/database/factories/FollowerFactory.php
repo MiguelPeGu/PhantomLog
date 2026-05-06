@@ -1,16 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\Forum;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use App\Models\User;
-use App\Models\Forum;
+
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Follower>
+ * @extends Factory<\App\Models\Follower>
  */
-class FollowerFactory extends Factory
-{   
+final class FollowerFactory extends Factory
+{
     /**
      * Define the model's default state.
      *
@@ -20,8 +23,8 @@ class FollowerFactory extends Factory
     {
         return [
             'id' => (string) Str::uuid(),
-            'user_id' => User::first()?->id ?? User::factory(),
-            'forum_id' => Forum::first()?->id ?? Forum::factory(),
+            'user_id' => User::query()->first()?->id ?? User::factory(),
+            'forum_id' => Forum::query()->first()?->id ?? Forum::factory(),
         ];
     }
 }

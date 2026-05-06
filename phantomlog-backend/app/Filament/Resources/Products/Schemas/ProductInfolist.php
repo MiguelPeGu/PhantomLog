@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Products\Schemas;
 
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
-class ProductInfolist
+final class ProductInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -16,7 +19,7 @@ class ProductInfolist
             ->components([
                 Tabs::make('Detalles del Producto')
                     ->tabs([
-                        Tabs\Tab::make('General')
+                        Tab::make('General')
                             ->icon('heroicon-o-shopping-bag')
                             ->schema([
                                 Section::make('Información del Producto')
@@ -28,7 +31,7 @@ class ProductInfolist
                                         TextEntry::make('description')->label('Descripción')->columnSpanFull(),
                                     ])->columns(2),
                             ]),
-                        Tabs\Tab::make('Precio y Stock')
+                        Tab::make('Precio y Stock')
                             ->icon('heroicon-o-currency-euro')
                             ->schema([
                                 Section::make('Valores')
@@ -38,7 +41,7 @@ class ProductInfolist
                                         TextEntry::make('stock')->label('Stock Disponible')->badge(),
                                     ])->columns(3),
                             ]),
-                        Tabs\Tab::make('Multimedia')
+                        Tab::make('Multimedia')
                             ->icon('heroicon-o-photo')
                             ->schema([
                                 Section::make('Imagen del Producto')

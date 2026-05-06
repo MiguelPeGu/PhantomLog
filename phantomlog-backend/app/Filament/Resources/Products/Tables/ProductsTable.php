@@ -1,16 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Filament\Resources\Products\ProductResource;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use App\Filament\Resources\Products\ProductResource;
 use Filament\Tables\Table;
 
-class ProductsTable
+final class ProductsTable
 {
     public static function configure(Table $table): Table
     {
@@ -38,11 +42,11 @@ class ProductsTable
             ->filters([
                 //
             ])
-            ->recordUrl(fn ($record) => ProductResource::getUrl('view', ['record' => $record]))
+            ->recordUrl(fn ($record): string => ProductResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                \Filament\Actions\ViewAction::make()->label('Ver'),
-                \Filament\Actions\EditAction::make()->label('Editar'),
-                \Filament\Actions\DeleteAction::make()->label('Borrar'),
+                ViewAction::make()->label('Ver'),
+                EditAction::make()->label('Editar'),
+                DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

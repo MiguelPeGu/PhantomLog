@@ -1,15 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Invoices\Tables;
 
+use App\Filament\Resources\Invoices\InvoiceResource;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use App\Filament\Resources\Invoices\InvoiceResource;
 use Filament\Tables\Table;
 
-class InvoicesTable
+final class InvoicesTable
 {
     public static function configure(Table $table): Table
     {
@@ -37,11 +41,11 @@ class InvoicesTable
             ->filters([
                 //
             ])
-            ->recordUrl(fn ($record) => InvoiceResource::getUrl('view', ['record' => $record]))
+            ->recordUrl(fn ($record): string => InvoiceResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                \Filament\Actions\ViewAction::make()->label('Ver'),
-                \Filament\Actions\EditAction::make()->label('Editar'),
-                \Filament\Actions\DeleteAction::make()->label('Borrar'),
+                ViewAction::make()->label('Ver'),
+                EditAction::make()->label('Editar'),
+                DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

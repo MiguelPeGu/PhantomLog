@@ -1,31 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use Database\Factories\CommentFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use App\Models\User;
-use App\Models\Report;
-use Carbon\CarbonInterface;
+use Override;
+
 /**
  * @property-read string $id
  * @property-read string $report_id
  * @property-read string $user_id
  * @property-read string $content
- * @property-read integer $score
+ * @property-read int $score
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
-class Comment extends Model
+final class Comment extends Model
 {
-    /** @use HasFactory<\Database\Factories\CommentFactory> */
+    /** @use HasFactory<CommentFactory> */
     use HasFactory;
+
     use HasUuids;
 
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'report_id',
         'user_id',
@@ -49,7 +54,8 @@ class Comment extends Model
             'updated_at' => 'datetime',
         ];
     }
-     public function user()
+
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
@@ -59,4 +65,3 @@ class Comment extends Model
         return $this->belongsTo(Report::class);
     }
 }
-

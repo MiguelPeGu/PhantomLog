@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Models\ReportVote;
 use App\Models\Report;
+use App\Models\ReportVote;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('report vote has all required fields filled', function () {
+test('report vote has all required fields filled', function (): void {
     $vote = ReportVote::factory()->create();
 
     expect($vote->id)->not->toBeNull()
@@ -18,7 +18,7 @@ test('report vote has all required fields filled', function () {
         ->and(in_array($vote->type, ['upvote', 'downvote']))->toBeTrue();
 });
 
-test('report vote belongs to a report and a user', function () {
+test('report vote belongs to a report and a user', function (): void {
     $vote = ReportVote::factory()->create();
 
     expect($vote->report)->toBeInstanceOf(Report::class)

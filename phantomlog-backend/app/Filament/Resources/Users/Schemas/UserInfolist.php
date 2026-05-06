@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Users\Schemas;
 
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
-class UserInfolist
+final class UserInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -16,7 +19,7 @@ class UserInfolist
             ->components([
                 Tabs::make('Detalles del Usuario')
                     ->tabs([
-                        Tabs\Tab::make('Perfil')
+                        Tab::make('Perfil')
                             ->icon('heroicon-o-user')
                             ->schema([
                                 Section::make('Información Básica')
@@ -32,7 +35,7 @@ class UserInfolist
                                         ImageEntry::make('img')->label(false)->circular(),
                                     ]),
                             ]),
-                        Tabs\Tab::make('Contacto')
+                        Tab::make('Contacto')
                             ->icon('heroicon-o-envelope')
                             ->schema([
                                 Section::make('Datos de Contacto')
@@ -42,7 +45,7 @@ class UserInfolist
                                         TextEntry::make('postalCode')->label('Código Postal'),
                                     ])->columns(2),
                             ]),
-                        Tabs\Tab::make('Sistema')
+                        Tab::make('Sistema')
                             ->icon('heroicon-o-cog')
                             ->schema([
                                 Section::make('Metadatos')

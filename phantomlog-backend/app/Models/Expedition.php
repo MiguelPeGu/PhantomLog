@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use Database\Factories\ExpeditionFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-use Carbon\CarbonInterface;
+use Override;
 
 /**
  * @property-read string $id
@@ -23,7 +24,7 @@ use Carbon\CarbonInterface;
  */
 final class Expedition extends Model
 {
-    /** @use HasFactory<\Database\Factories\ExpeditionFactory> */
+    /** @use HasFactory<ExpeditionFactory> */
     use HasFactory;
 
     use HasUuids;
@@ -31,6 +32,7 @@ final class Expedition extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'user_id',
         'phantom_id',

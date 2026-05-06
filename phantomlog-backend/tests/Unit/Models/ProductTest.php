@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('product has required attributes', function () {
+test('product has required attributes', function (): void {
     $product = Product::factory()->create([
         'sku' => 'TEST-SKU-001',
         'title' => 'Cámara Térmica PRO',
@@ -18,10 +18,10 @@ test('product has required attributes', function () {
     expect($product->sku)->toBe('TEST-SKU-001')
         ->and($product->title)->toBe('Cámara Térmica PRO')
         ->and($product->category)->toBe('EQUIPMENT')
-        ->and((float)$product->price)->toBe(299.99);
+        ->and((float) $product->price)->toBe(299.99);
 });
 
-test('product calculates totals with tax', function () {
+test('product calculates totals with tax', function (): void {
     $product = Product::factory()->create([
         'price' => 100.00,
         'tax' => 21,
@@ -29,12 +29,12 @@ test('product calculates totals with tax', function () {
 
     // Note: If you have a method like getPriceWithTaxAttribute or similar, test it here.
     // For now we check basic fields.
-    expect((int)$product->tax)->toBe(21);
+    expect((int) $product->tax)->toBe(21);
 });
 
-test('product uuid is generated automatically', function () {
+test('product uuid is generated automatically', function (): void {
     $product = Product::factory()->create();
-    
+
     expect($product->id)->not->toBeNull()
-        ->and(strlen($product->id))->toBe(36);
+        ->and(mb_strlen($product->id))->toBe(36);
 });

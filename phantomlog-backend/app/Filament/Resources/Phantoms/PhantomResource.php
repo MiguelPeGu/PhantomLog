@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Phantoms;
 
 use App\Filament\Resources\Phantoms\Pages\CreatePhantom;
 use App\Filament\Resources\Phantoms\Pages\EditPhantom;
 use App\Filament\Resources\Phantoms\Pages\ListPhantoms;
+use App\Filament\Resources\Phantoms\Pages\ViewPhantom;
 use App\Filament\Resources\Phantoms\Schemas\PhantomForm;
 use App\Filament\Resources\Phantoms\Schemas\PhantomInfolist;
 use App\Filament\Resources\Phantoms\Tables\PhantomsTable;
@@ -14,17 +17,23 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Override;
 
-class PhantomResource extends Resource
+final class PhantomResource extends Resource
 {
+    #[Override]
     protected static ?string $model = Phantom::class;
 
+    #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
 
+    #[Override]
     protected static ?string $recordTitleAttribute = 'name';
 
+    #[Override]
     protected static ?string $modelLabel = 'Fantasma';
 
+    #[Override]
     protected static ?string $pluralModelLabel = 'Fantasmas';
 
     public static function form(Schema $schema): Schema
@@ -54,7 +63,7 @@ class PhantomResource extends Resource
         return [
             'index' => ListPhantoms::route('/'),
             'create' => CreatePhantom::route('/create'),
-            'view' => Pages\ViewPhantom::route('/{record}'),
+            'view' => ViewPhantom::route('/{record}'),
             'edit' => EditPhantom::route('/{record}/edit'),
         ];
     }

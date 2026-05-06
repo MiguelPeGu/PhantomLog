@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Forums\Schemas;
 
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 final class ForumForm
@@ -14,7 +16,7 @@ final class ForumForm
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Detalles del Expediente')
+                Section::make('Detalles del Expediente')
                     ->schema([
                         TextInput::make('title')
                             ->label('Título del Foro')
@@ -27,7 +29,7 @@ final class ForumForm
                                 'min' => 'Mínimo 10 caracteres.',
                             ])
                             ->disabledon('edit'),
-                        \Filament\Forms\Components\Textarea::make('description')
+                        Textarea::make('description')
                             ->label('Descripción de la Temática')
                             ->required()
                             ->minLength(20)
@@ -37,12 +39,12 @@ final class ForumForm
                             ])
                             ->disabledon('edit'),
                     ]),
-                \Filament\Schemas\Components\Section::make('Investigador Principal')
+                Section::make('Investigador Principal')
                     ->schema([
                         Select::make('user_id')
                             ->label('Creador del Hilo')
                             ->relationship('user', 'username')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
+                            ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
                             ->searchable(['firstname', 'lastname', 'username'])
                             ->preload()
                             ->required()

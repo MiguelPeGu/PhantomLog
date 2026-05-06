@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Report;
 use App\Models\Comment;
+use App\Models\Report;
 use Illuminate\Http\Request;
 
-class CommentController extends Controller
+final class CommentController extends Controller
 {
     public function index(Report $report)
     {
@@ -26,12 +28,12 @@ class CommentController extends Controller
             'content.regex' => 'El comentario contiene símbolos no permitidos.',
         ]);
 
-        $data['content'] = trim(strip_tags($data['content']));
+        $data['content'] = mb_trim(strip_tags((string) $data['content']));
 
         $comment = $report->comments()->create([
             'content' => $data['content'],
             'user_id' => $request->user()->id,
-            'score'   => 0,
+            'score' => 0,
         ]);
 
         return response()->json($comment->load('user'), 201);
@@ -49,7 +51,7 @@ class CommentController extends Controller
         }
 
         $data = $request->validate([
-            'content' => 'required|string',
+            'content' => ['required', 'string'],
         ]);
 
         $comment->update($data);

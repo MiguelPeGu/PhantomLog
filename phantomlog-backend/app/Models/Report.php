@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonInterface;
+use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Forum;
-use App\Models\Comment;
+use Override;
 
 /**
  * @property-read string $id
@@ -27,7 +26,7 @@ use App\Models\Comment;
  */
 final class Report extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
+    /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
     use HasUuids;
@@ -35,6 +34,7 @@ final class Report extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'forum_id',
         'user_id',
@@ -43,6 +43,9 @@ final class Report extends Model
         'image',
         'score',
     ];
+
+    #[Override]
+    protected $appends = ['votes_count', 'image_url'];
 
     /**
      * @return array<string, string>
@@ -77,37 +80,41 @@ final class Report extends Model
         return $this->hasMany(ReportVote::class);
     }
 
-    protected static function booted()
+    public function comments()
     {
-        static::created(function ($report) {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function updateScore(): void
+    {
+        $this->score = $this->votes()->sum('value');
+        $this->save();
+    }
+
+    protected static function booted(): void
+    {
+        self::created(function ($report): void {
             // Initial score is 0
         });
 
         // We use saved/deleted on the ReportVote model to update the Report score
     }
 
-    public function comments()
-    {
-        return $this->hasMany(Comment::class);
-    }
-
-    public function updateScore()
-    {
-        $this->score = $this->votes()->sum('value');
-        $this->save();
-    }
-
-    protected $appends = ['votes_count', 'image_url'];
-
-    public function getVotesCountAttribute()
+    protected function getVotesCountAttribute()
     {
         return $this->votes()->count();
     }
 
-    public function getImageUrlAttribute()
+    protected function getImageUrlAttribute(): ?string
     {
-        if (!$this->image) return null;
-        if (str_starts_with($this->image, 'http')) return $this->image;
-        return asset('storage/' . $this->image);
+        if (! $this->image) {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+
+        return asset('storage/'.$this->image);
     }
 }

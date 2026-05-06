@@ -1,29 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Expedition;
 use Illuminate\Http\Request;
 
-class ExpeditionController extends Controller
+final class ExpeditionController extends Controller
 {
     public function index(Request $request)
     {
         // Columnas específicas para reducir el payload — las tarjetas no necesitan description completa
-        $query = Expedition::select('id','user_id','phantom_id','name','location','date','created_at')
+        $query = Expedition::query()->select('id', 'user_id', 'phantom_id', 'name', 'location', 'date', 'created_at')
             ->with(['creator:id,username,img', 'phantom:id,name,type'])
             ->withCount('participants')
             ->latest();
 
         if ($request->filled('search')) {
             $s = $request->search;
-            $query->where(function($q) use ($s) {
-                $q->where('name', 'like', "%$s%")
-                  ->orWhere('location', 'like', "%$s%")
-                  ->orWhereHas('phantom', function($pq) use ($s) {
-                      $pq->where('name', 'like', "%$s%");
-                  });
+            $query->where(function ($q) use ($s): void {
+                $q->where('name', 'like', sprintf('%%%s%%', $s))
+                    ->orWhere('location', 'like', sprintf('%%%s%%', $s))
+                    ->orWhereHas('phantom', function ($pq) use ($s): void {
+                        $pq->where('name', 'like', sprintf('%%%s%%', $s));
+                    });
             });
         }
 
@@ -37,11 +39,11 @@ class ExpeditionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'phantom_id'  => 'required|uuid|exists:phantoms,id',
-            'name'        => ['required', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
-            'description' => 'required|string|min:100|max:2000',
-            'location'    => ['required', 'string', 'max:40', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
-            'date'        => 'required|date|after:now',
+            'phantom_id' => ['required', 'uuid', 'exists:phantoms,id'],
+            'name' => ['required', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
+            'description' => ['required', 'string', 'min:100', 'max:2000'],
+            'location' => ['required', 'string', 'max:40', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
+            'date' => ['required', 'date', 'after:now'],
         ], [
             'phantom_id.required' => 'Debes seleccionar una entidad objetivo válida.',
             'name.required' => 'El nombre de la misión es obligatorio.',
@@ -59,7 +61,7 @@ class ExpeditionController extends Controller
         // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value)) {
-                $data[$key] = trim(strip_tags($value));
+                $data[$key] = mb_trim(strip_tags($value));
             }
         }
 
@@ -83,11 +85,11 @@ class ExpeditionController extends Controller
         }
 
         $data = $request->validate([
-            'phantom_id'  => 'sometimes|uuid|exists:phantoms,id',
-            'name'        => ['sometimes', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
-            'description' => 'sometimes|string|min:100|max:2000',
-            'location'    => ['sometimes', 'string', 'max:40', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
-            'date'        => 'sometimes|date|after:now',
+            'phantom_id' => ['sometimes', 'uuid', 'exists:phantoms,id'],
+            'name' => ['sometimes', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
+            'description' => ['sometimes', 'string', 'min:100', 'max:2000'],
+            'location' => ['sometimes', 'string', 'max:40', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
+            'date' => ['sometimes', 'date', 'after:now'],
         ], [
             'name.regex' => 'El nombre contiene caracteres no permitidos.',
             'description.min' => 'Los objetivos deben ser más detallados (mínimo 100 caracteres).',
@@ -97,7 +99,7 @@ class ExpeditionController extends Controller
 
         foreach ($data as $key => $value) {
             if (is_string($value)) {
-                $data[$key] = trim(strip_tags($value));
+                $data[$key] = mb_trim(strip_tags($value));
             }
         }
 
@@ -128,7 +130,7 @@ class ExpeditionController extends Controller
 
         return response()->json([
             'message' => 'Ok',
-            'is_joined' => $request->user()->joinedExpeditions()->where('expedition_id', $expedition->id)->exists()
+            'is_joined' => $request->user()->joinedExpeditions()->where('expedition_id', $expedition->id)->exists(),
         ]);
     }
 }

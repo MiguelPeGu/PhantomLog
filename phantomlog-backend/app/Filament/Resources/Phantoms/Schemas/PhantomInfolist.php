@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Phantoms\Schemas;
 
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
-class PhantomInfolist
+final class PhantomInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -16,7 +19,7 @@ class PhantomInfolist
             ->components([
                 Tabs::make('Detalles del Fantasma')
                     ->tabs([
-                        Tabs\Tab::make('General')
+                        Tab::make('General')
                             ->icon('heroicon-o-sparkles')
                             ->schema([
                                 Section::make('Identidad')
@@ -27,7 +30,7 @@ class PhantomInfolist
                                         TextEntry::make('description')->label('Descripción')->columnSpanFull(),
                                     ])->columns(3),
                             ]),
-                        Tabs\Tab::make('Investigación')
+                        Tab::make('Investigación')
                             ->icon('heroicon-o-beaker')
                             ->schema([
                                 Section::make('Datos Técnicos')
@@ -37,7 +40,7 @@ class PhantomInfolist
                                         TextEntry::make('weaknesses')->label('Debilidades Detectadas'),
                                     ]),
                             ]),
-                        Tabs\Tab::make('Multimedia')
+                        Tab::make('Multimedia')
                             ->icon('heroicon-o-photo')
                             ->schema([
                                 Section::make('Evidencia Visual')

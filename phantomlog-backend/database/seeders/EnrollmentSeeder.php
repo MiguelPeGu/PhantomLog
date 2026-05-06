@@ -1,20 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Expedition;
 use App\Models\User;
-use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
 
-class EnrollmentSeeder extends Seeder
+final class EnrollmentSeeder extends Seeder
 {
     public function run(): void
     {
-        $users       = User::all();
+        $users = User::all();
         $expeditions = Expedition::all();
- 
+
         $pairs = [
             [$users[1], $expeditions[0]],
             [$users[2], $expeditions[0]],
@@ -27,10 +27,9 @@ class EnrollmentSeeder extends Seeder
             [$users[0], $expeditions[4]],
             [$users[3], $expeditions[4]],
         ];
- 
+
         foreach ($pairs as [$user, $expedition]) {
             $user->joinedExpeditions()->attach($expedition->id);
         }
     }
 }
- 

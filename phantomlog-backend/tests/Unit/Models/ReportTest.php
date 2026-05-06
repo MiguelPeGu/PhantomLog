@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Models\Report;
 use App\Models\Forum;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('report has all required fields filled', function () {
+test('report has all required fields filled', function (): void {
     $report = Report::factory()->create();
 
     expect($report->id)->not->toBeNull()
@@ -20,7 +20,7 @@ test('report has all required fields filled', function () {
         ->and($report->score)->toBeGreaterThanOrEqual(0);
 });
 
-test('report belongs to a forum and a user', function () {
+test('report belongs to a forum and a user', function (): void {
     $report = Report::factory()->create();
 
     expect($report->forum)->toBeInstanceOf(Forum::class)

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\Forum;
@@ -7,13 +9,12 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-class FollowerSeeder extends Seeder
+final class FollowerSeeder extends Seeder
 {
     public function run(): void
     {
-        $users  = User::all();
+        $users = User::all();
         $forums = Forum::all();
-
 
         $pairs = [
             [$users[0], $forums[1]],

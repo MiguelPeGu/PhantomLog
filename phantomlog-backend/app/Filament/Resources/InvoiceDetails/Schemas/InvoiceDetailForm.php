@@ -16,8 +16,8 @@ final class InvoiceDetailForm
     public static function configure(Schema $schema): Schema
     {
         $recalculate = static function (Set $set, Get $get, ?float $price = null, ?int $tax = null): void {
-            $price = $price ?? (float) $get('price');
-            $tax = $tax ?? (int) $get('tax');
+            $price ??= (float) $get('price');
+            $tax ??= (int) $get('tax');
             $quantity = (int) $get('quantity');
 
             if (! $price || ! $quantity) {
@@ -35,7 +35,7 @@ final class InvoiceDetailForm
             ->components([
                 Select::make('invoice_id')
                     ->relationship('invoice', 'id')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "#{$record->id} - {$record->created_at?->format('d/m/Y H:i:s')}")
+                    ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('#%s - %s', $record->id, $record->created_at?->format('d/m/Y H:i:s')))
                     ->searchable(['id'])
                     ->preload()
                     ->required()
@@ -47,18 +47,18 @@ final class InvoiceDetailForm
                         name: 'product',
                         titleAttribute: 'sku',
                     )
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->sku} - {$record->title}")
+                    ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('%s - %s', $record->sku, $record->title))
                     ->searchable(['sku', 'title'])
                     ->preload()
                     ->required()
                     ->disabledOn('edit')
                     ->live()
-                    ->afterStateUpdated(static function (?string $state, Set $set, Get $get) use ($recalculate) {
+                    ->afterStateUpdated(static function (?string $state, Set $set, Get $get) use ($recalculate): void {
                         if (! $state) {
                             return;
                         }
 
-                        $product = Product::find($state);
+                        $product = Product::query()->find($state);
                         if (! $product) {
                             return;
                         }
@@ -91,7 +91,7 @@ final class InvoiceDetailForm
                     ->required()
                     ->numeric()
                     ->live()
-                    ->afterStateUpdated(static function (?string $state, Set $set, Get $get) use ($recalculate) {
+                    ->afterStateUpdated(static function (?string $state, Set $set, Get $get) use ($recalculate): void {
                         $recalculate($set, $get);
                     }),
                 TextInput::make('total')

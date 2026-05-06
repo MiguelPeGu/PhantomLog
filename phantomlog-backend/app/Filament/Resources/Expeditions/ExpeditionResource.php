@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Expeditions;
 
 use App\Filament\Resources\Expeditions\Pages\CreateExpedition;
 use App\Filament\Resources\Expeditions\Pages\EditExpedition;
 use App\Filament\Resources\Expeditions\Pages\ListExpeditions;
+use App\Filament\Resources\Expeditions\Pages\ViewExpedition;
 use App\Filament\Resources\Expeditions\Schemas\ExpeditionForm;
 use App\Filament\Resources\Expeditions\Schemas\ExpeditionInfolist;
 use App\Filament\Resources\Expeditions\Tables\ExpeditionsTable;
@@ -14,17 +17,23 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Override;
 
-class ExpeditionResource extends Resource
+final class ExpeditionResource extends Resource
 {
+    #[Override]
     protected static ?string $model = Expedition::class;
 
+    #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMap;
 
+    #[Override]
     protected static ?string $recordTitleAttribute = 'name';
 
+    #[Override]
     protected static ?string $modelLabel = 'Expedición';
 
+    #[Override]
     protected static ?string $pluralModelLabel = 'Expediciones';
 
     public static function form(Schema $schema): Schema
@@ -54,7 +63,7 @@ class ExpeditionResource extends Resource
         return [
             'index' => ListExpeditions::route('/'),
             'create' => CreateExpedition::route('/create'),
-            'view' => Pages\ViewExpedition::route('/{record}'),
+            'view' => ViewExpedition::route('/{record}'),
             'edit' => EditExpedition::route('/{record}/edit'),
         ];
     }

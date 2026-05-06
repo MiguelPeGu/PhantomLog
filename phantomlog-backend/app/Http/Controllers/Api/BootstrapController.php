@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Forum;
 use App\Models\Expedition;
+use App\Models\Forum;
 use App\Models\Phantom;
 use App\Models\Product;
-use App\Models\Invoice;
 use Illuminate\Http\Request;
 
 /**
@@ -25,20 +26,20 @@ use Illuminate\Http\Request;
  *
  * Con este endpoint: 1 única petición → 1 token validation → 1 DB context.
  */
-class BootstrapController extends Controller
+final class BootstrapController extends Controller
 {
     public function index(Request $request)
     {
         $user = $request->user();
 
         // Phantoms
-        $phantoms = Phantom::select('id', 'name', 'type', 'evidence', 'location')
+        $phantoms = Phantom::query()->select('id', 'name', 'type', 'evidence', 'location')
             ->withCount('expeditions')
             ->latest()
             ->get();
 
         // Foros: paginado página 1
-        $forums = Forum::select('id', 'title', 'description', 'image', 'user_id', 'created_at', 'updated_at')
+        $forums = Forum::query()->select('id', 'title', 'description', 'image', 'user_id', 'created_at', 'updated_at')
             ->with('user:id,username,img')
             ->withCount('reports')
             ->withAvg('reports', 'score')
@@ -46,14 +47,14 @@ class BootstrapController extends Controller
             ->paginate(9);
 
         // Expediciones: paginado página 1
-        $expeditions = Expedition::select('id', 'user_id', 'phantom_id', 'name', 'location', 'date', 'created_at')
+        $expeditions = Expedition::query()->select('id', 'user_id', 'phantom_id', 'name', 'location', 'date', 'created_at')
             ->with(['creator:id,username,img', 'phantom:id,name,type'])
             ->withCount('participants')
             ->latest()
             ->paginate(9);
 
         // Productos: paginado página 1
-        $products = Product::select('id', 'title', 'price', 'stock', 'category', 'image', 'created_at')
+        $products = Product::query()->select('id', 'title', 'price', 'stock', 'category', 'image', 'created_at')
             ->withCount('invoiceDetails')
             ->latest()
             ->paginate(9);
@@ -65,11 +66,11 @@ class BootstrapController extends Controller
             ->paginate(5);
 
         return response()->json([
-            'phantoms'   => $phantoms,
-            'forums'     => $forums,
-            'expeditions'=> $expeditions,
-            'products'   => $products,
-            'invoices'   => $invoices,
+            'phantoms' => $phantoms,
+            'forums' => $forums,
+            'expeditions' => $expeditions,
+            'products' => $products,
+            'invoices' => $invoices,
         ]);
     }
 }

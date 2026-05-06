@@ -1,15 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Forums\Tables;
 
+use App\Filament\Resources\Forums\ForumResource;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use App\Filament\Resources\Forums\ForumResource;
 use Filament\Tables\Table;
 
-class ForumsTable
+final class ForumsTable
 {
     public static function configure(Table $table): Table
     {
@@ -30,11 +34,11 @@ class ForumsTable
             ->filters([
                 //
             ])
-            ->recordUrl(fn ($record) => ForumResource::getUrl('view', ['record' => $record]))
+            ->recordUrl(fn ($record): string => ForumResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                \Filament\Actions\ViewAction::make()->label('Ver'),
-                \Filament\Actions\EditAction::make()->label('Editar'),
-                \Filament\Actions\DeleteAction::make()->label('Borrar'),
+                ViewAction::make()->label('Ver'),
+                EditAction::make()->label('Editar'),
+                DeleteAction::make()->label('Borrar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\InvoiceDetail;
-
-
-use Carbon\CarbonInterface;
+use Override;
 
 /**
  * @property-read string $id
@@ -28,7 +27,7 @@ use Carbon\CarbonInterface;
  */
 final class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
+    /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
     use HasUuids;
@@ -36,6 +35,7 @@ final class Product extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'sku',
         'title',

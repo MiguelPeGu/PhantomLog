@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Comments\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\ViewAction;
 use App\Filament\Resources\Comments\CommentResource;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class CommentsTable
+final class CommentsTable
 {
     public static function configure(Table $table): Table
     {
@@ -39,10 +41,10 @@ class CommentsTable
             ->filters([
                 //
             ])
-            ->recordUrl(fn ($record) => CommentResource::getUrl('view', ['record' => $record]))
+            ->recordUrl(fn ($record): string => CommentResource::getUrl('view', ['record' => $record]))
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

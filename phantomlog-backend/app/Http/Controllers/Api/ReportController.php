@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -9,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class ReportController extends Controller
+final class ReportController extends Controller
 {
     public function index(Request $request, Forum $forum)
     {
@@ -21,9 +23,9 @@ class ReportController extends Controller
     public function store(Request $request, Forum $forum)
     {
         $data = $request->validate([
-            'title'       => ['required', 'string', 'min:5', 'max:255', 'unique:reports,title', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
-            'description' => 'required|string|max:5000',
-            'image'       => ['required', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
+            'title' => ['required', 'string', 'min:5', 'max:255', 'unique:reports,title', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
+            'description' => ['required', 'string', 'max:5000'],
+            'image' => ['required', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
         ], [
             'title.required' => 'El título de la evidencia es obligatorio.',
             'title.unique' => 'Ya existe una evidencia registrada con ese título en los archivos.',
@@ -35,22 +37,18 @@ class ReportController extends Controller
         // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value) && $key !== 'image') {
-                $data[$key] = trim(strip_tags($value));
+                $data[$key] = mb_trim(strip_tags($value));
             }
         }
 
-        if (!empty($request->image)) {
-            if (preg_match('/^data:image\/(\w+);base64,/', $request->image, $type)) {
-                $image   = substr($request->image, strpos($request->image, ',') + 1);
-                $type    = strtolower($type[1]);
-                $image   = base64_decode($image);
-                $imgName = Str::random(40) . '.' . $type;
-
-                $storagePath = 'reports/' . $imgName;
-                Storage::disk('public')->put($storagePath, $image);
-
-                $data['image'] = $storagePath;
-            }
+        if (! empty($request->image) && preg_match('/^data:image\/(\w+);base64,/', (string) $request->image, $type)) {
+            $image = mb_substr((string) $request->image, mb_strpos((string) $request->image, ',') + 1);
+            $type = mb_strtolower($type[1]);
+            $image = base64_decode($image);
+            $imgName = Str::random(40).'.'.$type;
+            $storagePath = 'reports/'.$imgName;
+            Storage::disk('public')->put($storagePath, $image);
+            $data['image'] = $storagePath;
         }
 
         if ($request->user()->id !== $forum->user_id) {
@@ -60,7 +58,7 @@ class ReportController extends Controller
         $report = $forum->reports()->create([
             ...$data,
             'user_id' => $request->user()->id,
-            'score'   => 0,
+            'score' => 0,
         ]);
 
         return response()->json($report->load('user'), 201);
@@ -80,35 +78,30 @@ class ReportController extends Controller
         }
 
         $data = $request->validate([
-            'title'       => ['sometimes', 'string', 'min:5', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
-            'description' => 'sometimes|string|max:5000',
-            'image'       => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
+            'title' => ['sometimes', 'string', 'min:5', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
+            'description' => ['sometimes', 'string', 'max:5000'],
+            'image' => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
         ]);
 
         // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value) && $key !== 'image') {
-                $data[$key] = trim(strip_tags($value));
+                $data[$key] = mb_trim(strip_tags($value));
             }
         }
 
-        if ($request->has('image') && !empty($request->image)) {
-            if (preg_match('/^data:image\/(\w+);base64,/', $request->image, $type)) {
-                // Borrar imagen vieja si existe
-                if ($report->image) {
-                    Storage::disk('public')->delete($report->image);
-                }
-
-                $image   = substr($request->image, strpos($request->image, ',') + 1);
-                $type    = strtolower($type[1]);
-                $image   = base64_decode($image);
-                $imgName = Str::random(40) . '.' . $type;
-
-                $storagePath = 'reports/' . $imgName;
-                Storage::disk('public')->put($storagePath, $image);
-
-                $data['image'] = $storagePath;
+        if ($request->has('image') && ! empty($request->image) && preg_match('/^data:image\/(\w+);base64,/', (string) $request->image, $type)) {
+            // Borrar imagen vieja si existe
+            if ($report->image) {
+                Storage::disk('public')->delete($report->image);
             }
+            $image = mb_substr((string) $request->image, mb_strpos((string) $request->image, ',') + 1);
+            $type = mb_strtolower($type[1]);
+            $image = base64_decode($image);
+            $imgName = Str::random(40).'.'.$type;
+            $storagePath = 'reports/'.$imgName;
+            Storage::disk('public')->put($storagePath, $image);
+            $data['image'] = $storagePath;
         }
 
         $report->update($data);

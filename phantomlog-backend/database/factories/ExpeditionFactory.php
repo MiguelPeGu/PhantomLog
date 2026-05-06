@@ -1,15 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\Expedition;
+use App\Models\Phantom;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use App\Models\Expedition;
-use App\Models\User;
-use App\Models\Phantom;
+use Override;
 
-class ExpeditionFactory extends Factory
+/**
+ * @extends Factory<Expedition>
+ */
+final class ExpeditionFactory extends Factory
 {
+    #[Override]
     protected $model = Expedition::class;
 
     public function definition(): array
@@ -26,8 +33,8 @@ class ExpeditionFactory extends Factory
 
         return [
             'id' => (string) Str::uuid(),
-            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(), 
-            'phantom_id' => Phantom::inRandomOrder()->first()?->id ?? Phantom::factory(), 
+            'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
+            'phantom_id' => Phantom::query()->inRandomOrder()->first()?->id ?? Phantom::factory(),
             'name' => $mission['name'],
             'description' => $mission['desc'],
             'location' => $this->faker->randomElement(['Málaga Este', 'Centro Histórico', 'Polígono Guadalhorce', 'Sierra de Mijas']),

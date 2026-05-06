@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Reports\Schemas;
 
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 final class ReportForm
@@ -14,7 +16,7 @@ final class ReportForm
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Vínculos del Hallazgo')
+                Section::make('Vínculos del Hallazgo')
                     ->schema([
                         Select::make('forum_id')
                             ->label('Foro del Expediente')
@@ -26,14 +28,14 @@ final class ReportForm
                         Select::make('user_id')
                             ->label('Investigador de Campo')
                             ->relationship('user', 'username')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
+                            ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
                             ->searchable(['firstname', 'lastname', 'username'])
                             ->preload()
                             ->required()
                             ->disabledon('edit'),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Detalle de la Evidencia')
+                Section::make('Detalle de la Evidencia')
                     ->schema([
                         TextInput::make('title')
                             ->label('Título del Reporte')
@@ -46,7 +48,7 @@ final class ReportForm
                                 'min' => 'Mínimo 5 caracteres.',
                             ])
                             ->disabledOn('edit'),
-                        \Filament\Forms\Components\Textarea::make('description')
+                        Textarea::make('description')
                             ->label('Descripción de los Hechos')
                             ->required()
                             ->minLength(10)

@@ -1,15 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\Forum;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Forum>
+ * @extends Factory<Forum>
  */
-class ForumFactory extends Factory
+final class ForumFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -27,7 +30,6 @@ class ForumFactory extends Factory
         ];
 
         $case = $this->faker->randomElement($cases);
-        $index = array_search($case, $cases) + 1;
 
         $images = [
             'images/forums/night_sightings.jpg',
@@ -42,7 +44,7 @@ class ForumFactory extends Factory
             'title' => $case['title'],
             'description' => $case['desc'],
             'image' => $this->faker->randomElement($images),
-            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
         ];
     }
 }

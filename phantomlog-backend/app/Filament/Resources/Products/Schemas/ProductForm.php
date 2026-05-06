@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 final class ProductForm
@@ -15,7 +17,7 @@ final class ProductForm
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Detalles del Suministro')
+                Section::make('Detalles del Suministro')
                     ->schema([
                         TextInput::make('sku')
                             ->label('Código de Identificación (SKU)')
@@ -25,7 +27,7 @@ final class ProductForm
                             ->label('Nombre del Objeto')
                             ->required()
                             ->maxLength(100),
-                        \Filament\Forms\Components\Select::make('category')
+                        Select::make('category')
                             ->label('Categoría de Reliquia')
                             ->options([
                                 'EQUIPMENT' => 'EQUIPAMIENTO',
@@ -41,7 +43,7 @@ final class ProductForm
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Costes e Inventario')
+                Section::make('Costes e Inventario')
                     ->schema([
                         TextInput::make('price')
                             ->label('Precio de Adquisición')
@@ -68,16 +70,14 @@ final class ProductForm
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Multimedia')
+                Section::make('Multimedia')
                     ->schema([
                         FileUpload::make('image')
                             ->image()
                             ->disk('public')
                             ->directory('images')
                             ->visibility('public')
-                            ->dehydrated(function ($state) {
-                                return filled($state);
-                            })
+                            ->dehydrated(fn ($state): bool => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create'),
                     ]),
             ]);

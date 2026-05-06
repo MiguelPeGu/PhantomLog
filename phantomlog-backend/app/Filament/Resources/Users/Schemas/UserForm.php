@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,7 +17,7 @@ final class UserForm
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Información Personal')
+                Section::make('Información Personal')
                     ->description('Datos básicos del usuario')
                     ->schema([
                         TextInput::make('dni')
@@ -51,7 +53,7 @@ final class UserForm
                             ->disabledOn('edit'),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Contacto y Localización')
+                Section::make('Contacto y Localización')
                     ->schema([
                         TextInput::make('email')
                             ->label('Email')
@@ -79,9 +81,9 @@ final class UserForm
                             ->disabledOn('edit'),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Seguridad y Perfil')
+                Section::make('Seguridad y Perfil')
                     ->schema([
-                        \Filament\Forms\Components\Select::make('role')
+                        Select::make('role')
                             ->options([
                                 'admin' => 'Administrador',
                                 'user' => 'Usuario',
@@ -96,15 +98,13 @@ final class UserForm
                             ->directory('images')
                             ->visibility('public')
                             ->maxSize(1024 * 5)
-                            ->dehydrated(function ($state) {
-                                return filled($state);
-                            })
+                            ->dehydrated(fn ($state): bool => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create'),
 
                         TextInput::make('password')
                             ->password()
                             ->required(fn (string $operation): bool => $operation === 'create')
-                            ->dehydrated(fn ($state) => filled($state))
+                            ->dehydrated(fn ($state): bool => filled($state))
                             ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                             ->disabled(fn (string $operation): bool => $operation === 'edit'),
                     ])->columns(2),

@@ -1,13 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\Phantom;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use App\Models\Phantom;
+use Override;
 
-class PhantomFactory extends Factory
+/**
+ * @extends Factory<Phantom>
+ */
+final class PhantomFactory extends Factory
 {
+    #[Override]
     protected $model = Phantom::class;
 
     public function definition(): array
@@ -30,7 +37,7 @@ class PhantomFactory extends Factory
             'type' => $phantom['type'],
             'description' => $phantom['desc'],
             'location' => $phantom['loc'],
-            'image' => "images/phantoms/{$image}",
+            'image' => 'images/phantoms/'.$image,
         ];
     }
 }

@@ -1,17 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Forums\RelationManagers;
 
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Override;
 
-class ReportsRelationManager extends RelationManager
+final class ReportsRelationManager extends RelationManager
 {
+    #[Override]
     protected static string $relationship = 'reports';
 
+    #[Override]
     protected static ?string $recordTitleAttribute = 'title';
 
     public function form(Schema $schema): Schema
@@ -20,7 +32,7 @@ class ReportsRelationManager extends RelationManager
             ->components([
                 TextInput::make('title')
                     ->required(),
-                \Filament\Forms\Components\Textarea::make('description')
+                Textarea::make('description')
                     ->required()
                     ->columnSpanFull(),
             ]);
@@ -43,16 +55,16 @@ class ReportsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                \Filament\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Expeditions\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
-class ExpeditionInfolist
+final class ExpeditionInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -15,7 +18,7 @@ class ExpeditionInfolist
             ->components([
                 Tabs::make('Detalles de la Expedición')
                     ->tabs([
-                        Tabs\Tab::make('Misión')
+                        Tab::make('Misión')
                             ->icon('heroicon-o-map')
                             ->schema([
                                 Section::make('Planificación')

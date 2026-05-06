@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Reports\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
-class ReportInfolist
+final class ReportInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -15,7 +18,7 @@ class ReportInfolist
             ->components([
                 Tabs::make('Detalles del Reporte')
                     ->tabs([
-                        Tabs\Tab::make('Contenido')
+                        Tab::make('Contenido')
                             ->icon('heroicon-o-document-text')
                             ->schema([
                                 Section::make('Información Principal')
@@ -27,7 +30,7 @@ class ReportInfolist
                                         TextEntry::make('description')->label('Descripción')->columnSpanFull(),
                                     ])->columns(2),
                             ]),
-                        Tabs\Tab::make('Metadatos')
+                        Tab::make('Metadatos')
                             ->icon('heroicon-o-information-circle')
                             ->schema([
                                 Section::make('Trazabilidad')

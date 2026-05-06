@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Forum;
 use App\Models\User;
 
 test('user has default role and can be admin', function (): void {
@@ -13,6 +14,6 @@ test('user has default role and can be admin', function (): void {
 });
 
 test('user has many forums', function (): void {
-    $user = User::factory()->has(\App\Models\Forum::factory()->count(3))->create();
+    $user = User::factory()->has(Forum::factory()->count(3))->create();
     expect($user->forums)->toHaveCount(3);
 });

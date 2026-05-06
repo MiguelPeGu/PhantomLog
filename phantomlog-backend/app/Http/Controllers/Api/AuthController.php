@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -8,19 +10,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller
+final class AuthController extends Controller
 {
     public function register(Request $request)
     {
         $data = $request->validate([
-            'dni'        => ['required', 'string', 'unique:users', 'regex:/^[0-9]{8}[A-Z]$/i'],
-            'username'   => 'required|string|min:4|max:30|unique:users',
-            'firstname'  => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
-            'lastname'   => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
-            'email'      => 'required|email|unique:users',
-            'password'   => 'required|string|min:8|confirmed',
-            'address'    => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
-            'postalCode' => 'nullable|numeric|digits:5',
+            'dni' => ['required', 'string', 'unique:users', 'regex:/^[0-9]{8}[A-Z]$/i'],
+            'username' => ['required', 'string', 'min:4', 'max:30', 'unique:users'],
+            'firstname' => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'lastname' => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'email' => ['required', 'email', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'address' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
+            'postalCode' => ['nullable', 'numeric', 'digits:5'],
         ], [
             'dni.required' => 'El DNI es obligatorio.',
             'dni.unique' => 'Este DNI ya está registrado.',
@@ -45,11 +47,11 @@ class AuthController extends Controller
         // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value) && $key !== 'password') {
-                $data[$key] = trim(strip_tags($value));
+                $data[$key] = mb_trim(strip_tags($value));
             }
         }
 
-        $user = User::create([
+        $user = User::query()->create([
             ...$data,
             'password' => Hash::make($data['password']),
         ]);
@@ -62,11 +64,11 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
 
@@ -92,13 +94,13 @@ class AuthController extends Controller
         $user = $request->user();
 
         $data = $request->validate([
-            'username'   => 'sometimes|string|min:4|max:30|unique:users,username,' . $user->id,
-            'firstname'  => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
-            'lastname'   => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
-            'dni'        => ['sometimes', 'string', 'unique:users,dni,' . $user->id, 'regex:/^[0-9]{8}[A-Z]$/i'],
-            'address'    => ['sometimes', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
-            'postalCode' => 'sometimes|numeric|digits:5',
-            'img'        => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'], 
+            'username' => 'sometimes|string|min:4|max:30|unique:users,username,'.$user->id,
+            'firstname' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'lastname' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'dni' => ['sometimes', 'string', 'unique:users,dni,'.$user->id, 'regex:/^[0-9]{8}[A-Z]$/i'],
+            'address' => ['sometimes', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
+            'postalCode' => ['sometimes', 'numeric', 'digits:5'],
+            'img' => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
         ], [
             'firstname.regex' => 'El nombre no puede contener números ni símbolos.',
             'lastname.regex' => 'Los apellidos no pueden contener números ni símbolos.',
@@ -110,12 +112,12 @@ class AuthController extends Controller
 
         foreach ($data as $key => $value) {
             if (is_string($value) && $key !== 'password') {
-                $data[$key] = trim(strip_tags($value));
+                $data[$key] = mb_trim(strip_tags($value));
             }
         }
 
         if ($request->has('password') && $request->password) {
-            $request->validate(['password' => 'string|min:8|confirmed']);
+            $request->validate(['password' => ['string', 'min:8', 'confirmed']]);
             $data['password'] = Hash::make($request->password);
         }
 

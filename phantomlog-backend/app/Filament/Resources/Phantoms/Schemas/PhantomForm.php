@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Phantoms\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -39,20 +40,20 @@ final class PhantomForm
                         'max' => 'Máximo 40 caracteres.',
                         'regex' => 'La ubicación contiene caracteres no permitidos.',
                     ]),
-                \Filament\Forms\Components\Textarea::make('description')
+                Textarea::make('description')
                     ->label('Descripción del Ente')
                     ->required()
                     ->maxLength(2000)
                     ->columnSpanFull(),
-                \Filament\Forms\Components\Textarea::make('evidence')
+                Textarea::make('evidence')
                     ->label('Evidencias Técnicas / Pruebas')
                     ->placeholder('Ej: CEM Nivel 5, Orbes Espectrales...')
                     ->maxLength(1000)
                     ->columnSpanFull(),
-                \Filament\Forms\Components\Textarea::make('strengths')
+                Textarea::make('strengths')
                     ->maxLength(500)
                     ->label('Fortalezas Espectrales'),
-                \Filament\Forms\Components\Textarea::make('weaknesses')
+                Textarea::make('weaknesses')
                     ->maxLength(500)
                     ->label('Vulnerabilidades Conocidas'),
                 FileUpload::make('image')
@@ -61,9 +62,7 @@ final class PhantomForm
                     ->directory('images')
                     ->visibility('public')
                     ->maxSize(1024 * 5)
-                    ->dehydrated(function ($state) {
-                        return filled($state);
-                    })
+                    ->dehydrated(fn ($state): bool => filled($state))
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->columnSpanFull(),
 

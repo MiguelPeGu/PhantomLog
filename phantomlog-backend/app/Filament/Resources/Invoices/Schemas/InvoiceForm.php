@@ -21,18 +21,18 @@ final class InvoiceForm
                     ->disabledon('edit'),
                 Select::make('user_id')
                     ->relationship('user', 'username')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->firstname} {$record->lastname} - {$record->username}")
+                    ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
                     ->searchable(['firstname', 'lastname', 'username'])
                     ->preload()
                     ->required()
                     ->disabledOn('edit')
                     ->live()
-                    ->afterStateUpdated(function (?string $state, Set $set) {
+                    ->afterStateUpdated(function (?string $state, Set $set): void {
                         if (! $state) {
                             return;
                         }
 
-                        $user = User::find($state);
+                        $user = User::query()->find($state);
                         if (! $user) {
                             return;
                         }

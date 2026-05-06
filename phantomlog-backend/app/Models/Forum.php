@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use Database\Factories\ForumFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Report;
-
-use Carbon\CarbonInterface;
+use Override;
 
 /**
  * @property-read string $id
@@ -23,7 +22,7 @@ use Carbon\CarbonInterface;
  */
 final class Forum extends Model
 {
-    /** @use HasFactory<\Database\Factories\ForumFactory> */
+    /** @use HasFactory<ForumFactory> */
     use HasFactory;
 
     use HasUuids;
@@ -31,12 +30,16 @@ final class Forum extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'title',
         'description',
         'image',
         'user_id',
     ];
+
+    #[Override]
+    protected $appends = ['image_url'];
 
     /**
      * @return array<string, string>
@@ -64,21 +67,24 @@ final class Forum extends Model
         return $this->hasMany(Report::class);
     }
 
-
     public function followers()
     {
         return $this->belongsToMany(User::class, 'followers');
     }
 
-    protected $appends = ['image_url'];
-
     // credibility_score se calcula en el controlador con withAvg()
     // para evitar 1 query SQL extra por cada foro en el listado (N+1)
 
-    public function getImageUrlAttribute()
+    protected function getImageUrlAttribute(): ?string
     {
-        if (!$this->image) return null;
-        if (str_starts_with($this->image, 'http')) return $this->image;
-        return asset('storage/' . $this->image);
+        if (! $this->image) {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+
+        return asset('storage/'.$this->image);
     }
 }
