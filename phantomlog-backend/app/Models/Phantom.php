@@ -9,6 +9,7 @@ use Database\Factories\PhantomFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
@@ -66,7 +67,8 @@ final class Phantom extends Model
         ];
     }
 
-    public function expeditions()
+    /** @return HasMany<Expedition, $this> */
+    public function expeditions(): HasMany
     {
         return $this->hasMany(Expedition::class);
     }

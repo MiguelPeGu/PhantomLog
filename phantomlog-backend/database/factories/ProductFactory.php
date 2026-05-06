@@ -33,6 +33,7 @@ final class ProductFactory extends Factory
             ['title' => 'Péndulo de Cuarzo Amatista', 'desc' => 'Herramienta de radiestesia.', 'img' => 'candles.jpg'], // Using candles as placeholder if pendulo is missing
         ];
 
+        /** @var array{title: string, desc: string, img: string} $product */
         $product = $this->faker->randomElement($products);
 
         return [

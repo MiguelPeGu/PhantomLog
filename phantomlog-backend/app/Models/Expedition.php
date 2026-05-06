@@ -9,6 +9,8 @@ use Database\Factories\ExpeditionFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Override;
 
 /**
@@ -60,17 +62,20 @@ final class Expedition extends Model
         ];
     }
 
-    public function creator()
+    /** @return BelongsTo<User, $this> */
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function participants()
+    /** @return BelongsToMany<User, $this> */
+    public function participants(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'enrollment');
     }
 
-    public function phantom()
+    /** @return BelongsTo<Phantom, $this> */
+    public function phantom(): BelongsTo
     {
         return $this->belongsTo(Phantom::class);
     }

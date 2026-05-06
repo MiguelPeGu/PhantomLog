@@ -27,8 +27,6 @@ export default function Forums() {
   const { user } = useAuth()
   const { addToast } = useToast()
 
-  // Guard para evitar petición duplicada en el primer render:
-  // DataProvider ya cargó los foros con refreshAll() al arrancar la app.
   const isFirstRender = useRef(true)
 
   useEffect(() => {
@@ -40,6 +38,7 @@ export default function Forums() {
       isFirstRender.current = false
       return // datos ya cargados por DataProvider
     }
+    
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
         refreshForums({ search: localSearch, page: currentPage, per_page: 9 })
@@ -164,7 +163,12 @@ export default function Forums() {
 
         {totalPages > 1 && (
           <div className="pagination-controls mt-60">
-            <button disabled={currentPage === 1} onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}>🡄 ANTERIOR</button>
+            <button 
+              disabled={currentPage === 1} 
+              onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
+            >
+              🡄 ANTERIOR
+            </button>
             <span className="bold">{currentPage} / {totalPages}</span>
             <button disabled={currentPage === totalPages} onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}>SIGUIENTE 🡆</button>
           </div>

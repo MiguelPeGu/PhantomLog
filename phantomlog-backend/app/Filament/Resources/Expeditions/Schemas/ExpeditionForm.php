@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Expeditions\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -19,7 +20,7 @@ final class ExpeditionForm
                 Select::make('user_id')
                     ->label('Investigador Responsable')
                     ->relationship('user', 'username')
-                    ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
+                    ->getOptionLabelFromRecordUsing(fn (User $record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
                     ->searchable(['firstname', 'lastname', 'username'])
                     ->preload()
                     ->required()

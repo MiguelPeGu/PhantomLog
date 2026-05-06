@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Forums\Schemas;
 
+use App\Models\Forum;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -33,7 +34,7 @@ final class ForumInfolist
                             ->schema([
                                 Section::make('Actividad')
                                     ->schema([
-                                        TextEntry::make('reports_count')->label('Número de Reportes')->state(fn ($record) => $record->reports()->count()),
+                                        TextEntry::make('reports_count')->label('Número de Reportes')->state(fn (Forum $record): int => $record->reports()->count()),
                                         TextEntry::make('created_at')->label('Fecha de Creación')->dateTime(),
                                     ])->columns(2),
                             ]),

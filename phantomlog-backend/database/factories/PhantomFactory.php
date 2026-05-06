@@ -27,8 +27,10 @@ final class PhantomFactory extends Factory
             ['name' => 'Dama Blanca de la Concepción', 'type' => 'Aparición', 'loc' => 'Jardín Botánico La Concepción', 'desc' => 'Mujer con vestido de época que busca algo entre los ficus centenarios.'],
         ];
 
+        /** @var array{name: string, type: string, loc: string, desc: string} $phantom */
         $phantom = $this->faker->randomElement($phantoms);
         $images = ['spirit.jpg', 'spectre.jpg', 'phantom.jpg', 'poltergeist.jpg', 'banshee.jpg', 'jinn.jpg', 'mare.jpg', 'revenant.jpg', 'shade.jpg', 'demon.jpg', 'yurei.jpg', 'onryo.jpg'];
+        /** @var string $image */
         $image = $this->faker->randomElement($images);
 
         return [

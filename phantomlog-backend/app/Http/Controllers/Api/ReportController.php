@@ -4,24 +4,28 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Forum;
 use App\Models\Report;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class ReportController extends Controller
+final class ReportController
 {
-    public function index(Request $request, Forum $forum)
+    public function index(Request $request, Forum $forum): JsonResponse
     {
+        $perPage = $request->integer('per_page', 10);
+
         return response()->json(
-            $forum->reports()->with('user')->withCount('comments')->latest()->paginate($request->input('per_page', 10))
+            $forum->reports()->with('user')->withCount('comments')->latest()->paginate($perPage)
         );
     }
 
-    public function store(Request $request, Forum $forum)
+    public function store(Request $request, Forum $forum): JsonResponse
     {
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'title' => ['required', 'string', 'min:5', 'max:255', 'unique:reports,title', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
             'description' => ['required', 'string', 'max:5000'],
@@ -41,8 +45,9 @@ final class ReportController extends Controller
             }
         }
 
-        if (! empty($request->image) && preg_match('/^data:image\/(\w+);base64,/', (string) $request->image, $type)) {
-            $image = mb_substr((string) $request->image, mb_strpos((string) $request->image, ',') + 1);
+        $requestImage = $request->string('image')->toString(); // fixed: línea 48
+        if ($requestImage !== '' && $requestImage !== '0' && preg_match('/^data:image\/(\w+);base64,/', $requestImage, $type)) {
+            $image = mb_substr($requestImage, mb_strpos($requestImage, ',') + 1);
             $type = mb_strtolower($type[1]);
             $image = base64_decode($image);
             $imgName = Str::random(40).'.'.$type;
@@ -51,32 +56,39 @@ final class ReportController extends Controller
             $data['image'] = $storagePath;
         }
 
-        if ($request->user()->id !== $forum->user_id) {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        if ($user->id !== $forum->user_id) {
             return response()->json(['message' => 'Solo el creador del foro puede hacer reportes.'], 403);
         }
 
         $report = $forum->reports()->create([
             ...$data,
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'score' => 0,
         ]);
 
         return response()->json($report->load('user'), 201);
     }
 
-    public function show(Forum $forum, Report $report)
+    public function show(Forum $forum, Report $report): JsonResponse
     {
         return response()->json(
             $report->load(['user', 'comments.user'])
         );
     }
 
-    public function update(Request $request, Forum $forum, Report $report)
+    public function update(Request $request, Forum $forum, Report $report): JsonResponse
     {
-        if ($request->user()->id !== $report->user_id) {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        if ($user->id !== $report->user_id) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'title' => ['sometimes', 'string', 'min:5', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
             'description' => ['sometimes', 'string', 'max:5000'],
@@ -90,18 +102,21 @@ final class ReportController extends Controller
             }
         }
 
-        if ($request->has('image') && ! empty($request->image) && preg_match('/^data:image\/(\w+);base64,/', (string) $request->image, $type)) {
-            // Borrar imagen vieja si existe
-            if ($report->image) {
-                Storage::disk('public')->delete($report->image);
+        if ($request->has('image') && ! empty($request->image)) {
+            $requestImage = $request->string('image')->toString(); // fixed: línea 107 (cast + @var eliminado)
+            if (preg_match('/^data:image\/(\w+);base64,/', $requestImage, $type)) {
+                if ($report->image) {
+                    Storage::disk('public')->delete($report->image);
+                }
+
+                $image = mb_substr($requestImage, mb_strpos($requestImage, ',') + 1);
+                $type = mb_strtolower($type[1]);
+                $image = base64_decode($image);
+                $imgName = Str::random(40).'.'.$type;
+                $storagePath = 'reports/'.$imgName;
+                Storage::disk('public')->put($storagePath, $image);
+                $data['image'] = $storagePath;
             }
-            $image = mb_substr((string) $request->image, mb_strpos((string) $request->image, ',') + 1);
-            $type = mb_strtolower($type[1]);
-            $image = base64_decode($image);
-            $imgName = Str::random(40).'.'.$type;
-            $storagePath = 'reports/'.$imgName;
-            Storage::disk('public')->put($storagePath, $image);
-            $data['image'] = $storagePath;
         }
 
         $report->update($data);
@@ -109,9 +124,12 @@ final class ReportController extends Controller
         return response()->json($report);
     }
 
-    public function destroy(Request $request, Forum $forum, Report $report)
+    public function destroy(Request $request, Forum $forum, Report $report): JsonResponse
     {
-        if ($request->user()->id !== $report->user_id) {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        if ($user->id !== $report->user_id) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 

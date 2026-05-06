@@ -9,6 +9,8 @@ use Database\Factories\InvoiceFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
@@ -73,18 +75,20 @@ final class Invoice extends Model
         ];
     }
 
-    public function user()
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function details()
+    /** @return HasMany<InvoiceDetail, $this> */
+    public function details(): HasMany
     {
         return $this->hasMany(InvoiceDetail::class);
     }
 
-    protected function getSubtotalAttribute(): int|float
+    protected function getSubtotalAttribute(): float
     {
-        return $this->total / (1 + ($this->tax / 100));
+        return (float) ($this->total) / (1 + ((int) ($this->tax) / 100));
     }
 }

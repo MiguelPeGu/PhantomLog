@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\InvoiceDetails\Schemas;
 
+use App\Models\Invoice;
 use App\Models\Product;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -16,9 +17,14 @@ final class InvoiceDetailForm
     public static function configure(Schema $schema): Schema
     {
         $recalculate = static function (Set $set, Get $get, ?float $price = null, ?int $tax = null): void {
-            $price ??= (float) $get('price');
-            $tax ??= (int) $get('tax');
-            $quantity = (int) $get('quantity');
+            $rawPrice = $get('price');
+            $price ??= is_numeric($rawPrice) ? (float) $rawPrice : 0.0;
+
+            $rawTax = $get('tax');
+            $tax ??= is_numeric($rawTax) ? (int) $rawTax : 0;
+
+            $rawQuantity = $get('quantity');
+            $quantity = is_numeric($rawQuantity) ? (int) $rawQuantity : 0;
 
             if (! $price || ! $quantity) {
                 return;
@@ -35,7 +41,7 @@ final class InvoiceDetailForm
             ->components([
                 Select::make('invoice_id')
                     ->relationship('invoice', 'id')
-                    ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('#%s - %s', $record->id, $record->created_at?->format('d/m/Y H:i:s')))
+                    ->getOptionLabelFromRecordUsing(fn (Invoice $record): string => sprintf('#%s - %s', $record->id, $record->created_at->format('d/m/Y H:i:s')))
                     ->searchable(['id'])
                     ->preload()
                     ->required()
@@ -47,7 +53,7 @@ final class InvoiceDetailForm
                         name: 'product',
                         titleAttribute: 'sku',
                     )
-                    ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('%s - %s', $record->sku, $record->title))
+                    ->getOptionLabelFromRecordUsing(fn (Product $record): string => sprintf('%s - %s', $record->sku, $record->title))
                     ->searchable(['sku', 'title'])
                     ->preload()
                     ->required()

@@ -13,8 +13,6 @@ use Illuminate\Support\Str;
  */
 final class UserFactory extends Factory
 {
-    private static ?string $password = null;
-
     /**
      * @return array<string, mixed>
      */
@@ -31,6 +29,7 @@ final class UserFactory extends Factory
             'postalCode' => $this->faker->postcode(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'role' => 'user',
             'password' => bcrypt('password'),
             'remember_token' => Str::random(10),
         ];

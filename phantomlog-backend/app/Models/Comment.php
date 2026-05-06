@@ -9,6 +9,7 @@ use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
@@ -32,6 +33,7 @@ final class Comment extends Model
      */
     #[Override]
     protected $fillable = [
+        'forum_id',
         'report_id',
         'user_id',
         'content',
@@ -55,13 +57,21 @@ final class Comment extends Model
         ];
     }
 
-    public function user()
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function report()
+    /** @return BelongsTo<Report, $this> */
+    public function report(): BelongsTo
     {
         return $this->belongsTo(Report::class);
+    }
+
+    /** @return BelongsTo<Forum, $this> */
+    public function forum(): BelongsTo
+    {
+        return $this->belongsTo(Forum::class);
     }
 }

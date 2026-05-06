@@ -32,7 +32,7 @@ final class UserInfolist
                                     ])->columns(2),
                                 Section::make('Avatar')
                                     ->schema([
-                                        ImageEntry::make('img')->label(false)->circular(),
+                                        ImageEntry::make('img')->hiddenLabel()->circular(),
                                     ]),
                             ]),
                         Tab::make('Contacto')

@@ -42,8 +42,15 @@ final class ForumSeeder extends Seeder
             ],
         ];
 
+        if ($users->isEmpty()) {
+            return;
+        }
+
         foreach ($forums as $index => $data) {
-            $users[$index]->forums()->create($data);
+            $user = $users[$index] ?? null;
+            if ($user instanceof User) {
+                $user->forums()->create($data);
+            }
         }
 
         Forum::factory()->count(25)->create();

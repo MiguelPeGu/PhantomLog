@@ -9,6 +9,7 @@ use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
@@ -58,8 +59,8 @@ final class Product extends Model
             'sku' => 'string',
             'title' => 'string',
             'provider' => 'string',
-            'price' => 'decimal:2',
-            'tax' => 'integer',
+            'price' => 'float',
+            'tax' => 'float',
             'stock' => 'integer',
             'image' => 'string',
             'description' => 'string',
@@ -68,7 +69,8 @@ final class Product extends Model
         ];
     }
 
-    public function invoiceDetails()
+    /** @return HasMany<InvoiceDetail, $this> */
+    public function invoiceDetails(): HasMany
     {
         return $this->hasMany(InvoiceDetail::class);
     }

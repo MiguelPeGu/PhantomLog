@@ -9,6 +9,7 @@ use Database\Factories\InvoiceDetailFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
@@ -59,22 +60,24 @@ final class InvoiceDetail extends Model
             'product_id' => 'string',
             'sku' => 'string',
             'title' => 'string',
-            'price' => 'decimal:2',
-            'tax' => 'integer',
+            'price' => 'float',
+            'tax' => 'float',
             'quantity' => 'integer',
-            'total' => 'decimal:2',
-            'total_with_tax' => 'decimal:2',
+            'total' => 'float',
+            'total_with_tax' => 'float',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
     }
 
-    public function invoice()
+    /** @return BelongsTo<Invoice, $this> */
+    public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
 
-    public function product()
+    /** @return BelongsTo<Product, $this> */
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

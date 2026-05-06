@@ -4,32 +4,42 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Mail\InvoicePaid;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\User;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
-final class InvoiceController extends Controller
+final class InvoiceController
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $query = $request->user()->invoices()->with('details')->latest();
+        $user = $request->user();
+        assert($user instanceof User);
+        $query = $user->invoices()->with('details')->latest();
 
         if ($request->filled('search')) {
-            $s = $request->search;
+            /** @var string $searchTerm */
+            $searchTerm = $request->search;
+            $s = (string) $searchTerm;
             $query->where('n_invoice', 'like', sprintf('%%%s%%', $s));
         }
 
-        return response()->json($query->paginate($request->input('per_page', 5)));
+        /** @var int $perPage */
+        $perPage = $request->input('per_page', 5);
+
+        return response()->json($query->paginate((int) $perPage));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'dni' => ['required', 'string', 'regex:/^[0-9]{8}[A-Z]$/i'],
             'first_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
@@ -70,10 +80,13 @@ final class InvoiceController extends Controller
             $total = 0;
             $details = [];
 
-            foreach ($data['items'] as $item) {
+            /** @var array<array{product_id: string, quantity: int}> $items */
+            $items = $data['items'];
+            foreach ($items as $item) {
                 $product = Product::query()->findOrFail($item['product_id']);
-                $lineTotal = $product->price * $item['quantity'];
-                $lineTotalWithTax = $lineTotal * (1 + $product->tax / 100);
+
+                $lineTotal = (float) ($product->price) * (int) ($item['quantity']);
+                $lineTotalWithTax = $lineTotal * (1 + (int) ($product->tax) / 100);
                 $total += $lineTotalWithTax;
 
                 $details[] = [
@@ -90,8 +103,11 @@ final class InvoiceController extends Controller
                 $product->decrement('stock', $item['quantity']);
             }
 
-            $invoice = $request->user()->invoices()->create([
-                'n_invoice' => 'INV-'.mb_strtoupper(uniqid()),
+            $user = $request->user();
+            assert($user instanceof User);
+
+            $invoice = $user->invoices()->create([
+                'n_invoice' => 'INV-'.mb_strtoupper(Str::uuid()->toString()),
                 'dni' => $data['dni'],
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
@@ -105,7 +121,7 @@ final class InvoiceController extends Controller
             $invoice->details()->createMany($details);
 
             try {
-                Mail::to($request->user()->email)->send(new InvoicePaid($invoice));
+                Mail::to($user->email)->send(new InvoicePaid($invoice));
             } catch (Exception $exception) {
                 Log::error(sprintf('Error enviando email de factura #%s: ', $invoice->n_invoice).$exception->getMessage());
             }
@@ -114,9 +130,12 @@ final class InvoiceController extends Controller
         });
     }
 
-    public function show(Request $request, Invoice $invoice)
+    public function show(Request $request, Invoice $invoice): JsonResponse
     {
-        if ($request->user()->id !== $invoice->user_id) {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        if ($user->id !== $invoice->user_id) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 

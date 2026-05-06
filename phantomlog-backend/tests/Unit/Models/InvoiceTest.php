@@ -12,7 +12,7 @@ test('invoice has all required fields filled', function (): void {
     $invoice = Invoice::factory()->create();
 
     expect($invoice->id)->not->toBeNull()
-        ->and($invoice->number)->not->toBeNull()
+        ->and($invoice->n_invoice)->not->toBeNull()
         ->and($invoice->user_id)->not->toBeNull()
         ->and($invoice->total)->not->toBeNull();
 });

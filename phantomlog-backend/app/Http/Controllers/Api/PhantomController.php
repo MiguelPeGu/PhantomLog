@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Phantom;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-final class PhantomController extends Controller
+final class PhantomController
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $query = Phantom::query()->withCount('expeditions')->latest();
 
         if ($request->filled('search')) {
-            $s = $request->search;
-            $query->where(function ($q) use ($s): void {
+            /** @var string $searchTerm */
+            $searchTerm = $request->search;
+            $s = (string) $searchTerm;
+            $query->where(function (Builder $q) use ($s): void {
                 $q->where('name', 'like', sprintf('%%%s%%', $s))
                     ->orWhere('type', 'like', sprintf('%%%s%%', $s));
             });
@@ -25,8 +28,9 @@ final class PhantomController extends Controller
         return response()->json($query->get());
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:100'],
             'type' => ['required', 'string', 'max:50'],
@@ -46,7 +50,7 @@ final class PhantomController extends Controller
         return response()->json($phantom, 201);
     }
 
-    public function show(string $phantom)
+    public function show(string $phantom): JsonResponse
     {
         $record = Phantom::query()->findOrFail($phantom);
 
@@ -55,8 +59,9 @@ final class PhantomController extends Controller
         );
     }
 
-    public function update(Request $request, Phantom $phantom)
+    public function update(Request $request, Phantom $phantom): JsonResponse
     {
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'type' => ['sometimes', 'string', 'max:255'],
@@ -70,7 +75,7 @@ final class PhantomController extends Controller
         return response()->json($phantom);
     }
 
-    public function destroy(Phantom $phantom)
+    public function destroy(Phantom $phantom): JsonResponse
     {
         $phantom->delete();
 

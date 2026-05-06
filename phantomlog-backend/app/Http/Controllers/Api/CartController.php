@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\CartService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-final class CartController extends Controller
+final readonly class CartController
 {
-    public function __construct(private readonly CartService $cartService) {}
+    public function __construct(private CartService $cartService) {}
 
-    public function index()
+    public function index(): JsonResponse
     {
         return $this->cartResponse();
     }
 
-    public function add(Request $request, Product $product)
+    public function add(Request $request, Product $product): JsonResponse
     {
-        $quantity = (int) $request->input('quantity', 1);
+        $quantity = $request->integer('quantity', 1);
 
         try {
             $this->cartService->add($product, $quantity);
@@ -34,28 +34,28 @@ final class CartController extends Controller
         }
     }
 
-    public function subtract(Product $product)
+    public function subtract(Product $product): JsonResponse
     {
         $this->cartService->subtract($product);
 
         return $this->cartResponse();
     }
 
-    public function remove(Product $product)
+    public function remove(Product $product): JsonResponse
     {
         $this->cartService->remove($product->id);
 
         return $this->cartResponse();
     }
 
-    public function clear()
+    public function clear(): JsonResponse
     {
         $this->cartService->clear();
 
         return $this->cartResponse();
     }
 
-    private function cartResponse()
+    private function cartResponse(): JsonResponse
     {
         return response()->json([
             'items' => array_values($this->cartService->getCart()),

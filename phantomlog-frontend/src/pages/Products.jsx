@@ -57,8 +57,6 @@ export default function Products() {
     setCurrentPage(1);
   };
 
-  // Guard para evitar petición duplicada en el primer render:
-  // DataProvider ya cargó los productos con refreshAll() al arrancar la app.
   const isFirstRender = useRef(true)
 
   useEffect(() => {

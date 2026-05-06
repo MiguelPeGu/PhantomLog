@@ -12,6 +12,8 @@ use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -40,6 +42,7 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasUuids;
     use Notifiable;
 
@@ -94,32 +97,38 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
         ];
     }
 
-    public function forums()
+    /** @return HasMany<Forum, $this> */
+    public function forums(): HasMany
     {
         return $this->hasMany(Forum::class);
     }
 
-    public function createdExpeditions()
+    /** @return HasMany<Expedition, $this> */
+    public function createdExpeditions(): HasMany
     {
         return $this->hasMany(Expedition::class);
     }
 
-    public function reports()
+    /** @return HasMany<Report, $this> */
+    public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
     }
 
-    public function comments()
+    /** @return HasMany<Comment, $this> */
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
 
-    public function invoices()
+    /** @return HasMany<Invoice, $this> */
+    public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }
 
-    public function followedForums()
+    /** @return BelongsToMany<Forum, $this> */
+    public function followedForums(): BelongsToMany
     {
         return $this->belongsToMany(Forum::class, 'followers');
     }
@@ -134,12 +143,13 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
         return sprintf('%s %s', $this->firstname, $this->lastname);
     }
 
-    public function joinedExpeditions()
+    /** @return BelongsToMany<Expedition, $this> */
+    public function joinedExpeditions(): BelongsToMany
     {
         return $this->belongsToMany(Expedition::class, 'enrollment');
     }
 
-    protected function getImgAttribute($value)
+    protected function getImgAttribute(?string $value): string
     {
         if ($value) {
             return $value;

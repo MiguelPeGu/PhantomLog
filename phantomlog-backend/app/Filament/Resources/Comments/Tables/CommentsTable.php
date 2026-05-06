@@ -11,6 +11,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 final class CommentsTable
 {
@@ -41,7 +42,7 @@ final class CommentsTable
             ->filters([
                 //
             ])
-            ->recordUrl(fn ($record): string => CommentResource::getUrl('view', ['record' => $record]))
+            ->recordUrl(fn (Model $record): string => CommentResource::getUrl('view', ['record' => $record]))
             ->recordActions([
                 ViewAction::make(),
                 DeleteAction::make(),

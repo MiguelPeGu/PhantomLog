@@ -15,21 +15,27 @@ final class EnrollmentSeeder extends Seeder
         $users = User::all();
         $expeditions = Expedition::all();
 
+        if ($users->isEmpty() || $expeditions->isEmpty()) {
+            return;
+        }
+
         $pairs = [
-            [$users[1], $expeditions[0]],
-            [$users[2], $expeditions[0]],
-            [$users[0], $expeditions[1]],
-            [$users[3], $expeditions[1]],
-            [$users[0], $expeditions[2]],
-            [$users[4], $expeditions[2]],
-            [$users[1], $expeditions[3]],
-            [$users[2], $expeditions[3]],
-            [$users[0], $expeditions[4]],
-            [$users[3], $expeditions[4]],
+            [$users[1] ?? null, $expeditions[0] ?? null],
+            [$users[2] ?? null, $expeditions[0] ?? null],
+            [$users[0] ?? null, $expeditions[1] ?? null],
+            [$users[3] ?? null, $expeditions[1] ?? null],
+            [$users[0] ?? null, $expeditions[2] ?? null],
+            [$users[4] ?? null, $expeditions[2] ?? null],
+            [$users[1] ?? null, $expeditions[3] ?? null],
+            [$users[2] ?? null, $expeditions[3] ?? null],
+            [$users[0] ?? null, $expeditions[4] ?? null],
+            [$users[3] ?? null, $expeditions[4] ?? null],
         ];
 
         foreach ($pairs as [$user, $expedition]) {
-            $user->joinedExpeditions()->attach($expedition->id);
+            if ($user instanceof User && $expedition instanceof Expedition) {
+                $user->joinedExpeditions()->attach($expedition->id);
+            }
         }
     }
 }

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Report;
 use App\Models\ReportVote;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-final class ReportVoteController extends Controller
+final class ReportVoteController
 {
-    public function vote(Request $request, $reportId)
+    public function vote(Request $request, string $reportId): JsonResponse
     {
         $request->validate([
             'value' => ['required', 'integer', 'in:1,-1'],
@@ -32,7 +32,7 @@ final class ReportVoteController extends Controller
             $message = 'Voto registrado';
         }
 
-        $report = Report::query()->find($reportId);
+        $report = Report::query()->findOrFail($reportId);
 
         return response()->json([
             'message' => $message,
@@ -42,7 +42,7 @@ final class ReportVoteController extends Controller
         ]);
     }
 
-    public function getVote(Request $request, $reportId)
+    public function getVote(Request $request, string $reportId): JsonResponse
     {
         $vote = ReportVote::query()->where('report_id', $reportId)
             ->where('user_id', Auth::id())

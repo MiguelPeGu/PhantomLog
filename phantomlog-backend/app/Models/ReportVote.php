@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonInterface;
+use Database\Factories\ReportVoteFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
@@ -19,7 +21,7 @@ use Override;
  */
 final class ReportVote extends Model
 {
-    use HasFactory;
+    /** @use HasFactory<ReportVoteFactory> */
     use HasFactory;
 
     #[Override]
@@ -29,28 +31,39 @@ final class ReportVote extends Model
         'value',
     ];
 
-    public function report()
+    /** @return BelongsTo<Report, $this> */
+    public function report(): BelongsTo
     {
         return $this->belongsTo(Report::class);
     }
 
-    public function user()
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
-        self::created(function ($vote): void {
-            $vote->report->updateScore();
+        self::created(function (ReportVote $vote): void {
+            $report = $vote->report;
+            if ($report instanceof Report) {
+                $report->updateScore();
+            }
         });
 
-        self::updated(function ($vote): void {
-            $vote->report->updateScore();
+        self::updated(function (ReportVote $vote): void {
+            $report = $vote->report;
+            if ($report instanceof Report) {
+                $report->updateScore();
+            }
         });
 
-        self::deleted(function ($vote): void {
-            $vote->report->updateScore();
+        self::deleted(function (ReportVote $vote): void {
+            $report = $vote->report;
+            if ($report instanceof Report) {
+                $report->updateScore();
+            }
         });
     }
 }

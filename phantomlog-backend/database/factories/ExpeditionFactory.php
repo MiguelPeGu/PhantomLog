@@ -29,12 +29,13 @@ final class ExpeditionFactory extends Factory
             ['name' => 'Protocolo: Exorcismo Digital', 'desc' => 'Monitorización remota de flujos de datos anómalos en el centro de computación.'],
         ];
 
+        /** @var array{name: string, desc: string} $mission */
         $mission = $this->faker->randomElement($missions);
 
         return [
             'id' => (string) Str::uuid(),
-            'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
-            'phantom_id' => Phantom::query()->inRandomOrder()->first()?->id ?? Phantom::factory(),
+            'user_id' => User::query()->inRandomOrder()->value('id') ?? User::factory(),
+            'phantom_id' => Phantom::query()->inRandomOrder()->value('id') ?? Phantom::factory(),
             'name' => $mission['name'],
             'description' => $mission['desc'],
             'location' => $this->faker->randomElement(['Málaga Este', 'Centro Histórico', 'Polígono Guadalhorce', 'Sierra de Mijas']),

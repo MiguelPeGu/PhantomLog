@@ -23,50 +23,52 @@ final class InvoiceDetailSeeder extends Seeder
         $details = [
             // Factura 0 → EMF x2 + Termómetro x1
             [
-                'invoice' => $invoices[0],
+                'invoice' => $invoices[0] ?? null,
                 'product' => $emf,
                 'quantity' => 2,
             ],
             [
-                'invoice' => $invoices[0],
+                'invoice' => $invoices[0] ?? null,
                 'product' => $pills,
                 'quantity' => 1,
             ],
             // Factura 1 → Cámara Térmica x1
             [
-                'invoice' => $invoices[1],
+                'invoice' => $invoices[1] ?? null,
                 'product' => $camara,
                 'quantity' => 1,
             ],
             // Factura 2 → Kit completo x1 + Grabadora EVP x1
             [
-                'invoice' => $invoices[2],
+                'invoice' => $invoices[2] ?? null,
                 'product' => $kit,
                 'quantity' => 1,
             ],
             [
-                'invoice' => $invoices[2],
+                'invoice' => $invoices[2] ?? null,
                 'product' => $evp,
                 'quantity' => 1,
             ],
         ];
 
         foreach ($details as $data) {
-            $invoice = $data['invoice'];
-            $product = $data['product'];
-            $quantity = $data['quantity'];
-            $total = round($product->price * $quantity, 2);
+            $invoice = $data['invoice'] ?? null;
+            $product = $data['product'] ?? null;
+            if ($invoice instanceof Invoice && $product instanceof Product) {
+                $quantity = (int) ($data['quantity']);
+                $total = round((float) ($product->price) * $quantity, 2);
 
-            $invoice->details()->create([
-                'product_id' => $product->id,
-                'sku' => $product->sku,
-                'title' => $product->title,
-                'price' => $product->price,
-                'tax' => $product->tax,
-                'quantity' => $quantity,
-                'total' => $total,
-                'total_with_tax' => round($total * (1 + $product->tax / 100), 2),
-            ]);
+                $invoice->details()->create([
+                    'product_id' => $product->id,
+                    'sku' => $product->sku,
+                    'title' => $product->title,
+                    'price' => $product->price,
+                    'tax' => $product->tax,
+                    'quantity' => $quantity,
+                    'total' => $total,
+                    'total_with_tax' => round($total * (1 + (int) ($product->tax) / 100), 2),
+                ]);
+            }
         }
     }
 }

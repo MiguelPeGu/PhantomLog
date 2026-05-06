@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Comments\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -22,7 +23,7 @@ final class CommentForm
                     ->disabledOn('edit'),
                 Select::make('user_id')
                     ->relationship('user', 'username')
-                    ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
+                    ->getOptionLabelFromRecordUsing(fn (User $record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
                     ->searchable(['firstname', 'lastname', 'username'])
                     ->preload()
                     ->required()

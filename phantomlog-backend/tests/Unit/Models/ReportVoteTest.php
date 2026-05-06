@@ -15,7 +15,7 @@ test('report vote has all required fields filled', function (): void {
     expect($vote->id)->not->toBeNull()
         ->and($vote->report_id)->not->toBeNull()
         ->and($vote->user_id)->not->toBeNull()
-        ->and(in_array($vote->type, ['upvote', 'downvote']))->toBeTrue();
+        ->and($vote->value)->toBeInt();
 });
 
 test('report vote belongs to a report and a user', function (): void {

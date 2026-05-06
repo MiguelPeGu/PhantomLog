@@ -34,8 +34,6 @@ export default function Expeditions() {
   const { user } = useAuth()
   const { addToast } = useToast()
 
-  // Guard para evitar petición duplicada en el primer render:
-  // DataProvider ya cargó las expediciones con refreshAll() al arrancar la app.
   const isFirstRender = useRef(true)
 
   useEffect(() => {
@@ -47,6 +45,7 @@ export default function Expeditions() {
       isFirstRender.current = false
       return // datos ya cargados por DataProvider
     }
+    
     const params = { 
       search: localSearch, 
       page: currentPage, 

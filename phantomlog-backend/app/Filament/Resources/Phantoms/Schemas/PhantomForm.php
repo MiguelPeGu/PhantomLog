@@ -62,7 +62,7 @@ final class PhantomForm
                     ->directory('images')
                     ->visibility('public')
                     ->maxSize(1024 * 5)
-                    ->dehydrated(fn ($state): bool => filled($state))
+                    ->dehydrated(fn (mixed $state): bool => filled($state))
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->columnSpanFull(),
 

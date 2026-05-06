@@ -98,21 +98,21 @@ final class UserForm
                             ->directory('images')
                             ->visibility('public')
                             ->maxSize(1024 * 5)
-                            ->dehydrated(fn ($state): bool => filled($state))
+                            ->dehydrated(fn (?string $state): bool => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create'),
 
                         TextInput::make('password')
                             ->password()
                             ->required(fn (string $operation): bool => $operation === 'create')
-                            ->dehydrated(fn ($state): bool => filled($state))
-                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                            ->dehydrated(fn (mixed $state): bool => filled($state))
+                            ->dehydrateStateUsing(fn (?string $state): string => Hash::make((string) $state))
                             ->disabled(fn (string $operation): bool => $operation === 'edit'),
                     ])->columns(2),
 
                 TextInput::make('email_verified_at')
                     ->default(now())
                     ->hidden()
-                    ->dehydrateStateUsing(fn ($state) => $state ?? now()),
+                    ->dehydrateStateUsing(fn (mixed $state): mixed => $state ?? now()),
             ]);
     }
 }

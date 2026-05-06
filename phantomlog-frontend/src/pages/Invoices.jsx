@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useData } from '../context/DataProvider'
 
@@ -20,12 +20,18 @@ export default function Invoices() {
   const { invoices, loadingInvoices: loading, invoicesPagination, refreshInvoices } = useData()
   const [localSearch, setLocalSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const isFirstRender = useRef(true)
 
   useEffect(() => {
     setCurrentPage(1)
   }, [localSearch])
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return // datos ya cargados por DataProvider
+    }
+    
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
         refreshInvoices({ search: localSearch, page: currentPage, per_page: 5 })
@@ -56,7 +62,7 @@ export default function Invoices() {
       </header>
 
       <div className="max-800">
-        <div className={`column gap-20 loading-fade${loading && invoices.length > 0 && currentPage > 1 ? ' is-loading' : ''}`}>
+        <div className={`column gap-20 loading-fade${loading && invoices.length > 0 ? ' is-loading' : ''}`}>
           {loading && invoices.length === 0 ? (
             [...Array(5)].map((_, i) => <InvoiceSkeleton key={i} />)
           ) : invoices.length === 0 ? (

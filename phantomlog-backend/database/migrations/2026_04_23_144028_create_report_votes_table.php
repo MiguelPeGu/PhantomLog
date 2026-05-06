@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignUuid('report_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
-            $table->integer('value'); // 1 for believe, -1 for liar
+            $table->integer('value');
             $table->unique(['report_id', 'user_id']);
             $table->timestamps();
         });

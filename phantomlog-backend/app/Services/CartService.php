@@ -10,6 +10,11 @@ use Exception;
 final class CartService
 {
     /**
+     * @var array<string, array{product: Product, quantity: int}>
+     */
+    private array $cart = [];
+
+    /**
      * Get the cart from session.
      * Use Product id as key, and an array with product details and quantity.
      *
@@ -19,16 +24,19 @@ final class CartService
     {
         $userId = auth()->id();
         if (! $userId) {
-            return [];
+            return $this->cart;
         }
 
-        return cache()->get('cart_'.$userId, []);
+        /** @var array<string, array{product: Product, quantity: int}> $cart */
+        $cart = cache()->get('cart_'.$userId, []);
+
+        return $cart;
     }
 
     public function add(Product $product, int $quantity = 1): void
     {
         $cart = $this->getCart();
-        $id = $product->id;
+        $id = (string) $product->id;
 
         $currentQuantity = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
 
@@ -43,15 +51,13 @@ final class CartService
             ];
         }
 
-        if (auth()->id()) {
-            cache()->put('cart_'.auth()->id(), $cart, now()->addDays(7));
-        }
+        $this->saveCart($cart);
     }
 
     public function subtract(Product $product, int $quantity = 1): void
     {
         $cart = $this->getCart();
-        $id = $product->id;
+        $id = (string) $product->id;
 
         if (isset($cart[$id])) {
             $cart[$id]['quantity'] -= $quantity;
@@ -61,26 +67,19 @@ final class CartService
             }
         }
 
-        if (auth()->id()) {
-            cache()->put('cart_'.auth()->id(), $cart, now()->addDays(7));
-        }
+        $this->saveCart($cart);
     }
 
     public function remove(string $productId): void
     {
         $cart = $this->getCart();
-
-        if (isset($cart[$productId])) {
-            unset($cart[$productId]);
-        }
-
-        if (auth()->id()) {
-            cache()->put('cart_'.auth()->id(), $cart, now()->addDays(7));
-        }
+        unset($cart[$productId]);
+        $this->saveCart($cart);
     }
 
     public function clear(): void
     {
+        $this->cart = [];
         if (auth()->id()) {
             cache()->forget('cart_'.auth()->id());
         }
@@ -95,11 +94,11 @@ final class CartService
             $product = $item['product'];
             $quantity = $item['quantity'];
 
-            $priceWithTax = $product->price * (1 + ($product->tax / 100));
+            $priceWithTax = (float) ($product->price) * (1 + ((int) ($product->tax) / 100));
             $total += $priceWithTax * $quantity;
         }
 
-        return $total;
+        return (float) $total;
     }
 
     public function getTotalWithoutTax(): float
@@ -110,9 +109,20 @@ final class CartService
         foreach ($cart as $item) {
             $product = $item['product'];
             $quantity = $item['quantity'];
-            $total += $product->price * $quantity;
+            $total += (float) ($product->price) * $quantity;
         }
 
-        return $total;
+        return (float) $total;
+    }
+
+    /**
+     * @param  array<string, array{product: Product, quantity: int}>  $cart
+     */
+    private function saveCart(array $cart): void
+    {
+        $this->cart = $cart;
+        if (auth()->id()) {
+            cache()->put('cart_'.auth()->id(), $cart, now()->addDays(7));
+        }
     }
 }

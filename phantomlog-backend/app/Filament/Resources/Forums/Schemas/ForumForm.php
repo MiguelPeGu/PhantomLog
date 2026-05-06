@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Forums\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -44,7 +45,7 @@ final class ForumForm
                         Select::make('user_id')
                             ->label('Creador del Hilo')
                             ->relationship('user', 'username')
-                            ->getOptionLabelFromRecordUsing(fn ($record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
+                            ->getOptionLabelFromRecordUsing(fn (User $record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
                             ->searchable(['firstname', 'lastname', 'username'])
                             ->preload()
                             ->required()

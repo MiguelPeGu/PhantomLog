@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Expedition;
 use App\Models\Forum;
 use App\Models\Phantom;
 use App\Models\Product;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -26,11 +27,12 @@ use Illuminate\Http\Request;
  *
  * Con este endpoint: 1 única petición → 1 token validation → 1 DB context.
  */
-final class BootstrapController extends Controller
+final class BootstrapController
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $user = $request->user();
+        assert($user instanceof User);
 
         // Phantoms
         $phantoms = Phantom::query()->select('id', 'name', 'type', 'evidence', 'location')

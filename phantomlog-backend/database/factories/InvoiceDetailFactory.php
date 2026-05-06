@@ -19,9 +19,9 @@ final class InvoiceDetailFactory extends Factory
     {
         $product = Product::factory()->create();
         $quantity = $this->faker->numberBetween(1, 10);
-        $price = $product->price;
+        $price = (float) ($product->price);
         $total = $price * $quantity;
-        $taxRate = $product->tax;
+        $taxRate = (int) ($product->tax);
         $totalWithTax = $total * (1 + $taxRate / 100);
 
         /**

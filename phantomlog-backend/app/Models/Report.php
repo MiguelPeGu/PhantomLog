@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonInterface;
-use Database\Factories\ProductFactory;
+use Database\Factories\ReportFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
@@ -18,7 +20,7 @@ use Override;
  * @property-read string $title
  * @property-read string $description
  * @property-read string $image
- * @property-read int $score
+ * @property int $score
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read Forum $forum
@@ -26,7 +28,7 @@ use Override;
  */
 final class Report extends Model
 {
-    /** @use HasFactory<ProductFactory> */
+    /** @use HasFactory<ReportFactory> */
     use HasFactory;
 
     use HasUuids;
@@ -65,42 +67,46 @@ final class Report extends Model
         ];
     }
 
-    public function user()
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function forum()
+    /** @return BelongsTo<Forum, $this> */
+    public function forum(): BelongsTo
     {
         return $this->belongsTo(Forum::class);
     }
 
-    public function votes()
+    /** @return HasMany<ReportVote, $this> */
+    public function votes(): HasMany
     {
         return $this->hasMany(ReportVote::class);
     }
 
-    public function comments()
+    /** @return HasMany<Comment, $this> */
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
 
     public function updateScore(): void
     {
-        $this->score = $this->votes()->sum('value');
+        $this->score = (int) $this->votes()->sum('value');
         $this->save();
     }
 
     protected static function booted(): void
     {
-        self::created(function ($report): void {
+        self::created(function (Report $report): void {
             // Initial score is 0
         });
 
         // We use saved/deleted on the ReportVote model to update the Report score
     }
 
-    protected function getVotesCountAttribute()
+    protected function getVotesCountAttribute(): int
     {
         return $this->votes()->count();
     }

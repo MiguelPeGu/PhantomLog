@@ -77,7 +77,7 @@ final class ProductForm
                             ->disk('public')
                             ->directory('images')
                             ->visibility('public')
-                            ->dehydrated(fn ($state): bool => filled($state))
+                            ->dehydrated(fn (mixed $state): bool => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create'),
                     ]),
             ]);

@@ -7,10 +7,11 @@ namespace Database\Factories;
 use App\Models\Forum;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<\App\Models\Follower>
+ * @extends Factory<Model>
  */
 final class FollowerFactory extends Factory
 {
@@ -23,8 +24,8 @@ final class FollowerFactory extends Factory
     {
         return [
             'id' => (string) Str::uuid(),
-            'user_id' => User::query()->first()?->id ?? User::factory(),
-            'forum_id' => Forum::query()->first()?->id ?? Forum::factory(),
+            'user_id' => User::query()->value('id') ?? User::factory(),
+            'forum_id' => Forum::query()->value('id') ?? Forum::factory(),
         ];
     }
 }

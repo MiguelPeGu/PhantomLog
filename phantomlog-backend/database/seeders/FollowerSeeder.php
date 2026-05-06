@@ -16,24 +16,30 @@ final class FollowerSeeder extends Seeder
         $users = User::all();
         $forums = Forum::all();
 
+        if ($users->isEmpty() || $forums->isEmpty()) {
+            return;
+        }
+
         $pairs = [
-            [$users[0], $forums[1]],
-            [$users[0], $forums[2]],
-            [$users[0], $forums[3]],
-            [$users[1], $forums[0]],
-            [$users[1], $forums[2]],
-            [$users[1], $forums[4]],
-            [$users[2], $forums[0]],
-            [$users[2], $forums[1]],
-            [$users[2], $forums[4]],
-            [$users[3], $forums[0]],
-            [$users[3], $forums[2]],
-            [$users[4], $forums[1]],
-            [$users[4], $forums[3]],
+            [$users[0] ?? null, $forums[1] ?? null],
+            [$users[0] ?? null, $forums[2] ?? null],
+            [$users[0] ?? null, $forums[3] ?? null],
+            [$users[1] ?? null, $forums[0] ?? null],
+            [$users[1] ?? null, $forums[2] ?? null],
+            [$users[1] ?? null, $forums[4] ?? null],
+            [$users[2] ?? null, $forums[0] ?? null],
+            [$users[2] ?? null, $forums[1] ?? null],
+            [$users[2] ?? null, $forums[4] ?? null],
+            [$users[3] ?? null, $forums[0] ?? null],
+            [$users[3] ?? null, $forums[2] ?? null],
+            [$users[4] ?? null, $forums[1] ?? null],
+            [$users[4] ?? null, $forums[3] ?? null],
         ];
 
         foreach ($pairs as [$user, $forum]) {
-            $user->followedForums()->attach($forum->id, ['id' => Str::uuid()]);
+            if ($user instanceof User && $forum instanceof Forum) {
+                $user->followedForums()->attach($forum->id, ['id' => (string) Str::uuid()]);
+            }
         }
     }
 }

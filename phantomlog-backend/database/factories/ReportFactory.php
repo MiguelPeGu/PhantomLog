@@ -30,16 +30,17 @@ final class ReportFactory extends Factory
             ['title' => 'Rastro de Ectoplasma Residual', 'desc' => 'Fluido viscoso con luminiscencia bajo UV detectado en el pomo de la puerta de la celda 12.', 'img' => 'segovia_cemetery.jpg'],
         ];
 
+        /** @var array{title: string, desc: string, img: string} $finding */
         $finding = $this->faker->randomElement($findings);
 
         return [
             'id' => (string) Str::uuid(),
-            'forum_id' => Forum::query()->inRandomOrder()->first()?->id ?? Forum::factory(),
-            'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
+            'forum_id' => Forum::query()->inRandomOrder()->value('id') ?? Forum::factory(),
+            'user_id' => User::query()->inRandomOrder()->value('id') ?? User::factory(),
             'title' => $finding['title'],
             'description' => $finding['desc'],
             'image' => 'images/reports/'.$finding['img'],
-            'score' => $this->faker->numberBetween(-10, 50),
+            'score' => $this->faker->numberBetween(0, 50),
         ];
     }
 }

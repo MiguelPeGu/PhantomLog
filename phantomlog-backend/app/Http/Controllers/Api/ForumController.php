@@ -4,36 +4,39 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Forum;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class ForumController extends Controller
+final class ForumController
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        // select() optimiza la query excluyendo campos no usados en tarjetas
-        // description SÍ se necesita para el preview de 120 chars en cada card
         $query = Forum::query()->select('id', 'title', 'description', 'image', 'user_id', 'created_at', 'updated_at')
             ->with('user:id,username,img')
             ->withCount('reports')
             ->withAvg('reports', 'score');
 
         if ($request->has('search') && ! empty($request->search)) {
-            $term = $request->search;
+            $term = $request->string('search')->toString(); // fixed: línea 25
             $query->where('title', 'like', '%'.$term.'%')
                 ->orWhere('description', 'like', '%'.$term.'%');
         }
 
+        $perPage = $request->integer('per_page', 9);
+
         return response()->json(
-            $query->latest()->paginate($request->input('per_page', 9))
+            $query->latest()->paginate($perPage)
         );
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'title' => ['required', 'string', 'min:10', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
             'description' => ['required', 'string', 'min:20', 'max:2000'],
@@ -57,42 +60,50 @@ final class ForumController extends Controller
             }
         }
 
-        if (preg_match('/^data:image\/(\w+);base64,/', $request->image, $type)) {
-            $image = mb_substr($request->image, mb_strpos($request->image, ',') + 1);
-            $type = mb_strtolower($type[1]); // jpg, png, etc.
+        $requestImage = $request->string('image')->toString(); // fixed: línea 63
+        if (preg_match('/^data:image\/(\w+);base64,/', $requestImage, $type)) {
+            $image = mb_substr($requestImage, mb_strpos($requestImage, ',') + 1);
+            $type = mb_strtolower($type[1]);
             $image = base64_decode($image);
             $imgName = Str::random(40).'.'.$type;
-
             $storagePath = 'forums/'.$imgName;
             Storage::disk('public')->put($storagePath, $image);
-
             $data['image'] = $storagePath;
         } else {
             return response()->json(['message' => 'Invalid image format.'], 422);
         }
 
-        $forum = $request->user()->forums()->create($data);
+        $user = $request->user();
+        assert($user instanceof User);
+        $forum = $user->forums()->create($data);
 
         return response()->json($forum->load('user'), 201);
     }
 
-    public function show(Forum $forum)
+    public function show(Forum $forum): JsonResponse
     {
-        $forum->load(['user', 'reports.user', 'reports' => fn ($q) => $q->withCount('comments')])
+        $forum->load(['user', 'reports.user', 'reports' => function (Builder $q): void {
+            $q->withCount('comments');
+        }])
             ->loadAvg('reports', 'score');
 
-        // Exponer credibility_score con el mismo nombre esperado por el frontend
-        $forum->credibility_score = (float) ($forum->reports_avg_score ?? 0);
+        /** @var float|int|null $avgScore */
+        $avgScore = $forum->getAttribute('reports_avg_score');
+        $forum->setAttribute('credibility_score', (float) ($avgScore ?? 0));
 
         return response()->json($forum);
     }
 
-    public function update(Request $request, Forum $forum)
+    public function update(Request $request, Forum $forum): JsonResponse
     {
-        if ($request->user()->id !== $forum->user_id) {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        if ($user->id !== $forum->user_id) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'title' => ['sometimes', 'string', 'min:10', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
             'description' => ['sometimes', 'string', 'min:20', 'max:2000'],
@@ -106,18 +117,21 @@ final class ForumController extends Controller
             }
         }
 
-        if ($request->has('image') && ! empty($request->image) && preg_match('/^data:image\/(\w+);base64,/', (string) $request->image, $type)) {
-            // Borrar imagen vieja si existe
-            if ($forum->image) {
-                Storage::disk('public')->delete($forum->image);
+        if ($request->has('image') && ! empty($request->image)) {
+            $requestImage = $request->string('image')->toString(); // fixed: línea 122 (cast + @var eliminado)
+            if (preg_match('/^data:image\/(\w+);base64,/', $requestImage, $type)) {
+                if ($forum->image) {
+                    Storage::disk('public')->delete($forum->image);
+                }
+
+                $image = mb_substr($requestImage, mb_strpos($requestImage, ',') + 1);
+                $type = mb_strtolower($type[1]);
+                $image = base64_decode($image);
+                $imgName = Str::random(40).'.'.$type;
+                $storagePath = 'forums/'.$imgName;
+                Storage::disk('public')->put($storagePath, $image);
+                $data['image'] = $storagePath;
             }
-            $image = mb_substr((string) $request->image, mb_strpos((string) $request->image, ',') + 1);
-            $type = mb_strtolower($type[1]);
-            $image = base64_decode($image);
-            $imgName = Str::random(40).'.'.$type;
-            $storagePath = 'forums/'.$imgName;
-            Storage::disk('public')->put($storagePath, $image);
-            $data['image'] = $storagePath;
         }
 
         $forum->update($data);
@@ -125,9 +139,12 @@ final class ForumController extends Controller
         return response()->json($forum);
     }
 
-    public function destroy(Request $request, Forum $forum)
+    public function destroy(Request $request, Forum $forum): JsonResponse
     {
-        if ($request->user()->id !== $forum->user_id) {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        if ($user->id !== $forum->user_id) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
@@ -136,10 +153,12 @@ final class ForumController extends Controller
         return response()->json(null, 204);
     }
 
-    // Seguir / dejar de seguir un foro
-    public function toggleFollow(Request $request, Forum $forum)
+    public function toggleFollow(Request $request, Forum $forum): JsonResponse
     {
-        $request->user()->followedForums()->toggle($forum->id);
+        $user = $request->user();
+        assert($user instanceof User);
+
+        $user->followedForums()->toggle($forum->id);
 
         return response()->json(['message' => 'Ok']);
     }

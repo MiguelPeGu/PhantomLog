@@ -17,6 +17,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('report_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('forum_id')->constrained()->cascadeOnDelete();
             $table->string('content', 250);
             $table->integer('score')->default(0);
             $table->timestamps();

@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-final class AuthController extends Controller
+final class AuthController
 {
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'dni' => ['required', 'string', 'unique:users', 'regex:/^[0-9]{8}[A-Z]$/i'],
             'username' => ['required', 'string', 'min:4', 'max:30', 'unique:users'],
@@ -53,7 +54,7 @@ final class AuthController extends Controller
 
         $user = User::query()->create([
             ...$data,
-            'password' => Hash::make($data['password']),
+            'password' => Hash::make(is_string($data['password']) ? $data['password'] : ''), // fixed: línea 57
         ]);
 
         $token = $user->createToken('api-token')->plainTextToken;
@@ -61,7 +62,7 @@ final class AuthController extends Controller
         return response()->json(['token' => $token, 'user' => $user], 201);
     }
 
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $request->validate([
             'email' => ['required', 'email'],
@@ -72,29 +73,38 @@ final class AuthController extends Controller
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
 
-        $token = $request->user()->createToken('api-token')->plainTextToken;
+        $user = $request->user();
+        assert($user instanceof User);
+        $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json(['token' => $token, 'user' => $request->user()]);
+        return response()->json(['token' => $token, 'user' => $user]);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+        assert($user instanceof User);
+        $user->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Sesión cerrada']);
     }
 
-    public function me(Request $request)
-    {
-        return response()->json($request->user());
-    }
-
-    public function update(Request $request)
+    public function me(Request $request): JsonResponse
     {
         $user = $request->user();
+        assert($user instanceof User);
 
+        return response()->json($user);
+    }
+
+    public function update(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
-            'username' => 'sometimes|string|min:4|max:30|unique:users,username,'.$user->id,
+            'username' => ['sometimes', 'string', 'min:4', 'max:30', 'unique:users,username,'.$user->id],
             'firstname' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'lastname' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'dni' => ['sometimes', 'string', 'unique:users,dni,'.$user->id, 'regex:/^[0-9]{8}[A-Z]$/i'],
@@ -118,7 +128,7 @@ final class AuthController extends Controller
 
         if ($request->has('password') && $request->password) {
             $request->validate(['password' => ['string', 'min:8', 'confirmed']]);
-            $data['password'] = Hash::make($request->password);
+            $data['password'] = Hash::make((string) ($request->string('password')));
         }
 
         $user->update($data);

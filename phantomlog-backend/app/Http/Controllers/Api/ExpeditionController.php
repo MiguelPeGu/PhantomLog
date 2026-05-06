@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Expedition;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-final class ExpeditionController extends Controller
+final class ExpeditionController
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         // Columnas específicas para reducir el payload — las tarjetas no necesitan description completa
         $query = Expedition::query()->select('id', 'user_id', 'phantom_id', 'name', 'location', 'date', 'created_at')
@@ -19,11 +21,13 @@ final class ExpeditionController extends Controller
             ->latest();
 
         if ($request->filled('search')) {
-            $s = $request->search;
-            $query->where(function ($q) use ($s): void {
+            /** @var string $searchTerm */
+            $searchTerm = $request->search;
+            $s = (string) $searchTerm;
+            $query->where(function (Builder $q) use ($s): void {
                 $q->where('name', 'like', sprintf('%%%s%%', $s))
                     ->orWhere('location', 'like', sprintf('%%%s%%', $s))
-                    ->orWhereHas('phantom', function ($pq) use ($s): void {
+                    ->orWhereHas('phantom', function (Builder $pq) use ($s): void {
                         $pq->where('name', 'like', sprintf('%%%s%%', $s));
                     });
             });
@@ -33,11 +37,15 @@ final class ExpeditionController extends Controller
             $query->where('phantom_id', $request->phantom_id);
         }
 
-        return response()->json($query->paginate($request->get('per_page', 9)));
+        /** @var int $perPage */
+        $perPage = $request->get('per_page', 9);
+
+        return response()->json($query->paginate((int) $perPage));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'phantom_id' => ['required', 'uuid', 'exists:phantoms,id'],
             'name' => ['required', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
@@ -65,12 +73,14 @@ final class ExpeditionController extends Controller
             }
         }
 
-        $expedition = $request->user()->createdExpeditions()->create($data);
+        $user = $request->user();
+        assert($user instanceof User);
+        $expedition = $user->createdExpeditions()->create($data);
 
         return response()->json($expedition->load(['phantom', 'creator']), 201);
     }
 
-    public function show(Expedition $expedition)
+    public function show(Expedition $expedition): JsonResponse
     {
         return response()->json(
             $expedition->load(['creator', 'phantom', 'participants'])
@@ -78,12 +88,16 @@ final class ExpeditionController extends Controller
         );
     }
 
-    public function update(Request $request, Expedition $expedition)
+    public function update(Request $request, Expedition $expedition): JsonResponse
     {
-        if ($request->user()->id !== $expedition->user_id) {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        if ($user->id !== $expedition->user_id) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
+        /** @var array<string, mixed> $data */
         $data = $request->validate([
             'phantom_id' => ['sometimes', 'uuid', 'exists:phantoms,id'],
             'name' => ['sometimes', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
@@ -108,9 +122,12 @@ final class ExpeditionController extends Controller
         return response()->json($expedition->load(['phantom', 'creator']));
     }
 
-    public function destroy(Request $request, Expedition $expedition)
+    public function destroy(Request $request, Expedition $expedition): JsonResponse
     {
-        if ($request->user()->id !== $expedition->user_id) {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        if ($user->id !== $expedition->user_id) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
@@ -120,17 +137,20 @@ final class ExpeditionController extends Controller
     }
 
     // Unirse / salir de una expedición
-    public function toggleJoin(Request $request, Expedition $expedition)
+    public function toggleJoin(Request $request, Expedition $expedition): JsonResponse
     {
         if ($expedition->date < now()) {
             return response()->json(['message' => 'El registro para esta expedición ha finalizado.'], 403);
         }
 
-        $request->user()->joinedExpeditions()->toggle($expedition->id);
+        $user = $request->user();
+        assert($user instanceof User);
+
+        $user->joinedExpeditions()->toggle($expedition->id);
 
         return response()->json([
             'message' => 'Ok',
-            'is_joined' => $request->user()->joinedExpeditions()->where('expedition_id', $expedition->id)->exists(),
+            'is_joined' => $user->joinedExpeditions()->where('expedition_id', $expedition->id)->exists(),
         ]);
     }
 }

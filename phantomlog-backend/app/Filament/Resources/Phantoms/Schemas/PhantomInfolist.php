@@ -45,7 +45,7 @@ final class PhantomInfolist
                             ->schema([
                                 Section::make('Evidencia Visual')
                                     ->schema([
-                                        ImageEntry::make('image')->label(false)->width(300),
+                                        ImageEntry::make('image')->hiddenLabel()->width(300),
                                     ]),
                             ]),
                     ])->columnSpanFull(),

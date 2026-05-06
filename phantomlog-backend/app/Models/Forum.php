@@ -9,6 +9,9 @@ use Database\Factories\ForumFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
@@ -57,17 +60,20 @@ final class Forum extends Model
         ];
     }
 
-    public function user()
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function reports()
+    /** @return HasMany<Report, $this> */
+    public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
     }
 
-    public function followers()
+    /** @return BelongsToMany<User, $this> */
+    public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'followers');
     }

@@ -29,6 +29,7 @@ final class ForumFactory extends Factory
             ['title' => 'REGISTRO: La Isla de las Muñecas', 'desc' => 'Expedición fotográfica para documentar el movimiento autónomo de los objetos en el canal.'],
         ];
 
+        /** @var array{title: string, desc: string} $case */
         $case = $this->faker->randomElement($cases);
 
         $images = [
@@ -44,7 +45,7 @@ final class ForumFactory extends Factory
             'title' => $case['title'],
             'description' => $case['desc'],
             'image' => $this->faker->randomElement($images),
-            'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
+            'user_id' => User::query()->inRandomOrder()->value('id') ?? User::factory(),
         ];
     }
 }
