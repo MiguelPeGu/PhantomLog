@@ -38,7 +38,7 @@ export default function Profile() {
       reader.onloadend = () => {
         setFormData({ ...formData, img: reader.result })
       }
-      reader.readAsDataURL(file)
+      reader.readAsDataURL(file) // esta linea no va abtes del onloadend?
     }
   }
 

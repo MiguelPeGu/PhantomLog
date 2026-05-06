@@ -8,14 +8,16 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Carbon\CarbonInterface;
+
 /**
  * @property-read string $id
  * @property-read string $user_id
- *  * @property-read string $phantom_id
+ * @property-read string $phantom_id
  * @property-read string $name
  * @property-read string $description
  * @property-read string $location
- * @property-read string $date
+ * @property-read CarbonInterface $date
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */

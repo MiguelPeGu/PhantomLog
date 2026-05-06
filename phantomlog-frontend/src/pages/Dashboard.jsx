@@ -22,7 +22,7 @@ export default function Dashboard() {
       while (isMounted) {
         // 1. ESPERA RANDOM (1 a 5 segundos)
         setFlickerOpacity(0);
-        const waitTime = Math.random() * 4000 + 1000;
+        const waitTime = Math.random() * 500 + 1000;
         await new Promise(r => setTimeout(r, waitTime));
         if (!isMounted) break;
 

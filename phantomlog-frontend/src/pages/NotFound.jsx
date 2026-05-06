@@ -5,18 +5,28 @@ export default function NotFound() {
   const [glitchText, setGlitchText] = useState('404')
   
   useEffect(() => {
-    const chars = '014'
+    const chars = '014' // Caracteres que usaremos para el efecto de error
+    
     const interval = setInterval(() => {
-      if (Math.random() > 0.8) {
-        setGlitchText(
-          Array(3)
-            .fill(0)
-            .map(() => chars[Math.floor(Math.random() * chars.length)])
-            .join('')
-        )
+      // 1. Solo hay un 20% de probabilidad (Math.random > 0.8) de que ocurra el "glitch"
+      if (Math.random() > 0.6) {
+        
+        // 2. Generamos un código aleatorio de 3 caracteres (Ej: "041")
+        let randomText = ''
+        for(let i = 0; i < 3; i++) {
+          const randomIndex = Math.floor(Math.random() * chars.length)
+          randomText += chars[randomIndex]
+        }
+        
+        // 3. Actualizamos el texto con el código aleatorio
+        setGlitchText(randomText)
+        
+        // 4. Después de solo 100 milisegundos, volvemos a poner "404"
         setTimeout(() => setGlitchText('404'), 100)
       }
     }, 500)
+
+    // Limpieza al desmontar el componente para evitar errores de memoria
     return () => clearInterval(interval)
   }, [])
 

@@ -65,7 +65,6 @@ export default function Forums() {
         }
 
         const reader = new FileReader()
-        reader.readAsDataURL(formData.image)
         reader.onload = async () => {
           try {
             await createForum({ title: formData.title, description: formData.description, image: reader.result })
@@ -83,6 +82,7 @@ export default function Forums() {
             }
           }
         }
+        reader.readAsDataURL(formData.image)
         return
       }
       setShowModal(false)
@@ -146,7 +146,9 @@ export default function Forums() {
                       objectFit="cover"
                     />
                   </div>
-                  <h3 className="fs-24 mb-10">{f.title.toUpperCase()}</h3>
+                  <h3 className="fs-24 mb-10 line-clamp-2" style={{ minHeight: '2.4em', display: 'flex', alignItems: 'center' }}>
+                    {f.title.toUpperCase()}
+                  </h3>
                   <p className="fs-15 lh-1-6 text-dim text-break">{(f.description ?? '').substring(0, 120)}...</p>
                 </Link>
                 {user && String(user.id) === String(f.user_id) && (

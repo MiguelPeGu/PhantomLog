@@ -18,7 +18,7 @@ export function CartProvider({ children }) {
         setCartCount(0);
       }
     } catch (e) {
-       console.error("Error fetching global cart for badge count", e);
+       console.error("Error al obtener el carrito global", e);
     }
   };
 

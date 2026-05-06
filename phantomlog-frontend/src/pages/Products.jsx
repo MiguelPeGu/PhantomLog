@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { addToCart } from '../api/cart'
 import { useToast } from '../context/ToastContext'
 import { Link } from 'react-router-dom'
@@ -18,7 +18,15 @@ const ProductSkeleton = () => (
 )
 
 export default function Products() {
-  const { products, loadingProducts: loading, productsPagination, refreshProducts, globalSearch, setGlobalSearch } = useData()
+  const { 
+    products, 
+    loadingProducts: loading, 
+    productsPagination, 
+    refreshProducts, 
+    globalSearch, 
+    setGlobalSearch,
+    productCategories: categories // Usamos las categorías persistentes del DataProvider
+  } = useData()
   const { addToast } = useToast()
   const { setCartCount } = useCart()
 
@@ -29,13 +37,6 @@ export default function Products() {
   const [sort, setSort] = useState('newest')
   const [activeFilters, setActiveFilters] = useState({ category: 'ALL', minPrice: '', maxPrice: '', sort: 'newest' })
   const [addingId, setAddingId] = useState(null)
-
-  // Derivar categorías con useMemo — evita JSON.stringify en cada render
-  // y el ciclo de dependencias que causaba re-renders innecesarios.
-  const categories = useMemo(() => {
-    if (products.length === 0) return ['ALL']
-    return ['ALL', ...new Set(products.map(p => p.category?.toUpperCase()).filter(Boolean))]
-  }, [products])
 
   const applyFilters = () => {
     if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {

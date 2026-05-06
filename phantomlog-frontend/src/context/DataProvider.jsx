@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 import { getBootstrap } from '../api/bootstrap'
 import { getProducts } from '../api/products'
 import { getForums } from '../api/forums'
@@ -16,6 +16,7 @@ export function DataProvider({ children }) {
   const [invoices, setInvoices]       = useState([])
   const [phantoms, setPhantoms]       = useState([])
   const [expeditions, setExpeditions] = useState([])
+  const [productCategories, setProductCategories] = useState(['ALL'])
 
   const [loadingProducts,   setLoadingProducts]   = useState(false)
   const [loadingForums,     setLoadingForums]      = useState(false)
@@ -44,7 +45,7 @@ export function DataProvider({ children }) {
       setProducts(Array.isArray(data) ? data : [])
       setProductsPagination({ currentPage: res.data.current_page || 1, totalPages: res.data.last_page || 1 })
     } catch (error) {
-      console.error('Error fetching products:', error)
+      console.error('Error al obtener los productos:', error)
     } finally {
       if (requestId === requestRefs.current.products) setLoadingProducts(false)
     }
@@ -60,13 +61,13 @@ export function DataProvider({ children }) {
       setForums(Array.isArray(data) ? data : [])
       setForumsPagination({ currentPage: res.data.current_page || 1, totalPages: res.data.last_page || 1 })
     } catch (error) {
-      console.error('Error fetching forums:', error)
+      console.error('Error al obtener los foros:', error)
     } finally {
       if (requestId === requestRefs.current.forums) setLoadingForums(false)
     }
   }, [])
 
-  const refreshInvoices = useCallback(async (params = {}) => {
+  const refreshInvoices = useCallback(async (params = {}) => { // no sé como funciona callback
     const requestId = ++requestRefs.current.invoices
     setLoadingInvoices(true)
     try {
@@ -76,7 +77,7 @@ export function DataProvider({ children }) {
       setInvoices(Array.isArray(data) ? data : [])
       setInvoicesPagination({ currentPage: res.data.current_page || 1, totalPages: res.data.last_page || 1 })
     } catch (error) {
-      console.error('Error fetching invoices:', error)
+      console.error('Error al obtener las facturas:', error)
     } finally {
       if (requestId === requestRefs.current.invoices) setLoadingInvoices(false)
     }
@@ -91,7 +92,7 @@ export function DataProvider({ children }) {
       const data = res.data.data || res.data
       setPhantoms(Array.isArray(data) ? data : [])
     } catch (error) {
-      console.error('Error fetching phantoms:', error)
+      console.error('Error al obtener los fantasmas:', error)
     } finally {
       if (requestId === requestRefs.current.phantoms) setLoadingPhantoms(false)
     }
@@ -107,7 +108,7 @@ export function DataProvider({ children }) {
       setExpeditions(Array.isArray(data) ? data : [])
       setExpeditionsPagination({ currentPage: res.data.current_page || 1, totalPages: res.data.last_page || 1 })
     } catch (error) {
-      console.error('Error fetching expeditions:', error)
+      console.error('Error al obtener las expediciones:', error)
     } finally {
       if (requestId === requestRefs.current.expeditions) setLoadingExpeditions(false)
     }
@@ -138,13 +139,19 @@ export function DataProvider({ children }) {
       setExpeditions(Array.isArray(expData) ? expData : [])
       setExpeditionsPagination({ currentPage: expeditions.current_page || 1, totalPages: expeditions.last_page || 1 })
 
-      // Phantoms (no paginado, es array directo)
+      // Phantom
       setPhantoms(Array.isArray(phantoms) ? phantoms : [])
 
       // Productos
       const prodData = products.data || products
       setProducts(Array.isArray(prodData) ? prodData : [])
       setProductsPagination({ currentPage: products.current_page || 1, totalPages: products.last_page || 1 })
+
+      // Extraer categorías únicas para los filtros (se mantienen fijas tras el primer carga)
+      if (Array.isArray(prodData)) {
+        const cats = ['ALL', ...new Set(prodData.map(product => product.category?.toUpperCase()).filter(Boolean))]
+        setProductCategories(cats)
+      }
 
       // Facturas
       const invData = invoices.data || invoices
@@ -169,7 +176,7 @@ export function DataProvider({ children }) {
     }
   }, [user, refreshAll])
 
-  const value = useMemo(() => ({
+  const value = {
     products, loadingProducts, productsPagination, refreshProducts,
     forums, loadingForums, forumsPagination, refreshForums,
     invoices, loadingInvoices, invoicesPagination, refreshInvoices,
@@ -177,17 +184,9 @@ export function DataProvider({ children }) {
     expeditions, loadingExpeditions, expeditionsPagination, refreshExpeditions,
     globalSearch, setGlobalSearch,
     loadingBootstrap,
+    productCategories,
     refreshAll
-  }), [
-    products, loadingProducts, productsPagination, refreshProducts,
-    forums, loadingForums, forumsPagination, refreshForums,
-    invoices, loadingInvoices, invoicesPagination, refreshInvoices,
-    phantoms, loadingPhantoms, refreshPhantoms,
-    expeditions, loadingExpeditions, expeditionsPagination, refreshExpeditions,
-    globalSearch,
-    loadingBootstrap,
-    refreshAll
-  ])
+  }
 
   return (
     <DataContext.Provider value={value}>

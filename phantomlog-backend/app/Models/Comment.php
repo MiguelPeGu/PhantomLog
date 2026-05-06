@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Models\User;
 use App\Models\Report;
+use Carbon\CarbonInterface;
 /**
  * @property-read string $id
  * @property-read string $report_id

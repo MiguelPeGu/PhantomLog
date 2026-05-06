@@ -4,6 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Carbon\CarbonInterface;
+
+/**
+ * @property-read int $id
+ * @property-read string $report_id
+ * @property-read string $user_id
+ * @property-read int $value
+ * @property-read CarbonInterface $created_at
+ * @property-read CarbonInterface $updated_at
+ */
 class ReportVote extends Model
 {
     protected $fillable = [

@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\InvoiceDetail;
 
+use Carbon\CarbonInterface;
+
 /**
  * @property-read string $id
  * @property-read string $n_invoice
@@ -18,7 +20,9 @@ use App\Models\InvoiceDetail;
  * @property-read string $first_name
  * @property-read string $last_name
  * @property-read string $address
- * @property-read string $tax
+ * @property-read string $postal_code
+ * @property-read string $payment_method
+ * @property-read int $tax
  * @property-read string $total
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at

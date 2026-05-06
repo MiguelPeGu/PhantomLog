@@ -10,17 +10,19 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Product;
 use App\Models\Invoice;
 
+use Carbon\CarbonInterface;
+
 /**
  * @property-read string $id
  * @property-read string $invoice_id
  * @property-read string $product_id
  * @property-read string $sku
  * @property-read string $title
- * @property-read decimal $price
+ * @property-read string $price
  * @property-read int $tax
  * @property-read int $quantity
- * @property-read decimal $total
- * @property-read decimal $total_with_tax
+ * @property-read string $total
+ * @property-read string $total_with_tax
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */

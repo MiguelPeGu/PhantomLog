@@ -13,14 +13,15 @@ use App\Models\Forum;
 use App\Models\Comment;
 
 /**
- * @property int $id
- * @property int $forum_id
- * @property int $user_id
- * @property string $title
- * @property string $description
- * @property int $score
- * @property CarbonInterface $created_at
- * @property CarbonInterface $updated_at
+ * @property-read string $id
+ * @property-read string $forum_id
+ * @property-read string $user_id
+ * @property-read string $title
+ * @property-read string $description
+ * @property-read string $image
+ * @property-read int $score
+ * @property-read CarbonInterface $created_at
+ * @property-read CarbonInterface $updated_at
  * @property-read Forum $forum
  * @property-read User $user
  */

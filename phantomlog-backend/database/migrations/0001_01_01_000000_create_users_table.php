@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('dni',9)->unique();
             $table->string('username',50)->unique();
-            $table->string('img')->default("https://api.dicebear.com/9.x/lorelei/svg?seed=Felix");
+            $table->string('img')->nullable();
             $table->string('firstname');
             $table->string('lastname');
             $table->string('address');

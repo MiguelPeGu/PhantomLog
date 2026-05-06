@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Report;
 
+use Carbon\CarbonInterface;
+
 /**
  * @property-read string $id
  * @property-read string $title
  * @property-read string $description
+ * @property-read string $image
  * @property-read string $user_id
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at

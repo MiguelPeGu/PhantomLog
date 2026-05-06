@@ -9,11 +9,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Expedition;
 
+use Carbon\CarbonInterface;
+
 /**
  * @property-read string $id
  * @property-read string $name
  * @property-read string $type
  * @property-read string $description
+ * @property-read string $strengths
+ * @property-read string $weaknesses
+ * @property-read string $evidence
  * @property-read string $location
  * @property-read string $image
  * @property-read CarbonInterface $created_at
