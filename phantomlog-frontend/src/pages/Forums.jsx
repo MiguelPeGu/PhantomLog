@@ -24,6 +24,7 @@ export default function Forums() {
   const [formData, setFormData] = useState({ title: '', description: '', image: null })
   const [currentPage, setCurrentPage] = useState(1)
   const [localSearch, setLocalSearch] = useState('')
+  const [fading, setFading] = useState(false)
   const { user } = useAuth()
   const { addToast } = useToast()
 
@@ -36,9 +37,9 @@ export default function Forums() {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
-      return // datos ya cargados por DataProvider
+      return
     }
-    
+
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
         refreshForums({ search: localSearch, page: currentPage, per_page: 9 })
@@ -49,6 +50,17 @@ export default function Forums() {
     }
   }, [localSearch, currentPage, refreshForums])
 
+  useEffect(() => {
+    if (!loading) {
+      setFading(false)
+    }
+  }, [loading])
+
+  const handlePageChange = (newPage) => {
+    setFading(true)
+    setCurrentPage(newPage)
+    window.scrollTo(0, 0)
+  }
 
   const handleCreateForum = async (e) => {
     e.preventDefault()
@@ -86,9 +98,9 @@ export default function Forums() {
       }
       setShowModal(false)
       refreshForums({ page: currentPage })
-    } catch (error) { 
+    } catch (error) {
       const msg = error.response?.data?.message || 'Fallo en la conexión con el servidor.'
-      addToast(msg.toUpperCase(), 'error') 
+      addToast(msg.toUpperCase(), 'error')
     }
   }
 
@@ -108,17 +120,17 @@ export default function Forums() {
       <header className="text-center mb-60 border-bottom pb-30">
         <h1 className="fs-42 ls-4">FOROS DE INVESTIGACIÓN</h1>
         <p className="text-dim fs-14 mt-5 mb-80">Comparte tus hallazgos con la comunidad.</p>
-        
+
         <div className="flex-center gap-20 mt-60">
-          <input 
-            type="text" 
-            placeholder="BUSCAR FOROS..." 
+          <input
+            type="text"
+            placeholder="BUSCAR FOROS..."
             className="search-bar w-100 max-400 m-0"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
           />
           {user && (
-            <button 
+            <button
               onClick={() => { setFormData({title: '', description: '', image: null}); setIsEditing(false); setShowModal(true); }}
               className="ls-1 p-15-40 primary nowrap"
             >
@@ -129,7 +141,7 @@ export default function Forums() {
       </header>
 
       <div className="max-1200">
-        <div className={`grid-3 loading-fade${loading && forums.length > 0 ? ' is-loading' : ''}`}>
+        <div className={`grid-3 loading-fade${fading ? ' is-loading' : ''}`}>
           {loading && forums.length === 0 ? (
             [...Array(6)].map((_, i) => <ForumSkeleton key={i} />)
           ) : forums.length === 0 ? (
@@ -139,7 +151,7 @@ export default function Forums() {
               <div key={f.id} className="horror-card column">
                 <Link to={`/forums/${f.id}`} className="no-underline flex-1">
                   <div className="card-image-box">
-                    <ShimmerImage 
+                    <ShimmerImage
                       src={f.image_url}
                       alt={f.title}
                       objectFit="cover"
@@ -163,14 +175,19 @@ export default function Forums() {
 
         {totalPages > 1 && (
           <div className="pagination-controls mt-60">
-            <button 
-              disabled={currentPage === 1} 
-              onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
+            <button
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
             >
               🡄 ANTERIOR
             </button>
             <span className="bold">{currentPage} / {totalPages}</span>
-            <button disabled={currentPage === totalPages} onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}>SIGUIENTE 🡆</button>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              SIGUIENTE 🡆
+            </button>
           </div>
         )}
       </div>

@@ -31,37 +31,50 @@ export default function Expeditions() {
     name: '', description: '', location: '', date: '', phantom_id: ''
   })
   const [currentPage, setCurrentPage] = useState(1)
+  const [fading, setFading] = useState(false)
   const { user } = useAuth()
   const { addToast } = useToast()
 
   const isFirstRender = useRef(true)
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [localSearch, selectedPhantom]);
+    setCurrentPage(1)
+  }, [localSearch, selectedPhantom])
 
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
-      return // datos ya cargados por DataProvider
+      return
     }
-    
-    const params = { 
-      search: localSearch, 
-      page: currentPage, 
+
+    const params = {
+      search: localSearch,
+      page: currentPage,
       per_page: 9,
-      phantom_id: selectedPhantom 
-    };
+      phantom_id: selectedPhantom
+    }
 
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
-        refreshExpeditions(params);
-      }, 400);
-      return () => clearTimeout(delayDebounceFn);
+        refreshExpeditions(params)
+      }, 400)
+      return () => clearTimeout(delayDebounceFn)
     } else {
-      refreshExpeditions(params);
+      refreshExpeditions(params)
     }
-  }, [localSearch, currentPage, selectedPhantom, refreshExpeditions]);
+  }, [localSearch, currentPage, selectedPhantom, refreshExpeditions])
+
+  useEffect(() => {
+    if (!loadingExpeditions) {
+      setFading(false)
+    }
+  }, [loadingExpeditions])
+
+  const handlePageChange = (newPage) => {
+    setFading(true)
+    setCurrentPage(newPage)
+    window.scrollTo(0, 0)
+  }
 
   const handleOpenCreate = () => {
     setFormData({ name: '', description: '', location: '', date: '', phantom_id: '' })
@@ -96,14 +109,14 @@ export default function Expeditions() {
       }
       setShowModal(false)
       refreshExpeditions({ search: localSearch, page: currentPage, per_page: 9 })
-    } catch (err) { 
+    } catch (err) {
       const errors = err.response?.data?.errors
       if (errors) {
         const firstError = Object.values(errors)[0][0]
         addToast(firstError.toUpperCase(), 'error')
       } else {
         const msg = err.response?.data?.message || 'ERROR EN LA OPERACIÓN'
-        addToast(msg.toUpperCase(), 'error') 
+        addToast(msg.toUpperCase(), 'error')
       }
     }
   }
@@ -128,17 +141,17 @@ export default function Expeditions() {
       <header className="text-center mb-60 border-bottom pb-30">
         <h1 className="fs-42 ls-4">CALENDARIO DE INCURSIÓN</h1>
         <p className="text-dim fs-14 mt-5 mb-80">ZONAS DE ACTIVIDAD PARANORMAL CONFIRMADA</p>
-        
+
         <div className="flex-center gap-20 mt-60">
-          <input 
-            type="text" 
-            placeholder="BUSCAR INCURSIÓN O UBICACIÓN..." 
+          <input
+            type="text"
+            placeholder="BUSCAR INCURSIÓN O UBICACIÓN..."
             className="search-bar w-100 max-400 m-0"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
           />
 
-          <select 
+          <select
             className="search-bar max-250 m-0"
             value={selectedPhantom}
             onChange={(e) => setSelectedPhantom(e.target.value)}
@@ -150,7 +163,7 @@ export default function Expeditions() {
           </select>
 
           {user && (
-            <button 
+            <button
               onClick={handleOpenCreate}
               className="ls-1 p-15-40 primary nowrap"
             >
@@ -161,7 +174,7 @@ export default function Expeditions() {
       </header>
 
       <div className="max-1200">
-        <div className={`grid-3 loading-fade${loadingExpeditions && expeditions.length > 0 ? ' is-loading' : ''}`}>
+        <div className={`grid-3 loading-fade${fading ? ' is-loading' : ''}`}>
           {loadingExpeditions && expeditions.length === 0 ? (
             [...Array(6)].map((_, i) => <ExpeditionSkeleton key={i} />)
           ) : expeditions.length === 0 ? (
@@ -173,8 +186,8 @@ export default function Expeditions() {
 
               return (
                 <div key={exp.id} className="relative">
-                  <Link 
-                    to={`/expeditions/${exp.id}`} 
+                  <Link
+                    to={`/expeditions/${exp.id}`}
                     className={`horror-card column ${isClosed ? 'red' : ''} gap-15 p-25 h-100`}
                   >
                     <div className="flex-center justify-between align-start">
@@ -197,7 +210,7 @@ export default function Expeditions() {
                         {exp.participants_count} OPERATIVOS
                       </div>
                     </div>
-                    
+
                     {isCreator && (
                       <div className="flex-center mt-20 gap-10 border-top pt-10 border-faded-05">
                         <button onClick={(e) => handleOpenEdit(e, exp)} className="flex-1 fs-10 p-5">[EDITAR]</button>
@@ -213,18 +226,18 @@ export default function Expeditions() {
 
         {totalPages > 1 && (
           <div className="pagination-controls mt-60">
-            <button 
-              disabled={currentPage === 1} 
-              onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
+            <button
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
             >
               🡄 ANTERIOR
             </button>
             <span className="bold fs-18">
               {currentPage} / {totalPages}
             </span>
-            <button 
-              disabled={currentPage === totalPages} 
-              onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
             >
               SIGUIENTE 🡆
             </button>
@@ -236,7 +249,7 @@ export default function Expeditions() {
         <div className="modal-overlay">
           <form onSubmit={handleExpeditionSubmit} className="horror-form">
             <h2 className="ls-2">{isEditing ? 'RE-PROGRAMAR' : 'NUEVA'} INCURSIÓN</h2>
-            
+
             <div className="form-group">
               <label className="form-label">NOMBRE DE LA OPERACIÓN</label>
               <input required placeholder="Ej: Operación Silencio" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
@@ -259,7 +272,7 @@ export default function Expeditions() {
               <label className="form-label">FECHA Y HORA DE DESPLIEGUE</label>
               <input required type="datetime-local" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
             </div>
-            
+
             <div className="form-group">
               <label className="form-label">ENTIDAD OBJETIVO</label>
               <select required value={formData.phantom_id} onChange={e => setFormData({...formData, phantom_id: e.target.value})}>

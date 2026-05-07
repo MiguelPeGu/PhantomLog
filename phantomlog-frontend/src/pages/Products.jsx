@@ -18,14 +18,14 @@ const ProductSkeleton = () => (
 )
 
 export default function Products() {
-  const { 
-    products, 
-    loadingProducts: loading, 
-    productsPagination, 
-    refreshProducts, 
-    globalSearch, 
+  const {
+    products,
+    loadingProducts: loading,
+    productsPagination,
+    refreshProducts,
+    globalSearch,
     setGlobalSearch,
-    productCategories: categories // Usamos las categorías persistentes del DataProvider
+    productCategories: categories
   } = useData()
   const { addToast } = useToast()
   const { setCartCount } = useCart()
@@ -37,56 +37,69 @@ export default function Products() {
   const [sort, setSort] = useState('newest')
   const [activeFilters, setActiveFilters] = useState({ category: 'ALL', minPrice: '', maxPrice: '', sort: 'newest' })
   const [addingId, setAddingId] = useState(null)
+  const [fading, setFading] = useState(false)
 
   const applyFilters = () => {
     if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
-      addToast("EL PRECIO MÍNIMO NO PUEDE SER MAYOR AL MÁXIMO", "error");
-      return;
+      addToast("EL PRECIO MÍNIMO NO PUEDE SER MAYOR AL MÁXIMO", "error")
+      return
     }
-    setActiveFilters({ category, minPrice, maxPrice, sort });
-    setCurrentPage(1);
-  };
+    setActiveFilters({ category, minPrice, maxPrice, sort })
+    setCurrentPage(1)
+  }
 
   const resetFilters = () => {
-    setCategory('ALL');
-    setMinPrice('');
-    setMaxPrice('');
-    setSort('newest');
-    setActiveFilters({ category: 'ALL', minPrice: '', maxPrice: '', sort: 'newest' });
-    setGlobalSearch('');
-    setCurrentPage(1);
-  };
+    setCategory('ALL')
+    setMinPrice('')
+    setMaxPrice('')
+    setSort('newest')
+    setActiveFilters({ category: 'ALL', minPrice: '', maxPrice: '', sort: 'newest' })
+    setGlobalSearch('')
+    setCurrentPage(1)
+  }
 
   const isFirstRender = useRef(true)
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [globalSearch]);
+    setCurrentPage(1)
+  }, [globalSearch])
 
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
-      return // datos ya cargados por DataProvider
+      return
     }
     const params = {
       search: globalSearch,
       page: currentPage,
       per_page: 9,
       sort: activeFilters.sort
-    };
-    if (activeFilters.category !== 'ALL') params.category = activeFilters.category;
-    if (activeFilters.minPrice) params.min_price = activeFilters.minPrice;
-    if (activeFilters.maxPrice) params.max_price = activeFilters.maxPrice;
+    }
+    if (activeFilters.category !== 'ALL') params.category = activeFilters.category
+    if (activeFilters.minPrice) params.min_price = activeFilters.minPrice
+    if (activeFilters.maxPrice) params.max_price = activeFilters.maxPrice
 
     if (globalSearch !== '') {
       const handler = setTimeout(() => {
-        refreshProducts(params);
-      }, 400);
-      return () => clearTimeout(handler);
+        refreshProducts(params)
+      }, 400)
+      return () => clearTimeout(handler)
     } else {
-      refreshProducts(params);
+      refreshProducts(params)
     }
-  }, [globalSearch, currentPage, activeFilters, refreshProducts]);
+  }, [globalSearch, currentPage, activeFilters, refreshProducts])
+
+  useEffect(() => {
+    if (!loading) {
+      setFading(false)
+    }
+  }, [loading])
+
+  const handlePageChange = (newPage) => {
+    setFading(true)
+    setCurrentPage(newPage)
+    window.scrollTo(0, 0)
+  }
 
   const handleBuy = async (productId) => {
     setAddingId(productId)
@@ -94,13 +107,14 @@ export default function Products() {
       const res = await addToCart(productId, 1)
       addToast("Objeto guardado en tu contenedor.", "success")
       if (res.data?.items) {
-        setCartCount(res.data.items.reduce((acc, item) => acc + item.quantity, 0)) // explicame esta operacion
+        setCartCount(res.data.items.reduce((acc, item) => acc + item.quantity, 0))
       }
     } catch (e) {
-      const msg = e.response?.data?.message || "Error al añadir."; // el mesnaje de error es el que yo personalizo en el backend verdad?
+      const msg = e.response?.data?.message || "Error al añadir."
       addToast(msg.toUpperCase(), "error")
+    } finally {
+      setAddingId(null)
     }
-    finally { setAddingId(null) }
   }
 
   const { totalPages } = productsPagination
@@ -127,7 +141,7 @@ export default function Products() {
                 <button
                   key={sortOption.id}
                   onClick={() => setSort(sortOption.id)}
-                  className={`${sort === sortOption.id ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`} // que hace aqui al clicar
+                  className={`${sort === sortOption.id ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`}
                 >
                   {sortOption.label}
                 </button>
@@ -140,7 +154,7 @@ export default function Products() {
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`${category === cat ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`} // que hace aqui
+                  className={`${category === cat ? 'primary' : 'outline-red'} text-left fs-11 p-8-12`}
                 >
                   {cat}
                 </button>
@@ -194,64 +208,63 @@ export default function Products() {
 
           {/* Lista de Productos */}
           <div className="flex-1">
-            <div className={`grid-catalog mb-60 loading-fade${loading && products.length > 0 ? ' is-loading' : ''}`}>
+            <div className={`grid-catalog mb-60 loading-fade${fading ? ' is-loading' : ''}`}>
               {loading && products.length === 0 ? (
                 [...Array(6)].map((_, i) => <ProductSkeleton key={i} />)
               ) : products.length === 0 ? (
                 <div className="text-center fs-24 p-100 italic" style={{ gridColumn: '1/-1' }}>No se han detectado objetos con ese patrón.</div>
               ) : (
                 products.map(p => (
-                    <div key={p.id} className="horror-card column p-0 overflow-hidden">
-                      <Link to={`/products/${p.id}`} className="product-img-container block no-underline">
-                        <ShimmerImage
-                          src={p.image?.startsWith('http') ? p.image : `http://localhost:8000/storage/${p.image}`}
-                          alt={p.title}
-                          objectFit="cover"
-                        />
-                      </Link>
-                      <div className="column flex-1 justify-between card-padding">
-                        <div>
-                          <Link to={`/products/${p.id}`} className="no-underline block mb-10">
-                            <h3 className="pointer fs-18 m-0 text-normal hover-accent">{p.title.toUpperCase()}</h3>
-                          </Link>
-                          <div className="flex-center justify-between mb-15">
-                            <span className="fs-24 text-accent bold">{Number(p.price).toFixed(2)}€</span>
-                            <span className="fs-10 text-muted">STOCK: {p.stock}</span>
-                          </div>
+                  <div key={p.id} className="horror-card column p-0 overflow-hidden">
+                    <Link to={`/products/${p.id}`} className="product-img-container block no-underline">
+                      <ShimmerImage
+                        src={p.image?.startsWith('http') ? p.image : `http://localhost:8000/storage/${p.image}`}
+                        alt={p.title}
+                        objectFit="cover"
+                      />
+                    </Link>
+                    <div className="column flex-1 justify-between card-padding">
+                      <div>
+                        <Link to={`/products/${p.id}`} className="no-underline block mb-10">
+                          <h3 className="pointer fs-18 m-0 text-normal hover-accent">{p.title.toUpperCase()}</h3>
+                        </Link>
+                        <div className="flex-center justify-between mb-15">
+                          <span className="fs-24 text-accent bold">{Number(p.price).toFixed(2)}€</span>
+                          <span className="fs-10 text-muted">STOCK: {p.stock}</span>
                         </div>
-                        <button
-                          disabled={p.stock <= 0 || addingId === p.id}
-                          onClick={() => handleBuy(p.id)}
-                          className={`horror-card w-100 p-10 ${p.stock <= 0 ? 'opacity-02' : 'pointer'}`}
-                        >
-                          {addingId === p.id ? 'AÑADIENDO...' : p.stock <= 0 ? 'SIN EXISTENCIAS' : 'ADQUIRIR'}
-                        </button>
                       </div>
+                      <button
+                        disabled={p.stock <= 0 || addingId === p.id}
+                        onClick={() => handleBuy(p.id)}
+                        className={`horror-card w-100 p-10 ${p.stock <= 0 ? 'opacity-02' : 'pointer'}`}
+                      >
+                        {addingId === p.id ? 'AÑADIENDO...' : p.stock <= 0 ? 'SIN EXISTENCIAS' : 'ADQUIRIR'}
+                      </button>
                     </div>
-                  ))
-                )}
+                  </div>
+                ))
+              )}
             </div>
 
-                {totalPages > 1 && (
-                  <div className="pagination-controls">
-                    <button
-                      disabled={currentPage === 1}
-                      onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0, 0); }}
-                    >
-                      🡄 ANTERIOR
-                    </button>
-                    <span className="bold fs-18">
-                      {currentPage} / {totalPages}
-                    </span>
-                    <button
-                      disabled={currentPage === totalPages}
-                      onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0, 0); }}
-                    >
-                      SIGUIENTE 🡆
-                    </button>
-                  </div>
-                )}
-
+            {totalPages > 1 && (
+              <div className="pagination-controls">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  🡄 ANTERIOR
+                </button>
+                <span className="bold fs-18">
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  SIGUIENTE 🡆
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -20,6 +20,7 @@ export default function Invoices() {
   const { invoices, loadingInvoices: loading, invoicesPagination, refreshInvoices } = useData()
   const [localSearch, setLocalSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [fading, setFading] = useState(false)
   const isFirstRender = useRef(true)
 
   useEffect(() => {
@@ -29,9 +30,9 @@ export default function Invoices() {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
-      return // datos ya cargados por DataProvider
+      return
     }
-    
+
     if (localSearch !== '') {
       const delayDebounceFn = setTimeout(() => {
         refreshInvoices({ search: localSearch, page: currentPage, per_page: 5 })
@@ -42,6 +43,18 @@ export default function Invoices() {
     }
   }, [localSearch, currentPage, refreshInvoices])
 
+  useEffect(() => {
+    if (!loading) {
+      setFading(false)
+    }
+  }, [loading])
+
+  const handlePageChange = (newPage) => {
+    setFading(true)
+    setCurrentPage(newPage)
+    window.scrollTo(0, 0)
+  }
+
   const { totalPages } = invoicesPagination
 
   return (
@@ -49,11 +62,11 @@ export default function Invoices() {
       <header className="text-center mb-60">
         <h1 className="fs-42 ls-3">HISTORIAL DE CONTRATOS</h1>
         <p className="text-dim mt-5">Registros de transacciones y servicios paranormales.</p>
-        
+
         <div className="flex-center mt-40">
-           <input 
-            type="text" 
-            placeholder="BUSCAR POR Nº DE CONTRATO (INV-XXXX)..." 
+          <input
+            type="text"
+            placeholder="BUSCAR POR Nº DE CONTRATO (INV-XXXX)..."
             className="search-bar w-100 max-400 m-0"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
@@ -62,7 +75,7 @@ export default function Invoices() {
       </header>
 
       <div className="max-800">
-        <div className={`column gap-20 loading-fade${loading && invoices.length > 0 ? ' is-loading' : ''}`}>
+        <div className={`column gap-20 loading-fade${fading ? ' is-loading' : ''}`}>
           {loading && invoices.length === 0 ? (
             [...Array(5)].map((_, i) => <InvoiceSkeleton key={i} />)
           ) : invoices.length === 0 ? (
@@ -86,18 +99,18 @@ export default function Invoices() {
 
         {totalPages > 1 && (
           <div className="pagination-controls mt-60">
-            <button 
-              disabled={currentPage === 1} 
-              onClick={() => { setCurrentPage(p => p - 1); window.scrollTo(0,0); }}
+            <button
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
             >
               🡄 ANTERIOR
             </button>
             <span className="bold fs-18">
               {currentPage} / {totalPages}
             </span>
-            <button 
-              disabled={currentPage === totalPages} 
-              onClick={() => { setCurrentPage(p => p + 1); window.scrollTo(0,0); }}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
             >
               SIGUIENTE 🡆
             </button>
