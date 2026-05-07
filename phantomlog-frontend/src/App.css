@@ -900,27 +900,32 @@ body.light-mode .vote-btn.active {
 /* Product Detail Specific */
 .product-detail-grid {
   display: flex;
-  gap: 40px;
+  gap: 0;
   flex-wrap: wrap;
-  margin-top: 40px;
 }
 
 .product-image-large {
   width: 100%;
-  max-width: 500px;
+  max-width: 450px;
   aspect-ratio: 1/1;
-  background: #0a0a0a;
-  border: 1px solid var(--border);
+  background: #060606;
+  border-right: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  padding: 40px;
   overflow: hidden;
 }
 
 .product-info-panel {
   flex: 1;
-  min-width: 300px;
+  min-width: 350px;
+  background: var(--card-bg);
+}
+
+.product-detail-card {
+  border-color: var(--border-bright);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* Invoice Specific */
@@ -1014,6 +1019,30 @@ body.light-mode .vote-btn.active {
 
 .pl-0 {
   padding-left: 0 !important;
+}
+
+.pl-10 {
+  padding-left: 10px;
+}
+
+.pl-20 {
+  padding-left: 20px;
+}
+
+.pl-30 {
+  padding-left: 30px;
+}
+
+.pl-40 {
+  padding-left: 40px;
+}
+
+.pl-60 {
+  padding-left: 60px;
+}
+
+.pl-80 {
+  padding-left: 80px;
 }
 
 .m-0 {

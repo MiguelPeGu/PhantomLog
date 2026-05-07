@@ -302,7 +302,7 @@ export default function ReportDetail() {
         </div>
       )}
 
-      <div className="horror-card p-30 mb-30 fs-18 lh-1-8 pre-line border-accent-left-4 text-break">
+      <div className="horror-card p-30 mb-30 fs-18 lh-1-8 pre-line border-accent-left-4 pl-40 text-break">
         {report.description}
       </div>
 

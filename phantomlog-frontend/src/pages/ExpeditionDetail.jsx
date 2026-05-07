@@ -111,7 +111,7 @@ export default function ExpeditionDetail() {
           {/* Header */}
           <div className="border-bottom pb-30 mb-30">
             <div className="flex-center justify-between mb-20">
-              <div>
+              <div className="pl-60">
                 <div className="skeleton skeleton-title mb-10" style={{ width: '380px', height: '52px' }}></div>
                 <div className="skeleton skeleton-text" style={{ width: '200px' }}></div>
               </div>
@@ -141,7 +141,7 @@ export default function ExpeditionDetail() {
               <div className="skeleton w-100 mt-40" style={{ height: '64px', borderRadius: '4px' }}></div>
             </div>
 
-            <div className="border-left pl-40">
+            <div className="border-left pl-60">
               <div className="skeleton" style={{ width: '160px', height: '24px', marginBottom: '20px' }}></div>
               <div className="column gap-10">
                 {[...Array(4)].map((_, i) => (
@@ -177,9 +177,9 @@ export default function ExpeditionDetail() {
         {/* Header Section */}
         <div className="border-bottom pb-30 mb-30">
           <div className="flex-center justify-between align-start mb-20">
-            <div>
-              <h1 className="m-0 fs-48 ls-4">{expedition.name.toUpperCase()}</h1>
-              <p className="text-dim fs-14 mt-10">UBICACIÓN: <span className="text-normal">{expedition.location.toUpperCase()}</span></p>
+            <div className="pl-60">
+              <h1 className="m-0 fs-48 ls-4 text-break">{expedition.name.toUpperCase()}</h1>
+              <p className="text-dim fs-14 mt-10">UBICACIÓN: <span className="text-normal text-break">{expedition.location.toUpperCase()}</span></p>
             </div>
             <div className={`status-badge ${isClosed ? 'closed' : 'active'} p-10-20`}>
               {isClosed ? 'ESTADO: FINALIZADA' : 'ESTADO: RECLUTANDO'}
@@ -216,7 +216,7 @@ export default function ExpeditionDetail() {
             )}
           </div>
 
-          <div className="border-left pl-40">
+          <div className="border-left pl-60">
             <h3 className="border-bottom pb-10">OPERATIVOS ({expedition.participants_count})</h3>
             <div className="column gap-10 mt-20">
               {expedition.participants?.length === 0 ? (

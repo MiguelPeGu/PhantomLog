@@ -49,7 +49,7 @@ export default function Invoices() {
   const { totalPages } = invoicesPagination
 
   return (
-    <div className="page-container max-800">
+    <div className="page-container max-1000">
       <header className="text-center mb-60">
         <h1 className="fs-42 ls-3">HISTORIAL DE CONTRATOS</h1>
         <p className="text-dim mt-5">Registros de transacciones y servicios paranormales.</p>

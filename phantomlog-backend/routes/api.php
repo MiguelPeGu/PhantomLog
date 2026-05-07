@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\PhantomController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ReportVoteController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Públicas
@@ -22,8 +23,8 @@ Route::post('/login', [AuthController::class, 'login']);
 // Protegidas
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'me']);
-    Route::put('/user', [AuthController::class, 'update']);
+    Route::get('/user', [UserController::class, 'me']);
+    Route::put('/user', [UserController::class, 'update']);
 
     Route::get('/bootstrap', [BootstrapController::class, 'index']);
 

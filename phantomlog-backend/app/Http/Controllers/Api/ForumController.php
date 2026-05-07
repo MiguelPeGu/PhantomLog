@@ -82,14 +82,13 @@ final class ForumController
 
     public function show(Forum $forum): JsonResponse
     {
-        $forum->load(['user', 'reports.user', 'reports' => function (Builder $q): void {
-            $q->withCount('comments');
+        $forum->load(['user', 'reports' => function ($q) {
+            $q->with('user')->withCount('comments');
         }])
             ->loadAvg('reports', 'score');
 
-        /** @var float|int|null $avgScore */
-        $avgScore = $forum->getAttribute('reports_avg_score');
-        $forum->setAttribute('credibility_score', (float) ($avgScore ?? 0));
+        $avgScore = $forum->getAttribute('reports_avg_score') ?? 0;
+        $forum->setAttribute('credibility_score', (float) $avgScore);
 
         return response()->json($forum);
     }

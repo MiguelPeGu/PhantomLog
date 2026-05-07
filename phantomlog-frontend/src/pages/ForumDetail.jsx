@@ -311,7 +311,7 @@ export default function ForumDetail() {
           </div>
         </div>
 
-        <div className="horror-card fs-18 column lh-1-6 border-accent-left-3 min-h-120 w-100 text-break">
+        <div className="horror-card fs-18 column lh-1-6 border-accent-left-3 pl-40 min-h-120 w-100 text-break">
           <div className={isExpanded ? '' : 'line-clamp-3'}>
             {forum.description}
           </div>

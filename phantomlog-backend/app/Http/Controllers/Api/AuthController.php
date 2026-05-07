@@ -45,7 +45,6 @@ final class AuthController
             'address.regex' => 'La dirección contiene caracteres no permitidos.',
         ]);
 
-        // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value) && $key !== 'password') {
                 $data[$key] = mb_trim(strip_tags($value));
@@ -69,12 +68,22 @@ final class AuthController
             'password' => ['required'],
         ]);
 
-        if (! Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Credenciales incorrectas'], 401);
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'Usuario no encontrado.',
+                'errors' => ['email' => ['No existe ninguna cuenta asociada a este correo electrónico.']]
+            ], 404);
         }
 
-        $user = $request->user();
-        assert($user instanceof User);
+        if (! Auth::attempt($request->only('email', 'password'))) {
+            return response()->json([
+                'message' => 'Credenciales incorrectas.',
+                'errors' => ['password' => ['La contraseña introducida es incorrecta.']]
+            ], 401);
+        }
+
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json(['token' => $token, 'user' => $user]);
@@ -87,52 +96,5 @@ final class AuthController
         $user->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Sesión cerrada']);
-    }
-
-    public function me(Request $request): JsonResponse
-    {
-        $user = $request->user();
-        assert($user instanceof User);
-
-        return response()->json($user);
-    }
-
-    public function update(Request $request): JsonResponse
-    {
-        $user = $request->user();
-        assert($user instanceof User);
-
-        /** @var array<string, mixed> $data */
-        $data = $request->validate([
-            'username' => ['sometimes', 'string', 'min:4', 'max:30', 'unique:users,username,'.$user->id],
-            'firstname' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
-            'lastname' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
-            'dni' => ['sometimes', 'string', 'unique:users,dni,'.$user->id, 'regex:/^[0-9]{8}[A-Z]$/i'],
-            'address' => ['sometimes', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
-            'postalCode' => ['sometimes', 'numeric', 'digits:5'],
-            'img' => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
-        ], [
-            'firstname.regex' => 'El nombre no puede contener números ni símbolos.',
-            'lastname.regex' => 'Los apellidos no pueden contener números ni símbolos.',
-            'dni.regex' => 'El DNI debe tener 8 números y una letra.',
-            'postalCode.numeric' => 'El código postal debe ser numérico.',
-            'postalCode.digits' => 'El código postal debe tener 5 dígitos.',
-            'img.regex' => 'El archivo seleccionado no es una imagen válida (JPG, PNG, WEBP).',
-        ]);
-
-        foreach ($data as $key => $value) {
-            if (is_string($value) && $key !== 'password') {
-                $data[$key] = mb_trim(strip_tags($value));
-            }
-        }
-
-        if ($request->has('password') && $request->password) {
-            $request->validate(['password' => ['string', 'min:8', 'confirmed']]);
-            $data['password'] = Hash::make((string) ($request->string('password')));
-        }
-
-        $user->update($data);
-
-        return response()->json($user);
     }
 }

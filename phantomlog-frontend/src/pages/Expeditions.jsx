@@ -180,9 +180,9 @@ export default function Expeditions() {
                     to={`/expeditions/${exp.id}`}
                     className={`horror-card column ${isClosed ? 'red' : ''} gap-15 p-25 h-100`}
                   >
-                    <div className="flex-center justify-between align-start">
-                      <h3 className={`m-0 fs-20 ${isClosed ? 'text-accent-dim' : 'text-accent'}`}>{exp.name.toUpperCase()}</h3>
-                      <div className={`status-badge ${isClosed ? 'closed' : 'active'}`}>
+                    <div className="flex-center justify-between align-start gap-10">
+                      <h3 className={`m-0 fs-20 text-break ${isClosed ? 'text-accent-dim' : 'text-accent'}`}>{exp.name.toUpperCase()}</h3>
+                      <div className={`status-badge ${isClosed ? 'closed' : 'active'} nowrap`}>
                         {isClosed ? 'FINALIZADA' : 'ACTIVA'}
                       </div>
                     </div>

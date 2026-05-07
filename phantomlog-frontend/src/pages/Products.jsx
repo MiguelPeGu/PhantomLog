@@ -206,30 +206,44 @@ export default function Products() {
                 <div className="text-center fs-24 p-100 italic" style={{ gridColumn: '1/-1' }}>No se han detectado objetos con ese patrón.</div>
               ) : (
                 products.map(p => (
-                  <div key={p.id} className="horror-card column p-0 overflow-hidden">
-                    <Link to={`/products/${p.id}`} className="product-img-container block no-underline">
+                  <div key={p.id} className="horror-card product-catalog-card column p-0 overflow-hidden">
+                    <Link to={`/products/${p.id}`} className="product-img-container block no-underline relative">
                       <ShimmerImage
                         src={p.image?.startsWith('http') ? p.image : `http://localhost:8000/storage/${p.image}`}
                         alt={p.title}
                         objectFit="cover"
                       />
+                      {p.category && (
+                        <div className="absolute-br" style={{ bottom: '15px', right: '15px' }}>
+                          <span className="status-badge active fs-9 ls-1">{p.category.toUpperCase()}</span>
+                        </div>
+                      )}
                     </Link>
-                    <div className="column flex-1 justify-between card-padding">
-                      <div>
-                        <Link to={`/products/${p.id}`} className="no-underline block mb-10">
-                          <h3 className="pointer fs-18 m-0 text-normal hover-accent">{p.title.toUpperCase()}</h3>
+                    <div className="column flex-1 justify-between card-padding" style={{ padding: '25px' }}>
+                      <div className="mb-20">
+                        <Link to={`/products/${p.id}`} className="no-underline block mb-15">
+                          <h3 className="pointer fs-20 m-0 text-normal hover-accent ls-1" style={{ minHeight: '48px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            {p.title.toUpperCase()}
+                          </h3>
                         </Link>
-                        <div className="flex-center justify-between mb-15">
-                          <span className="fs-24 text-accent bold">{Number(p.price).toFixed(2)}€</span>
-                          <span className="fs-10 text-muted">STOCK: {p.stock}</span>
+                        <div className="flex align-center justify-between">
+                          <div className="column">
+                            <span className="fs-10 text-muted ls-2 mb-5">PRECIO CONSAGRADO</span>
+                            <span className="fs-28 text-accent bold">{Number(p.price).toFixed(2)}€</span>
+                          </div>
+                          <div className="text-right">
+                             <div className="fs-10 text-muted mb-5">DISPONIBILIDAD</div>
+                             <div className={`fs-14 bold ${p.stock > 10 ? 'text-normal' : 'text-accent'}`}>{p.stock} UNID.</div>
+                          </div>
                         </div>
                       </div>
                       <button
                         disabled={p.stock <= 0 || addingId === p.id}
                         onClick={() => handleBuy(p.id)}
-                        className={`horror-card w-100 p-10 ${p.stock <= 0 ? 'opacity-02' : 'pointer'}`}
+                        className={`btn primary w-100 p-12 ${p.stock <= 0 ? 'opacity-05' : ''}`}
+                        style={{ borderRadius: '0', border: '1px solid var(--accent)' }}
                       >
-                        {addingId === p.id ? 'AÑADIENDO...' : p.stock <= 0 ? 'SIN EXISTENCIAS' : 'ADQUIRIR'}
+                        {addingId === p.id ? 'VINCULANDO...' : p.stock <= 0 ? 'EXISTENCIAS AGOTADAS' : 'AÑADIR AL CONTENEDOR'}
                       </button>
                     </div>
                   </div>

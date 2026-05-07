@@ -137,7 +137,7 @@ export default function PhantomDetail() {
           
           {/* Visual Evidence Section */}
           <div className="column gap-20">
-            <div className="bestiary-img-box">
+            <div className="bestiary-img-box shimmer-box">
               <ShimmerImage 
                 src={phantom.image?.startsWith('http') ? phantom.image : `http://localhost:8000/storage/${phantom.image}`} 
                 alt={phantom.name}
@@ -189,7 +189,7 @@ export default function PhantomDetail() {
           className="flex-center gap-15 w-100 justify-between p-20 horror-card mb-20"
           style={{ textAlign: 'left' }}
         >
-          <div className="flex-center gap-15">
+          <div className="flex align-center gap-15">
             <span className="fs-18 ls-2">INCURSIONES RELACIONADAS</span>
             {localExpeditions.length > 0 && (
               <span className="status-badge active fs-10">
@@ -217,11 +217,11 @@ export default function PhantomDetail() {
                   <Link
                     key={exp.id}
                     to={`/expeditions/${exp.id}`}
-                    className="horror-card p-20 flex-center justify-between gap-20"
+                    className="horror-card p-20 flex align-center justify-between gap-20"
                     style={{ textDecoration: 'none' }}
                   >
                     <div className="flex-1">
-                      <div className="flex-center gap-10 mb-5">
+                      <div className="flex align-center gap-10 mb-5">
                         <h3 className="m-0 fs-16 ls-1">{exp.name.toUpperCase()}</h3>
                         <span className={`status-badge ${isClosed ? 'closed' : 'active'} fs-9`}>
                           {isClosed ? 'FINALIZADA' : 'ACTIVA'}

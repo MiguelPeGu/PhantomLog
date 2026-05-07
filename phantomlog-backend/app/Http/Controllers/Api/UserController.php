@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api;
+
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+final class UserController
+{
+    public function me(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        return response()->json($user);
+    }
+
+    public function update(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        assert($user instanceof User);
+
+        /** @var array<string, mixed> $data */
+        $data = $request->validate([
+            'username' => ['sometimes', 'string', 'min:4', 'max:30', 'unique:users,username,'.$user->id],
+            'firstname' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'lastname' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'dni' => ['sometimes', 'string', 'unique:users,dni,'.$user->id, 'regex:/^[0-9]{8}[A-Z]$/i'],
+            'address' => ['sometimes', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
+            'postalCode' => ['sometimes', 'numeric', 'digits:5'],
+            'img' => ['sometimes', 'string'],
+        ], [
+            'firstname.regex' => 'El nombre no puede contener números ni símbolos.',
+            'lastname.regex' => 'Los apellidos no pueden contener números ni símbolos.',
+            'dni.regex' => 'El DNI debe tener 8 números y una letra.',
+            'postalCode.numeric' => 'El código postal debe ser numérico.',
+            'postalCode.digits' => 'El código postal debe tener 5 dígitos.',
+        ]);
+
+        // Validación condicional para la imagen si es una nueva carga (base64)
+        if ($request->filled('img') && str_starts_with((string) $request->img, 'data:image/')) {
+            if (! preg_match('/^data:image\/(jpeg|png|webp|jpg);base64,/', (string) $request->img)) {
+                return response()->json([
+                    'message' => 'El archivo seleccionado no es una imagen válida (JPG, PNG, WEBP).',
+                    'errors' => ['img' => ['Formato de imagen no soportado.']]
+                ], 422);
+            }
+        }
+
+        foreach ($data as $key => $value) {
+            if (is_string($value) && $key !== 'password' && $key !== 'img') {
+                $data[$key] = mb_trim(strip_tags($value));
+            }
+        }
+
+        if ($request->has('password') && $request->password) {
+            $request->validate(['password' => ['string', 'min:8', 'confirmed']], [
+                'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+                'password.confirmed' => 'Las contraseñas no coinciden.',
+            ]);
+            $data['password'] = Hash::make((string) ($request->string('password')));
+        }
+
+        $user->update($data);
+
+        return response()->json($user);
+    }
+}

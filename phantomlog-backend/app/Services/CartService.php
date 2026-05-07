@@ -79,10 +79,7 @@ final class CartService
 
     public function clear(): void
     {
-        $this->cart = [];
-        if (auth()->id()) {
-            cache()->forget('cart_'.auth()->id());
-        }
+        $this->saveCart([]);
     }
 
     public function getTotalWithTax(): float

@@ -77,6 +77,9 @@ final class ExpeditionController
         assert($user instanceof User);
         $expedition = $user->createdExpeditions()->create($data);
 
+        // El creador participa automáticamente
+        $user->joinedExpeditions()->attach($expedition->id);
+
         return response()->json($expedition->load(['phantom', 'creator']), 201);
     }
 

@@ -88,22 +88,39 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="page-container">
-        <div className="skeleton mb-20" style={{ width: '160px', height: '36px', borderRadius: '4px' }}></div>
-        <div className="horror-card product-detail-grid">
-          <div className="product-image-large">
-            <div className="skeleton w-100 h-100" style={{ minHeight: '400px' }}></div>
-          </div>
-          <div className="product-info-panel column">
-            <div className="skeleton skeleton-title mb-20" style={{ width: '75%', height: '40px' }}></div>
-            <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
-            <div className="skeleton skeleton-text" style={{ width: '95%' }}></div>
-            <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
-            <div className="skeleton skeleton-text mb-30" style={{ width: '60%' }}></div>
-            <div className="flex-center justify-between mt-auto border-top pt-20">
-              <div className="skeleton" style={{ width: '100px', height: '32px' }}></div>
-              <div className="skeleton" style={{ width: '120px', height: '20px' }}></div>
+        <div className="max-900 mx-auto">
+          <div className="skeleton mb-20" style={{ width: '160px', height: '36px', borderRadius: '4px' }}></div>
+          <div className="horror-card product-detail-card p-0 overflow-hidden">
+            <div className="product-detail-grid">
+              <div className="product-image-large">
+                <div className="skeleton w-100 h-100" style={{ minHeight: '450px' }}></div>
+              </div>
+              <div className="product-info-panel column p-40">
+                <div className="pl-40">
+                  <div className="skeleton skeleton-title mb-20" style={{ width: '30%', height: '20px' }}></div>
+                  <div className="skeleton skeleton-title mb-40" style={{ width: '80%', height: '50px' }}></div>
+                </div>
+                
+                <div className="column gap-20 mb-40 flex-1">
+                  <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+                  <div className="skeleton skeleton-text" style={{ width: '95%' }}></div>
+                  <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
+                  
+                  <div className="grid-2 gap-20 mt-20">
+                    <div className="skeleton" style={{ height: '60px' }}></div>
+                    <div className="skeleton" style={{ height: '60px' }}></div>
+                  </div>
+                </div>
+
+                <div className="flex-center justify-between border-top pt-30">
+                  <div className="column">
+                    <div className="skeleton mb-5" style={{ width: '80px', height: '15px' }}></div>
+                    <div className="skeleton" style={{ width: '120px', height: '40px' }}></div>
+                  </div>
+                  <div className="skeleton" style={{ width: '200px', height: '54px', borderRadius: '4px' }}></div>
+                </div>
+              </div>
             </div>
-            <div className="skeleton w-100 mt-20" style={{ height: '54px', borderRadius: '4px' }}></div>
           </div>
         </div>
       </div>
@@ -118,32 +135,59 @@ export default function ProductDetail() {
         🡄 VOLVER AL CATÁLOGO
       </Link>
 
-      <div className="horror-card product-detail-grid">
-        <div className="product-image-large">
-          <ShimmerImage
-            src={product.image?.startsWith('http') ? product.image : `http://localhost:8000/storage/${product.image}`}
-            alt={product.title}
-            objectFit="contain"
-          />
-        </div>
-        <div className="product-info-panel column">
-          <h1 className="text-accent mb-20">{product.title.toUpperCase()}</h1>
-          <p className="lh-1-6 text-dim mb-30">{product.description}</p>
+      <div className="max-900 mx-auto">
+        <div className="horror-card product-detail-card p-0 overflow-hidden">
+          <div className="product-detail-grid">
+            <div className="product-image-large">
+              <ShimmerImage
+                src={product.image?.startsWith('http') ? product.image : `http://localhost:8000/storage/${product.image}`}
+                alt={product.title}
+                objectFit="contain"
+              />
+            </div>
+            <div className="product-info-panel column p-40">
+              <div className="mb-40 pl-40">
+                <span className="status-badge active fs-10 ls-2 mb-15 inline-block">{product.category?.toUpperCase() || 'RELIQUIA'}</span>
+                <h1 className="text-accent fs-42 m-0 ls-2">{product.title.toUpperCase()}</h1>
+              </div>
 
-          <div className="flex-center justify-between mt-auto border-top pt-20">
-            <h2 className="text-normal m-0">{Number(product.price).toFixed(2)}€</h2>
-            <span className={`fs-12 ${product.stock > 0 ? 'text-normal' : 'text-accent'}`}>
-              DISPONIBILIDAD: {product.stock > 0 ? product.stock : 'AGOTADO'}
-            </span>
+              <div className="column gap-20 mb-40 flex-1">
+                <div className="border-accent-left-3 pl-40">
+                  <h4 className="fs-11 text-muted ls-2 mb-10">DESCRIPCIÓN DEL ARTEFACTO</h4>
+                  <p className="lh-1-8 text-dim fs-15 m-0">{product.description}</p>
+                </div>
+
+                <div className="grid-2 gap-20 mt-20">
+                  <div className="stat-box">
+                    <h4 className="fs-10 text-muted ls-1 mb-5">ESTADO FISCAL</h4>
+                    <div className="fs-14 bold text-normal">CONSAGRADO (+{product.tax}%)</div>
+                  </div>
+                  <div className="stat-box">
+                    <h4 className="fs-10 text-muted ls-1 mb-5">DISPONIBILIDAD</h4>
+                    <div className={`fs-14 bold ${product.stock > 0 ? 'text-normal' : 'text-accent'}`}>
+                      {product.stock > 0 ? `${product.stock} UNIDADES` : 'AGOTADO'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-top pt-30 flex-between align-center">
+                <div className="column">
+                  <span className="fs-11 text-muted ls-2 mb-5">PRECIO TOTAL</span>
+                  <h2 className="text-normal m-0 fs-32">{Number(product.price).toFixed(2)}€</h2>
+                </div>
+                
+                <button
+                  className={`primary p-15-40 ${isAdding ? 'opacity-05' : ''}`}
+                  style={{ minWidth: '200px' }}
+                  onClick={handleBuy}
+                  disabled={product.stock <= 0 || isAdding}
+                >
+                  {isAdding ? 'SINCRONIZANDO...' : product.stock > 0 ? 'ADQUIRIR' : 'SIN STOCK'}
+                </button>
+              </div>
+            </div>
           </div>
-
-          <button
-            className={`primary mt-20 p-15 ${isAdding ? 'opacity-05' : ''}`}
-            onClick={handleBuy}
-            disabled={product.stock <= 0 || isAdding}
-          >
-            {isAdding ? 'AÑADIENDO...' : product.stock > 0 ? 'ADQUIRIR RELIQUIA' : 'FUERA DE STOCK'}
-          </button>
         </div>
       </div>
 
