@@ -45,7 +45,7 @@ final class ReportController
             }
         }
 
-        $requestImage = $request->string('image')->toString(); // fixed: línea 48
+        $requestImage = $request->string('image')->toString();
         if ($requestImage !== '' && $requestImage !== '0' && preg_match('/^data:image\/(\w+);base64,/', $requestImage, $type)) {
             $image = mb_substr($requestImage, mb_strpos($requestImage, ',') + 1);
             $type = mb_strtolower($type[1]);

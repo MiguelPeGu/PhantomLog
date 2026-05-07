@@ -25,7 +25,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/user', [AuthController::class, 'me']);
     Route::put('/user', [AuthController::class, 'update']);
 
-    // Bootstrap: carga todos los datos iniciales en 1 sola petición
     Route::get('/bootstrap', [BootstrapController::class, 'index']);
 
     Route::apiResource('forums', ForumController::class);
@@ -33,7 +32,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::apiResource('reports.comments', CommentController::class);
     Route::apiResource('expeditions', ExpeditionController::class);
     Route::apiResource('phantoms', PhantomController::class);
+    Route::get('products/{product}/related', [ProductController::class, 'related']);
     Route::apiResource('products', ProductController::class);
+
     Route::apiResource('invoices', InvoiceController::class)->only(['index', 'store', 'show']);
 
     Route::prefix('cart')->group(function (): void {
@@ -43,9 +44,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::delete('/remove/{product}', [CartController::class, 'remove']);
         Route::delete('/clear', [CartController::class, 'clear']);
     });
-
-    // Extras
-    Route::post('forums/{forum}/follow', [ForumController::class,     'toggleFollow']);
+    Route::post('forums/{forum}/follow', [ForumController::class, 'toggleFollow']);
     Route::post('expeditions/{expedition}/join', [ExpeditionController::class, 'toggleJoin']);
     Route::post('reports/{report}/vote', [ReportVoteController::class, 'vote']);
     Route::get('reports/{report}/vote', [ReportVoteController::class, 'getVote']);

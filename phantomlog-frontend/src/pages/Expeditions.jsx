@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { createExpedition, updateExpedition, deleteExpedition } from '../api/expeditions'
 import { useAuth } from '../context/AuthContext'
@@ -35,18 +35,11 @@ export default function Expeditions() {
   const { user } = useAuth()
   const { addToast } = useToast()
 
-  const isFirstRender = useRef(true)
-
   useEffect(() => {
     setCurrentPage(1)
   }, [localSearch, selectedPhantom])
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
-
     const params = {
       search: localSearch,
       page: currentPage,
@@ -54,14 +47,11 @@ export default function Expeditions() {
       phantom_id: selectedPhantom
     }
 
-    if (localSearch !== '') {
-      const delayDebounceFn = setTimeout(() => {
-        refreshExpeditions(params)
-      }, 400)
-      return () => clearTimeout(delayDebounceFn)
-    } else {
+    const delayDebounceFn = setTimeout(() => {
       refreshExpeditions(params)
-    }
+    }, localSearch ? 400 : 0)
+
+    return () => clearTimeout(delayDebounceFn)
   }, [localSearch, currentPage, selectedPhantom, refreshExpeditions])
 
   useEffect(() => {

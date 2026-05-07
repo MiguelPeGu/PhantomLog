@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useData } from '../context/DataProvider'
 
 const InvoiceSkeleton = () => (
@@ -21,26 +21,17 @@ export default function Invoices() {
   const [localSearch, setLocalSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [fading, setFading] = useState(false)
-  const isFirstRender = useRef(true)
 
   useEffect(() => {
     setCurrentPage(1)
   }, [localSearch])
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
+    const delayDebounceFn = setTimeout(() => {
+      refreshInvoices({ search: localSearch, page: currentPage, per_page: 5 })
+    }, localSearch ? 400 : 0)
 
-    if (localSearch !== '') {
-      const delayDebounceFn = setTimeout(() => {
-        refreshInvoices({ search: localSearch, page: currentPage, per_page: 5 })
-      }, 400)
-      return () => clearTimeout(delayDebounceFn)
-    } else {
-      refreshInvoices({ search: '', page: currentPage, per_page: 5 })
-    }
+    return () => clearTimeout(delayDebounceFn)
   }, [localSearch, currentPage, refreshInvoices])
 
   useEffect(() => {

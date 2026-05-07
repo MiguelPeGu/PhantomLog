@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { addToCart } from '../api/cart'
 import { useToast } from '../context/ToastContext'
 import { Link } from 'react-router-dom'
@@ -58,17 +58,11 @@ export default function Products() {
     setCurrentPage(1)
   }
 
-  const isFirstRender = useRef(true)
-
   useEffect(() => {
     setCurrentPage(1)
   }, [globalSearch])
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
     const params = {
       search: globalSearch,
       page: currentPage,
@@ -79,14 +73,11 @@ export default function Products() {
     if (activeFilters.minPrice) params.min_price = activeFilters.minPrice
     if (activeFilters.maxPrice) params.max_price = activeFilters.maxPrice
 
-    if (globalSearch !== '') {
-      const handler = setTimeout(() => {
-        refreshProducts(params)
-      }, 400)
-      return () => clearTimeout(handler)
-    } else {
+    const handler = setTimeout(() => {
       refreshProducts(params)
-    }
+    }, globalSearch ? 400 : 0)
+
+    return () => clearTimeout(handler)
   }, [globalSearch, currentPage, activeFilters, refreshProducts])
 
   useEffect(() => {

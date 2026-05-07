@@ -119,4 +119,18 @@ final class ProductController
 
         return response()->json(null, 204);
     }
+
+    public function related(Product $product): JsonResponse
+    {
+        $related = Product::query()
+            ->select('id', 'title', 'price', 'stock', 'category', 'image')
+            ->where('category', $product->category)
+            ->where('id', '!=', $product->id)
+            ->limit(20)
+            ->get()
+            ->shuffle()
+            ->take(5);
+    
+        return response()->json($related);
+    }
 }
