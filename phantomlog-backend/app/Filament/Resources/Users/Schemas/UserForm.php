@@ -17,14 +17,14 @@ final class UserForm
     {
         return $schema
             ->components([
-                Section::make('InformaciÃ³n Personal')
-                    ->description('Datos bÃ¡sicos del usuario')
+                Section::make('Información Personal')
+                    ->description('Datos básicos del usuario')
                     ->schema([
                         TextInput::make('dni')
                             ->required()
                             ->regex('/^[0-9]{8}[A-Z]$/i')
                             ->validationMessages([
-                                'regex' => 'El DNI debe tener 8 nÃºmeros y una letra.',
+                                'regex' => 'El DNI debe tener 8 números y una letra.',
                             ])
                             ->unique(table: 'users', column: 'dni', ignoreRecord: true)
                             ->disabledOn('edit'),
@@ -38,22 +38,23 @@ final class UserForm
                         TextInput::make('firstname')
                             ->required()
                             ->maxLength(50)
-                            ->regex('/^[a-zA-ZÃ¡Ã©Ã­Ã³ÃºÃÃ‰ÃÃ“ÃšÃ±Ã‘\s]+$/')
+                            ->regex('/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/')
                             ->validationMessages([
-                                'regex' => 'El nombre no puede contener nÃºmeros ni caracteres especiales.',
+                                'regex' => 'El nombre no puede contener números ni caracteres especiales.',
                             ])
                             ->disabledOn('edit'),
+
                         TextInput::make('lastname')
                             ->required()
                             ->maxLength(50)
-                            ->regex('/^[a-zA-ZÃ¡Ã©Ã­Ã³ÃºÃÃ‰ÃÃ“ÃšÃ±Ã‘\s]+$/')
+                            ->regex('/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/')
                             ->validationMessages([
-                                'regex' => 'Los apellidos no pueden contener nÃºmeros ni caracteres especiales.',
+                                'regex' => 'Los apellidos no pueden contener números ni caracteres especiales.',
                             ])
                             ->disabledOn('edit'),
                     ])->columns(2),
 
-                Section::make('Contacto y LocalizaciÃ³n')
+                Section::make('Contacto y Localización')
                     ->schema([
                         TextInput::make('email')
                             ->label('Email')
@@ -64,9 +65,9 @@ final class UserForm
 
                         TextInput::make('address')
                             ->required()
-                            ->regex('/^[a-zA-Z0-9\s,.\-\/ÂºÂª]+$/')
+                            ->regex('/^[a-zA-Z0-9\s,.\-\/ºª]+$/')
                             ->validationMessages([
-                                'regex' => 'La direcciÃ³n contiene caracteres no permitidos.',
+                                'regex' => 'La dirección contiene caracteres no permitidos.',
                             ])
                             ->disabledOn('edit'),
 
@@ -75,8 +76,8 @@ final class UserForm
                             ->numeric()
                             ->length(5)
                             ->validationMessages([
-                                'numeric' => 'El cÃ³digo postal debe ser numÃ©rico.',
-                                'length' => 'El cÃ³digo postal debe tener 5 dÃ­gitos.',
+                                'numeric' => 'El código postal debe ser numérico.',
+                                'length' => 'El código postal debe tener 5 dígitos.',
                             ])
                             ->disabledOn('edit'),
                     ])->columns(2),
@@ -99,6 +100,13 @@ final class UserForm
                             ->visibility('public')
                             ->maxSize(1024 * 5)
                             ->dehydrated(fn (?string $state): bool => filled($state))
+                            ->afterStateHydrated(static function (FileUpload $component, ?string $state): void {
+                                if ($state && str_starts_with($state, 'http')) {
+                                    $path = parse_url($state, PHP_URL_PATH);
+                                    $relativePath = mb_ltrim(str_replace('/storage/', '', (string) $path), '/');
+                                    $component->state($relativePath);
+                                }
+                            })
                             ->required(fn (string $operation): bool => $operation === 'create'),
 
                         TextInput::make('password')

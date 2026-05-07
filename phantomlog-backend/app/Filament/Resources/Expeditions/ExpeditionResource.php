@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Override;
+use UnitEnum;
 
 final class ExpeditionResource extends Resource
 {
@@ -28,10 +29,13 @@ final class ExpeditionResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMap;
 
     #[Override]
+    protected static string|UnitEnum|null $navigationGroup = 'Operaciones de Campo';
+
+    #[Override]
     protected static ?string $recordTitleAttribute = 'name';
 
     #[Override]
-    protected static ?string $modelLabel = 'Expedición';
+    protected static ?string $modelLabel = 'ExpediciÃ³n';
 
     #[Override]
     protected static ?string $pluralModelLabel = 'Expediciones';

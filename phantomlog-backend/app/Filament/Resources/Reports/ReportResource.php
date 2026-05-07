@@ -19,6 +19,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Override;
+use UnitEnum;
 
 final class ReportResource extends Resource
 {
@@ -27,6 +28,9 @@ final class ReportResource extends Resource
 
     #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
+
+    #[Override]
+    protected static string|UnitEnum|null $navigationGroup = 'Comunidad';
 
     #[Override]
     protected static bool $shouldRegisterNavigation = false;

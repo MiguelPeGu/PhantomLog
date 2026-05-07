@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Override;
+use UnitEnum;
 
 final class ProductResource extends Resource
 {
@@ -26,6 +27,9 @@ final class ProductResource extends Resource
 
     #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
+
+    #[Override]
+    protected static string|UnitEnum|null $navigationGroup = 'Tienda';
 
     #[Override]
     protected static ?string $recordTitleAttribute = 'title';

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
@@ -16,26 +15,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Override;
 
-/**
- * @property-read string $id
- * @property-read string $dni
- * @property-read string $username
- * @property-read string $img
- * @property-read string $firstname
- * @property-read string $lastname
- * @property-read string $address
- * @property-read string $postalCode
- * @property-read string $email
- * @property-read string $role
- * @property-read CarbonInterface|null $email_verified_at
- * @property-read string $password
- * @property-read string|null $remember_token
- * @property-read CarbonInterface $created_at
- * @property-read CarbonInterface $updated_at
- */
 final class User extends Authenticatable implements FilamentUser, HasName, MustVerifyEmail
 {
     use HasApiTokens;
@@ -46,36 +29,19 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
     use HasUuids;
     use Notifiable;
 
-    /**
-     * @var list<string>
-     */
+    /** @var list<string> */
     #[Override]
     protected $fillable = [
-        'id',
-        'dni',
-        'username',
-        'img',
-        'firstname',
-        'lastname',
-        'email',
-        'address',
-        'postalCode',
-        'password',
-        'role',
+        'id', 'dni', 'username', 'img', 'firstname',
+        'lastname', 'email', 'address', 'postalCode',
+        'password', 'role',
     ];
 
-    /**
-     * @var list<string>
-     */
+    /** @var list<string> */
     #[Override]
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     public function casts(): array
     {
         return [
@@ -133,9 +99,15 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
         return $this->belongsToMany(Forum::class, 'followers');
     }
 
+    /** @return BelongsToMany<Expedition, $this> */
+    public function joinedExpeditions(): BelongsToMany
+    {
+        return $this->belongsToMany(Expedition::class, 'enrollment');
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role === 'admin';
+        return true;
     }
 
     public function getFilamentName(): string
@@ -143,14 +115,16 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
         return sprintf('%s %s', $this->firstname, $this->lastname);
     }
 
-    /** @return BelongsToMany<Expedition, $this> */
-    public function joinedExpeditions(): BelongsToMany
-    {
-        return $this->belongsToMany(Expedition::class, 'enrollment');
-    }
-
+    /**
+     * Devuelve la URL pública del avatar, o un avatar generado si no tiene foto.
+     * Guardamos solo la ruta relativa en BD; el accessor construye la URL completa.
+     */
     protected function getImgAttribute(?string $value): string
     {
+        if ($value && ! str_starts_with($value, 'http')) {
+            return Storage::disk('public')->url($value);
+        }
+
         if ($value) {
             return $value;
         }

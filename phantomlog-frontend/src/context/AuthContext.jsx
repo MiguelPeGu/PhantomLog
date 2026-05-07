@@ -12,7 +12,13 @@ export function AuthProvider({ children }) {
     if (localStorage.getItem('token')) {
       me()
         .then(res => setUser(res.data))
-        .catch(() => localStorage.removeItem('token'))
+        .catch((err) => {
+          // Solo borrar el token si el servidor responde 401 (no autorizado)
+          // No borrarlo en errores de red o errores 5xx del servidor
+          if (err?.response?.status === 401) {
+            localStorage.removeItem('token')
+          }
+        })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
@@ -22,11 +28,21 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const { data } = await apiLogin({ email, password })
     localStorage.setItem('token', data.token)
-    setUser(data.user)
+    // Cargamos el usuario completo con relaciones desde /me en lugar de data.user
+    try {
+      const meRes = await me()
+      setUser(meRes.data)
+    } catch {
+      setUser(data.user)
+    }
   }
 
   const logout = async () => {
-    await apiLogout()
+    try {
+      await apiLogout()
+    } catch {
+      // ignore
+    }
     localStorage.removeItem('token')
     setUser(null)
   }

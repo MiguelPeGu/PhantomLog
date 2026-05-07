@@ -35,7 +35,7 @@ final class PhantomFactory extends Factory
 
         return [
             'id' => (string) Str::uuid(),
-            'name' => $phantom['name'],
+            'name' => $phantom['name'].' '.$this->faker->unique()->numberBetween(1000, 99999),
             'type' => $phantom['type'],
             'description' => $phantom['desc'],
             'location' => $phantom['loc'],

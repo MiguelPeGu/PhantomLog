@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Override;
+use UnitEnum;
 
 final class CommentResource extends Resource
 {
@@ -26,6 +27,9 @@ final class CommentResource extends Resource
 
     #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenterText;
+
+    #[Override]
+    protected static string|UnitEnum|null $navigationGroup = 'Comunidad';
 
     #[Override]
     protected static bool $shouldRegisterNavigation = false;
@@ -56,9 +60,7 @@ final class CommentResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

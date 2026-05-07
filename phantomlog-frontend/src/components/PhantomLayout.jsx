@@ -55,7 +55,6 @@ export default function PhantomLayout() {
     { name: 'Expediciones', path: '/expeditions' },
     { name: 'Fantasmas', path: '/phantoms' },
     { name: 'Productos', path: '/products' },
-    { name: 'Facturas', path: '/invoices' },
   ]
 
   return (

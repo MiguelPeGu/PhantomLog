@@ -19,6 +19,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Override;
+use UnitEnum;
 
 final class InvoiceResource extends Resource
 {
@@ -27,6 +28,9 @@ final class InvoiceResource extends Resource
 
     #[Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedReceiptRefund;
+
+    #[Override]
+    protected static string|UnitEnum|null $navigationGroup = 'Tienda';
 
     #[Override]
     protected static ?string $recordTitleAttribute = 'n_invoice';

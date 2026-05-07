@@ -19,7 +19,7 @@ final class UserSeeder extends Seeder
                 'img' => 'https://api.dicebear.com/9.x/lorelei/svg?seed=Adrian',
                 'firstname' => 'Adrian',
                 'lastname' => 'Barashkin',
-                'address' => 'Calle Real 45, Málaga',
+                'address' => 'Calle Real 45, Malaga',
                 'postalCode' => '29001',
                 'email' => 'adrian@gmail.com',
                 'email_verified_at' => now(),

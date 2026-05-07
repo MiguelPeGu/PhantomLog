@@ -130,7 +130,7 @@ final class ProductController
             ->get()
             ->shuffle()
             ->take(5);
-    
+
         return response()->json($related);
     }
 }

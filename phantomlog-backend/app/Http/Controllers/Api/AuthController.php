@@ -22,6 +22,7 @@ final class AuthController
             'lastname' => ['required', 'string', 'max:50', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password.confirmed' => ['Las contraseñas no coinciden.'],
             'address' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
             'postalCode' => ['nullable', 'numeric', 'digits:5'],
         ], [
@@ -39,7 +40,6 @@ final class AuthController
             'email.unique' => 'Este correo ya está registrado.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contraseñas no coinciden.',
             'postalCode.numeric' => 'El código postal debe ser únicamente numérico.',
             'postalCode.digits' => 'El código postal debe tener exactamente 5 dígitos.',
             'address.regex' => 'La dirección contiene caracteres no permitidos.',
@@ -68,19 +68,19 @@ final class AuthController
             'password' => ['required'],
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::query()->where('email', $request->email)->first();
 
         if (! $user) {
             return response()->json([
                 'message' => 'Usuario no encontrado.',
-                'errors' => ['email' => ['No existe ninguna cuenta asociada a este correo electrónico.']]
+                'errors' => ['email' => ['No existe ninguna cuenta asociada a este correo electrónico.']],
             ], 404);
         }
 
         if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Credenciales incorrectas.',
-                'errors' => ['password' => ['La contraseña introducida es incorrecta.']]
+                'errors' => ['password' => ['La contraseña introducida es incorrecta.']],
             ], 401);
         }
 

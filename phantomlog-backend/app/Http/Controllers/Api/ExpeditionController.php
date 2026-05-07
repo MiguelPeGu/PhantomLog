@@ -49,7 +49,7 @@ final class ExpeditionController
         $data = $request->validate([
             'phantom_id' => ['required', 'uuid', 'exists:phantoms,id'],
             'name' => ['required', 'string', 'min:5', 'max:100', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s?¿!¡]+$/'],
-            'description' => ['required', 'string', 'min:100', 'max:2000'],
+            'description' => ['required', 'string', 'min:5', 'max:2000'],
             'location' => ['required', 'string', 'max:40', 'regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.\-\/ºª]+$/'],
             'date' => ['required', 'date', 'after:now'],
         ], [
@@ -58,7 +58,7 @@ final class ExpeditionController
             'name.min' => 'El nombre de la misión debe tener al menos 5 caracteres.',
             'name.regex' => 'El nombre de la misión contiene caracteres no permitidos.',
             'description.required' => 'Los objetivos y descripción son obligatorios.',
-            'description.min' => 'Los objetivos de la incursión deben ser más detallados (mínimo 100 caracteres).',
+            'description.min' => 'Los objetivos de la incursion deben ser mas detallados (minimo 5 caracteres).',
             'location.required' => 'La ubicación de la incursión es obligatoria.',
             'location.max' => 'La ubicación no puede exceder los 40 caracteres.',
             'location.regex' => 'La ubicación contiene caracteres especiales no permitidos.',

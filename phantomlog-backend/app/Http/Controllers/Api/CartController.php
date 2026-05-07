@@ -34,6 +34,28 @@ final readonly class CartController
         }
     }
 
+    public function store(Request $request): JsonResponse
+    {
+        /** @var array{product_id: string, quantity?: int} $data */
+        $data = $request->validate([
+            'product_id' => ['required', 'exists:products,id'],
+            'quantity' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $product = Product::query()->findOrFail((string) $data['product_id']);
+        $quantity = (int) ($data['quantity'] ?? 1);
+
+        try {
+            $this->cartService->add($product, $quantity);
+
+            return $this->cartResponse();
+        } catch (Exception $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
+        }
+    }
+
     public function subtract(Product $product): JsonResponse
     {
         $this->cartService->subtract($product);
