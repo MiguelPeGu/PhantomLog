@@ -33,7 +33,7 @@ export default function Login() {
 
   return (
     <div className="vh100 flex-center relative overflow-hidden">
-      {/* Elemento decorativo de fondo */}
+      {}
       <div className="absolute-full bg-radial-horror z-0" />
 
       <form onSubmit={handleSubmit} className="horror-form">

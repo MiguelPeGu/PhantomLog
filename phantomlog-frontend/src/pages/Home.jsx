@@ -6,7 +6,6 @@ export default function Home() {
   const [flickerOpacity, setFlickerOpacity] = useState(0)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
-  // Lógica de secuencia de terror (Aparición -> Parpadeo -> Desaparición)
   useEffect(() => {
     let isMounted = true;
 
@@ -40,7 +39,6 @@ export default function Home() {
 
   return (
     <div className="vh100 flex-center column text-center relative overflow-hidden">
-      {/* Portal para que el overlay esté al nivel del body y sea realmente fixed */}
       {createPortal(
         <div
           className="flicker-overlay bg-flicker-space"
@@ -54,7 +52,7 @@ export default function Home() {
             width: '100vw',
             height: '100vh',
             pointerEvents: 'none',
-            zIndex: 9999,
+            zIndex: 10,
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'var(--flicker-size)',
             backgroundAttachment: 'fixed'
@@ -69,7 +67,6 @@ export default function Home() {
         </h1>
         <p className="hero-subtitle mb-40">NO DEBERÍAS ESTAR AQUÍ</p>
 
-        {/* BOTONES CENTRADOS */}
         <div className="flex-center w-100 gap-30">
           <Link
             to="/register"

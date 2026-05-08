@@ -14,33 +14,25 @@ export default function Dashboard() {
     { title: 'PRODUCTOS', path: '/products', desc: 'Equipo de investigacion.' }
   ]
 
-  // Lógica de secuencia de terror (Aparición -> Parpadeo -> Desaparición)
   useEffect(() => {
     let isMounted = true;
-
     const runSequence = async () => {
       while (isMounted) {
-        // 1. ESPERA RANDOM (1 a 5 segundos)
         setFlickerOpacity(0);
         const waitTime = Math.random() * 500 + 1000;
         await new Promise(r => setTimeout(r, waitTime));
         if (!isMounted) break;
 
-        // 2. PARPADEO RANDOM (2 a 6 veces)
         const flickerCount = Math.floor(Math.random() * 5) + 2;
         for (let i = 0; i < flickerCount; i++) {
-          // Encendido
           setFlickerOpacity(Math.random() * 0.4 + 0.1);
           setOffset({ x: Math.random() * 10 - 5, y: Math.random() * 10 - 5 });
           await new Promise(r => setTimeout(r, 80));
-          
-          // Apagado rápido
           setFlickerOpacity(0);
+          
           await new Promise(r => setTimeout(r, 60));
           if (!isMounted) break;
         }
-
-        // 3. APARICIÓN BREVE FINAL (Opcional para dar más miedo antes de irse)
         setFlickerOpacity(0.2);
         await new Promise(r => setTimeout(r, 200));
         setFlickerOpacity(0);

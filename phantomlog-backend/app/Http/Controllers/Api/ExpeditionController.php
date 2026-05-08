@@ -14,7 +14,6 @@ final class ExpeditionController
 {
     public function index(Request $request): JsonResponse
     {
-        // Columnas específicas para reducir el payload — las tarjetas no necesitan description completa
         $query = Expedition::query()->select('id', 'user_id', 'phantom_id', 'name', 'location', 'date', 'created_at')
             ->with(['creator:id,username,img', 'phantom:id,name,type'])
             ->withCount('participants')

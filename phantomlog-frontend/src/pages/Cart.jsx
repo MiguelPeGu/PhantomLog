@@ -7,22 +7,23 @@ import { useCart } from '../context/CartContext'
 export default function Cart() {
   const [cartData, setCartData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [updatingState, setUpdatingState] = useState({}) // { [id]: 'add' | 'sub' | 'rem' }
+  const [updatingState, setUpdatingState] = useState({})
   const navigate = useNavigate()
   const { addToast } = useToast()
   const { setCartCount } = useCart()
 
-  const fetchCart = async (silent = false) => {
-    if (!silent) setLoading(true)
-    try {
-      const res = await getCart()
-      setCartData(res.data)
-      setCartCount(res.data.items.reduce((acc, i) => acc + i.quantity, 0))
-    } catch (err) {
-      if (!silent) addToast("Error al invocar el contenedor.", "error")
-    } finally {
-      if (!silent) setLoading(false)
-    }
+  const loadCartData = async () => {
+    const res = await getCart()
+    setCartData(res.data)
+    setCartCount(res.data.items.reduce((acc, i) => acc + i.quantity, 0))
+    return res.data
+  }
+
+  const fetchCart = async () => {
+    setLoading(true)
+    try { await loadCartData() }
+    catch { addToast("Error al invocar el contenedor.", "error") }
+    finally { setLoading(false) }
   }
 
   useEffect(() => { fetchCart() }, [])
@@ -30,7 +31,6 @@ export default function Cart() {
   const handleUpdate = async (productId, intent) => {
     if (updatingState[productId]) return;
 
-    // Pedir confirmación ANTES del update optimista si la intención es borrar
     if (intent === 'rem') {
       if (!window.confirm("¿CONFIRMAS QUE DESEAS PURGAR ESTA OFRENDA DEL CONTENEDOR?")) {
         return;
@@ -43,23 +43,22 @@ export default function Cart() {
       return;
     }
 
-    setUpdatingState(prev => ({ ...prev, [productId]: intent })); //explicame esto porque no entiendo prev
+    setUpdatingState(prev => ({ ...prev, [productId]: intent }));
 
-    // Optimistic Update
     setCartData(prev => {
       if (!prev) return prev;
       const newItems = prev.items.map(item => {
         if (item.product.id === productId) {
           if (intent === 'add') return { ...item, quantity: item.quantity + 1 };
-          if (intent === 'sub') return { ...item, quantity: Math.max(0, item.quantity - 1) }; // por que es max y no min
+          if (intent === 'sub') return { ...item, quantity: Math.max(0, item.quantity - 1) };
         }
         return item;
-      }).filter(item => item.quantity > 0); //sigo sin entender que hace y para que sirve prev
+      }).filter(item => item.quantity > 0);
 
       if (intent === 'rem') {
         return { ...prev, items: prev.items.filter(item => item.product.id !== productId) };
       }
-      return { ...prev, items: newItems };// explicame prev
+      return { ...prev, items: newItems };
     });
 
     try {
@@ -73,7 +72,7 @@ export default function Cart() {
         setCartCount(res.data.items.reduce((acc, i) => acc + i.quantity, 0));
       }
     } catch (e) {
-      await fetchCart(true); 
+      await loadCartData();
       const msg = e.response?.data?.message || "Error en la sincronización.";
       addToast(msg.toUpperCase(), "error");
     } finally {

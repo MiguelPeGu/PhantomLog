@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Phantom;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,16 +14,6 @@ final class PhantomController
     public function index(Request $request): JsonResponse
     {
         $query = Phantom::query()->withCount('expeditions')->latest();
-
-        if ($request->filled('search')) {
-            /** @var string $searchTerm */
-            $searchTerm = $request->search;
-            $s = (string) $searchTerm;
-            $query->where(function (Builder $q) use ($s): void {
-                $q->where('name', 'like', sprintf('%%%s%%', $s))
-                    ->orWhere('type', 'like', sprintf('%%%s%%', $s));
-            });
-        }
 
         return response()->json($query->get());
     }

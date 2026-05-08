@@ -24,13 +24,6 @@ final class InvoiceController
         assert($user instanceof User);
         $query = $user->invoices()->with('details')->latest();
 
-        if ($request->filled('search')) {
-            /** @var string $searchTerm */
-            $searchTerm = $request->search;
-            $s = (string) $searchTerm;
-            $query->where('n_invoice', 'like', sprintf('%%%s%%', $s));
-        }
-
         /** @var int $perPage */
         $perPage = $request->input('per_page', 5);
 
