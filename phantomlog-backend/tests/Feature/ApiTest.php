@@ -214,8 +214,16 @@ describe('Products API', function (): void {
     });
 
     test('product search filter works', function (): void {
-        Product::factory()->create(['title' => 'Ghost Detector Pro']);
-        Product::factory()->create(['title' => 'Thermal Camera']);
+        Product::factory()->create([
+            'title' => 'Ghost Detector Pro',
+            'provider' => 'Arcane Industries',
+            'sku' => 'PL-AAAA-1111',
+        ]);
+        Product::factory()->create([
+            'title' => 'Thermal Camera',
+            'provider' => 'Specter Tech',
+            'sku' => 'PL-BBBB-2222',
+        ]);
         actingAsUser();
         $this->getJson('/api/products?search=Ghost')
             ->assertOk()

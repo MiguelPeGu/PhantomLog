@@ -22,7 +22,8 @@ final class ProductsTable
         return $table
             ->columns([
                 ImageColumn::make('image')
-                    ->label('Imagen'),
+                    ->label('Imagen')
+                    ->disk('public'),
                 TextColumn::make('sku')
                     ->label('SKU')
                     ->searchable(),

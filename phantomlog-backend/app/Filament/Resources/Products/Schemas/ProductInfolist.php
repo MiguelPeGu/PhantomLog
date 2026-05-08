@@ -46,7 +46,7 @@ final class ProductInfolist
                             ->schema([
                                 Section::make('Imagen del Producto')
                                     ->schema([
-                                        ImageEntry::make('image')->hiddenLabel()->width(200),
+                                        ImageEntry::make('image')->hiddenLabel()->width(200)->disk('public'),
                                     ]),
                             ]),
                     ])->columnSpanFull(),

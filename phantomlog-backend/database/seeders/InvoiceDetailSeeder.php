@@ -21,7 +21,6 @@ final class InvoiceDetailSeeder extends Seeder
         $pills = Product::query()->where('sku', 'EQ-PILL-SANITY')->first();
 
         $details = [
-            // Factura 0 → EMF x2 + Termómetro x1
             [
                 'invoice' => $invoices[0] ?? null,
                 'product' => $emf,
@@ -32,13 +31,11 @@ final class InvoiceDetailSeeder extends Seeder
                 'product' => $pills,
                 'quantity' => 1,
             ],
-            // Factura 1 → Cámara Térmica x1
             [
                 'invoice' => $invoices[1] ?? null,
                 'product' => $camara,
                 'quantity' => 1,
             ],
-            // Factura 2 → Kit completo x1 + Grabadora EVP x1
             [
                 'invoice' => $invoices[2] ?? null,
                 'product' => $kit,

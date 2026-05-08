@@ -13,8 +13,6 @@ export function AuthProvider({ children }) {
       me()
         .then(res => setUser(res.data))
         .catch((err) => {
-          // Solo borrar el token si el servidor responde 401 (no autorizado)
-          // No borrarlo en errores de red o errores 5xx del servidor
           if (err?.response?.status === 401) {
             localStorage.removeItem('token')
           }

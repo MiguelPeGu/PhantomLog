@@ -53,7 +53,7 @@ final class AuthController
 
         $user = User::query()->create([
             ...$data,
-            'password' => Hash::make(is_string($data['password']) ? $data['password'] : ''), // fixed: línea 57
+            'password' => Hash::make(is_string($data['password']) ? $data['password'] : ''),
         ]);
 
         $token = $user->createToken('api-token')->plainTextToken;

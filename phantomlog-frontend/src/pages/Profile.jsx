@@ -244,7 +244,7 @@ export default function Profile() {
               <div className="text-center text-dim border-dashed p-60 ls-1">[ NO TIENES FACTURAS REGISTRADAS ]</div>
             ) : (
               invoices.map(inv => (
-                <div key={inv.id} className="profile-list-item">
+                <Link key={inv.id} to={`/success/${inv.id}`} className="profile-list-item">
                   <div className="column">
                     <span className="title ls-1">FACTURA #{inv.n_invoice}</span>
                     <span className="meta">
@@ -253,8 +253,9 @@ export default function Profile() {
                   </div>
                   <div className="flex-center gap-20">
                     <span className="fs-20 bold text-normal">{Number(inv.total).toFixed(2)}€</span>
+                    <span className="text-accent fs-12 nowrap">[ VER DETALLE ]</span>
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>
