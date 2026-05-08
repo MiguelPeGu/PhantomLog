@@ -11,6 +11,7 @@ export default function ForumDetail() {
   const { id } = useParams()
   const [forum, setForum] = useState(null)
   const [notFound, setNotFound] = useState(false)
+  const [errorCode, setErrorCode] = useState(404)
   const [reports, setReports] = useState([])
   const [loadingReports, setLoadingReports] = useState(true)
   const { user } = useAuth()
@@ -192,7 +193,7 @@ export default function ForumDetail() {
     }
   }
 
-  if (notFound) return <NotFound />
+  if (notFound) return <NotFound statusCode={errorCode} />
   if (!forum) {
     return (
       <div className="page-container">

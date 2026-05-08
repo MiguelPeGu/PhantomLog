@@ -1,17 +1,18 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
-export default function NotFound() {
-  const [glitchText, setGlitchText] = useState('404')
+export default function NotFound({ statusCode = 404 }) {
+  const displayCode = String(statusCode || 404)
+  const [glitchText, setGlitchText] = useState(displayCode)
   
   useEffect(() => {
-    const chars = '014' // Caracteres que usaremos para el efecto de error
+    const chars = Array.from(new Set(displayCode.split(''))).join('') || '404'
     
     const interval = setInterval(() => {
       // 1. Solo hay un 20% de probabilidad (Math.random > 0.8) de que ocurra el "glitch"
       if (Math.random() > 0.6) {
         
-        // 2. Generamos un código aleatorio de 3 caracteres (Ej: "041")
+        // 2. Generamos un código aleatorio de 3 caracteres
         let randomText = ''
         for(let i = 0; i < 3; i++) {
           const randomIndex = Math.floor(Math.random() * chars.length)
@@ -21,14 +22,14 @@ export default function NotFound() {
         // 3. Actualizamos el texto con el código aleatorio
         setGlitchText(randomText)
         
-        // 4. Después de solo 100 milisegundos, volvemos a poner "404"
-        setTimeout(() => setGlitchText('404'), 100)
+        // 4. Después de solo 100 milisegundos, volvemos al código real
+        setTimeout(() => setGlitchText(displayCode), 100)
       }
     }, 500)
 
     // Limpieza al desmontar el componente para evitar errores de memoria
     return () => clearInterval(interval)
-  }, [])
+  }, [displayCode])
 
   return (
     <div className="flex-center column vh100 text-center bg-black p-20">
@@ -39,7 +40,9 @@ export default function NotFound() {
         <div className="scanline-overlay" />
       </div>
       
-      <h2 className="text-normal mt-20 ls-4">ACCESO DENEGADO // RUTA NO ENCONTRADA</h2>
+      <h2 className="text-normal mt-20 ls-4">
+        {displayCode === '404' ? 'ACCESO DENEGADO // RUTA NO ENCONTRADA' : `ERROR DEL SISTEMA // CÓDIGO ${displayCode}`}
+      </h2>
       <p className="text-dim max-500 m-20-0 lh-1-6">
         Has cruzado el velo hacia un sector inexistente del archivo. 
         La entidad que buscas no reside en esta dimensión de datos.
