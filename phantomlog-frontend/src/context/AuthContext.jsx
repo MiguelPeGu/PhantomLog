@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { me, login as apiLogin, logout as apiLogout, updateProfile as apiUpdateProfile } from '../api/auth'
 import Loader from '../components/Loader'
+import { useToast } from './ToastContext'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
+  const { addToast } = useToast()
   const [user, setUser]       = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -26,7 +28,6 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const { data } = await apiLogin({ email, password })
     localStorage.setItem('token', data.token)
-    // Cargamos el usuario completo con relaciones desde /me en lugar de data.user
     try {
       const meRes = await me()
       setUser(meRes.data)
@@ -38,8 +39,8 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await apiLogout()
-    } catch {
-      // ignore
+    } catch (err) {
+      addToast("ERROR AL CERRAR SESIÓN. EL SERVIDOR NO RESPONDE.", "error")
     }
     localStorage.removeItem('token')
     setUser(null)

@@ -13,8 +13,6 @@ final class ProductController
 {
     public function index(Request $request): JsonResponse
     {
-        // Solo las columnas necesarias para las tarjetas del catálogo
-        // description, provider y sku no se muestran en el listado
         $query = Product::query()->select('id', 'title', 'price', 'stock', 'category', 'image', 'created_at')
             ->withCount('invoiceDetails');
 
@@ -41,7 +39,9 @@ final class ProductController
 
         if ($request->has('max_price')) {
             if ($request->has('min_price') && $request->max_price < $request->min_price) {
-                // Ignore invalid range or handle error
+                return response()->json([
+                    'message' => 'El precio máximo no puede ser inferior al precio mínimo.'
+                ], 422);
             } else {
                 $query->where('price', '<=', $request->max_price);
             }

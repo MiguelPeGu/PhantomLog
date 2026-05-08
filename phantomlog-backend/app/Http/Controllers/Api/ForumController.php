@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Forum;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -73,7 +72,7 @@ final class ForumController
 
     public function show(Forum $forum): JsonResponse
     {
-        $forum->load(['user', 'reports' => function (Builder $query): void {
+        $forum->load(['user', 'reports' => function ($query): void {
             $query->with('user')->withCount('comments');
         }])
             ->loadAvg('reports', 'score');
