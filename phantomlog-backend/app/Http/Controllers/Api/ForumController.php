@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Models\Forum;
+use App\Models\Report;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,21 +17,24 @@ final class ForumController
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Forum::query()->select('id', 'title', 'description', 'image', 'user_id', 'created_at', 'updated_at')
+        $query = Forum::query()
+            ->select('id', 'title', 'description', 'image', 'user_id', 'created_at', 'updated_at')
             ->with('user:id,username,img')
             ->withCount('reports')
-            ->withAvg('reports', 'score');
-
-        if ($request->has('search') && ! empty($request->search)) {
-            $term = $request->string('search')->toString();
-            $query->where('title', 'like', '%'.$term.'%')
-                ->orWhere('description', 'like', '%'.$term.'%');
-        }
-
-        $perPage = $request->integer('per_page', 9);
+            ->withAvg('reports', 'score')
+            ->when(
+                $request->filled('search'),
+                fn (Builder $query): Builder => $query->where('title', 'like', '%'.$request->string('search').'%')
+                    ->orWhere('description', 'like', '%'.$request->string('search').'%')
+            )
+            ->orderByDesc(
+                Report::query()->selectRaw('COALESCE(SUM(score), 0)')
+                    ->whereColumn('forum_id', 'forums.id')
+            )
+            ->latest();
 
         return response()->json(
-            $query->latest()->paginate($perPage)
+            $query->paginate($request->integer('per_page', 9))
         );
     }
 
@@ -72,7 +77,7 @@ final class ForumController
 
     public function show(Forum $forum): JsonResponse
     {
-        $forum->load(['user', 'reports' => function ($query): void {
+        $forum->load(['user', 'reports' => function (Builder $query): void {
             $query->with('user')->withCount('comments');
         }])
             ->loadAvg('reports', 'score');
@@ -94,7 +99,7 @@ final class ForumController
 
         /** @var array<string, mixed> $data */
         $data = $request->validate([
-            'title' => ['sometimes', 'string', 'min:10', 'max:100', 'regex:/^[a-zA-Z0-9\s?!]+$/'],
+            'title' => ['sometimes', 'string', 'min:10', 'max:100', 'regex:/^[a-zA-Z0-9\s?!]+$/'],
             'description' => ['sometimes', 'string', 'min:20', 'max:2000'],
             'image' => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
         ]);

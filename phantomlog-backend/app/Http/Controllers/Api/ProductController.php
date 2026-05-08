@@ -40,11 +40,11 @@ final class ProductController
         if ($request->has('max_price')) {
             if ($request->has('min_price') && $request->max_price < $request->min_price) {
                 return response()->json([
-                    'message' => 'El precio máximo no puede ser inferior al precio mínimo.'
+                    'message' => 'El precio máximo no puede ser inferior al precio mínimo.',
                 ], 422);
-            } else {
-                $query->where('price', '<=', $request->max_price);
             }
+
+            $query->where('price', '<=', $request->max_price);
         }
 
         if ($request->has('sort')) {
