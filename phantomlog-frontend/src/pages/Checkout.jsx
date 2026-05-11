@@ -107,7 +107,7 @@ export default function Checkout() {
       setGhostLoading(true)
       await clearCart()
       await fetchGlobalCart()
-      setTimeout(() => navigate(`/success/${resp.data.id}`), 1500)
+      setTimeout(() => navigate(`/success/${resp.data.id}`), 500)
     } catch (err) {
       setIsSubmitting(false)
       const msg = err.response?.data?.message || "Error al procesar el pacto."

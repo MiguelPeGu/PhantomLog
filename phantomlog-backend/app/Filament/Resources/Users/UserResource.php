@@ -29,7 +29,7 @@ final class UserResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
     #[Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Gestion de Usuarios';
+    protected static string|UnitEnum|null $navigationGroup = 'Comunidad';
 
     #[Override]
     protected static ?string $recordTitleAttribute = 'username';
@@ -39,6 +39,11 @@ final class UserResource extends Resource
 
     #[Override]
     protected static ?string $pluralModelLabel = 'Usuarios';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) User::query()->count();
+    }
 
     public static function form(Schema $schema): Schema
     {

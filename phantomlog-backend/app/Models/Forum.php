@@ -42,7 +42,7 @@ final class Forum extends Model
     ];
 
     #[Override]
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'credibility_score']; 
 
     /**
      * @return array<string, string>
@@ -78,8 +78,16 @@ final class Forum extends Model
         return $this->belongsToMany(User::class, 'followers');
     }
 
-    // credibility_score se calcula en el controlador con withAvg()
-    // para evitar 1 query SQL extra por cada foro en el listado (N+1)
+    /**
+     * Accesor para obtener la puntuación de credibilidad basada en el promedio de los reportes.
+     * Requiere que se haya cargado withAvg() o loadAvg() en el controlador.
+     */
+    protected function getCredibilityScoreAttribute(): float
+    {
+        $avg = $this->attributes['reports_avg_score'] ?? null;
+
+        return is_numeric($avg) ? (float) $avg : 0.0;
+    }
 
     protected function getImageUrlAttribute(): ?string
     {

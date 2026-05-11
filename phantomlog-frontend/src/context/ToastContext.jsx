@@ -1,16 +1,38 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 
 const ToastContext = createContext(null)
+const TOAST_DURATION_MS = 4000
+const DEDUPE_WINDOW_MS = 1500
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([])
+  const timersRef = useRef(new Map())
+  const lastShownRef = useRef(new Map())
+
+  const removeToast = useCallback((id) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+    clearTimeout(timersRef.current.get(id))
+    timersRef.current.delete(id)
+  }, [])
 
   const addToast = useCallback((message, type = 'info') => {
-    const id = Date.now()
-    setToasts((prev) => [...prev, { id, message, type }])
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, 4000)
+    const text = String(message || '').trim()
+    if (!text) return
+
+    const dedupeKey = `${type}:${text.toLowerCase()}`
+    const now = Date.now()
+    if (now - (lastShownRef.current.get(dedupeKey) || 0) < DEDUPE_WINDOW_MS) return
+
+    const id = now
+    lastShownRef.current.set(dedupeKey, now)
+    setToasts(prev => [...prev, { id, message: text, type }])
+    timersRef.current.set(id, setTimeout(() => removeToast(id), TOAST_DURATION_MS))
+  }, [removeToast])
+
+  useEffect(() => () => {
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current.clear()
+    lastShownRef.current.clear()
   }, [])
 
   return (
@@ -28,10 +50,10 @@ export function ToastProvider({ children }) {
         zIndex: 9999,
         pointerEvents: 'none'
       }}>
-        {toasts.map((toast) => (
+        {toasts.map(toast => (
           <div key={toast.id} style={{
             background: 'var(--card-bg)',
-            border: `2px solid var(--accent)`,
+            border: '2px solid var(--accent)',
             borderLeftWidth: '8px',
             color: 'var(--text)',
             padding: '18px 40px',

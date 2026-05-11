@@ -120,9 +120,13 @@ export default function ReportDetail() {
         if (!validTypes.includes(reportData.image.type)) {
           return addToast('EL ARCHIVO DEBE SER UNA IMAGEN (JPG, PNG O WEBP)', 'error')
         }
-        const reader = new FileReader()
-        reader.readAsDataURL(reportData.image)
-        reader.onload = () => sendUpdate({ ...reportData, image: reader.result })
+        const image = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.readAsDataURL(reportData.image)
+          reader.onload = () => resolve(reader.result)
+          reader.onerror = reject
+        })
+        await sendUpdate({ ...reportData, image })
       } else {
         await sendUpdate({ title: reportData.title, description: reportData.description })
       }
@@ -286,7 +290,9 @@ export default function ReportDetail() {
         )}
       </div>
 
-      <h1 className="fs-42 mb-10">{report.title}</h1>
+      <h1 className="fs-42 mb-10 text-break" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+        {report.title}
+      </h1>
       <p className="text-dim mb-30">
         HALLAZGO REGISTRADO POR <span className="text-normal">{report.user?.username.toUpperCase()}</span>
       </p>
@@ -438,23 +444,23 @@ export default function ReportDetail() {
         <div className="modal-overlay">
           <form onSubmit={handleReportUpdate} className="horror-form">
             <h2>MODIFICAR REPORTE</h2>
-            
+
             <div className="form-group">
               <label className="form-label">TÍTULO DEL HALLAZGO</label>
-              <input required value={reportData.title} onChange={e => setReportData({...reportData, title: e.target.value})} />
+              <input required value={reportData.title} onChange={e => setReportData({ ...reportData, title: e.target.value })} />
             </div>
 
             <div className="form-group">
               <label className="form-label">DESCRIPCIÓN DETALLADA</label>
-              <textarea required value={reportData.description} onChange={e => setReportData({...reportData, description: e.target.value})} style={{ minHeight: '200px' }} />
+              <textarea required value={reportData.description} onChange={e => setReportData({ ...reportData, description: e.target.value })} style={{ minHeight: '200px' }} />
             </div>
 
             <div className="form-group">
               <label className="form-label">ACTUALIZAR EVIDENCIA VISUAL (OPCIONAL)</label>
-              <input type="file" onChange={e => setReportData({ ...reportData, image: e.target.files[0] })} className="text-normal" />
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={e => setReportData({ ...reportData, image: e.target.files[0] })} className="text-normal" />
             </div>
 
-            <div className="flex-center gap-20">
+            <div className="flex-center mt-20 gap-20">
               <button type="submit" className="primary flex-1 p-15">ACTUALIZAR DATOS</button>
               <button type="button" onClick={() => setShowReportModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
             </div>

@@ -135,7 +135,10 @@ final class PhantomSeeder extends Seeder
         ];
 
         foreach ($phantoms as $data) {
-            Phantom::query()->create($data);
+            Phantom::query()->updateOrCreate(
+                ['name' => $data['name']],
+                $data,
+            );
         }
     }
 }

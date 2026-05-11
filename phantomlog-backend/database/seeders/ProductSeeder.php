@@ -356,7 +356,10 @@ final class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
-            Product::query()->create($product);
+            Product::query()->updateOrCreate(
+                ['sku' => $product['sku']],
+                $product,
+            );
         }
     }
 }

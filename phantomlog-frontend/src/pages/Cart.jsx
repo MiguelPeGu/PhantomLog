@@ -22,7 +22,7 @@ export default function Cart() {
   const fetchCart = async () => {
     setLoading(true)
     try { await loadCartData() }
-    catch { addToast("Error al invocar el contenedor.", "error") }
+    catch { addToast("No tienes nada en el carrito.", "error") }
     finally { setLoading(false) }
   }
 

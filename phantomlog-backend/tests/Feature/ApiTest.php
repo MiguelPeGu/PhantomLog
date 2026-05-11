@@ -86,9 +86,11 @@ describe('Auth API', function (): void {
 
     test('authenticated user can fetch own profile with relations', function (): void {
         $user = actingAsUser();
+        Forum::factory()->create(['user_id' => $user->id]);
         $this->getJson('/api/user')
             ->assertOk()
-            ->assertJsonStructure(['id', 'username', 'forums', 'invoices', 'created_expeditions']);
+            ->assertJsonStructure(['id', 'username', 'forums', 'invoices', 'created_expeditions'])
+            ->assertJsonCount(1, 'forums');
     });
 
     test('unauthenticated request to /api/user returns 401', function (): void {

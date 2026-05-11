@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
 export default function Profile() {
-  const { user, updateUser, logout } = useAuth()
+  const { user, updateUser, logout, refreshUser } = useAuth()
   const { addToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('forums')
@@ -27,6 +27,14 @@ export default function Profile() {
       })
     }
   }, [user])
+
+  useEffect(() => {
+    if (!localStorage.getItem('token')) return
+
+    refreshUser().catch(() => {
+      // Si falla, mantenemos usuario cacheado para no romper la vista.
+    })
+  }, [refreshUser])
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]

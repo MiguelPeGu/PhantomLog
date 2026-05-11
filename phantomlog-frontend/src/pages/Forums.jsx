@@ -54,6 +54,10 @@ export default function Forums() {
 
   const handleCreateForum = async (e) => {
     e.preventDefault()
+    if (!formData.title.trim() || !formData.description.trim()) {
+      return addToast('EL TÍTULO Y LA DESCRIPCIÓN SON OBLIGATORIOS', 'error')
+    }
+
     try {
       if (isEditing) {
         await updateForum(currentEditId, { title: formData.title, description: formData.description })
@@ -61,29 +65,32 @@ export default function Forums() {
         setShowModal(false)
         refreshForums({ page: currentPage })
       } else {
-        const reader = new FileReader()
-        reader.onload = async () => {
-          try {
-            await createForum({ title: formData.title, description: formData.description, image: reader.result })
-            addToast('Nuevo foro de investigación sellado.', 'success')
-            setShowModal(false)
-            refreshForums({ page: 1 })
-          } catch (err) {
-            const errors = err.response?.data?.errors
-            if (errors) {
-              const firstError = Object.values(errors)[0][0]
-              addToast(firstError.toUpperCase(), 'error')
-            } else {
-              const msg = err.response?.data?.message || 'Error al sellar el foro.'
-              addToast(msg.toUpperCase(), 'error')
-            }
-          }
+        if (!formData.image) return addToast('DEBES ADJUNTAR UNA EVIDENCIA VISUAL', 'error')
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+        if (!validTypes.includes(formData.image.type)) {
+          return addToast('EL ARCHIVO DEBE SER UNA IMAGEN (JPG, PNG O WEBP)', 'error')
         }
-        reader.readAsDataURL(formData.image)
+
+        const image = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.readAsDataURL(formData.image)
+          reader.onload = () => resolve(reader.result)
+          reader.onerror = reject
+        })
+        await createForum({ title: formData.title, description: formData.description, image })
+        addToast('Nuevo foro de investigación sellado.', 'success')
+        setShowModal(false)
+        refreshForums({ page: 1 })
       }
     } catch (error) {
-      const msg = error.response?.data?.message || 'Fallo en la conexión con el servidor.'
-      addToast(msg.toUpperCase(), 'error')
+      const errors = error.response?.data?.errors
+      if (errors) {
+        const firstError = Object.values(errors)[0][0]
+        addToast(firstError.toUpperCase(), 'error')
+      } else {
+        const msg = error.response?.data?.message || 'Fallo en la conexión con el servidor.'
+        addToast(msg.toUpperCase(), 'error')
+      }
     }
   }
 
@@ -104,7 +111,7 @@ export default function Forums() {
     <div className="page-container">
       <header className="text-center mb-60 border-bottom pb-30">
         <h1 className="fs-42 ls-4">FOROS DE INVESTIGACIÓN</h1>
-        <p className="text-dim fs-14 mt-5 mb-80">Comparte tus hallazgos con la comunidad.</p>
+        <p className="text-dim fs-14 mt-5 mb-80">COMPARTE TUS HALLAZGOS CON LA COMUNIDAD.</p>
 
         <div className="flex-center gap-20 mt-60">
           <input
@@ -172,6 +179,7 @@ export default function Forums() {
       {showModal && (
         <div className="modal-overlay">
           <form onSubmit={handleCreateForum} className="horror-form max-400">
+            <h2>{isEditing ? 'MODIFICAR FORO' : 'REGISTRAR FORO'}</h2>
             <div className="form-group">
               <label className="form-label">TÍTULO DE LA INVESTIGACIÓN</label>
               <input required placeholder="Ej: Avistamiento en el bosque" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
@@ -179,19 +187,19 @@ export default function Forums() {
 
             <div className="form-group">
               <label className="form-label">DESCRIPCIÓN DE LOS HECHOS</label>
-              <textarea required placeholder="Relata lo sucedido con detalle..." value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="min-h-120" />
+              <textarea required placeholder="Relata lo sucedido con detalle..." value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} style={{ minHeight: '120px' }} />
             </div>
 
             {!isEditing && (
               <div className="form-group">
                 <label className="form-label">EVIDENCIA VISUAL (IMAGEN)</label>
-                <input type="file" accept="image/jpeg,image/png,image/webp" required onChange={e => setFormData({ ...formData, image: e.target.files[0] })} />
+                <input type="file" accept="image/jpeg,image/png,image/webp" required onChange={e => setFormData({ ...formData, image: e.target.files[0] })} className="text-normal" />
               </div>
             )}
 
             <div className="flex-center mt-20 gap-20">
-              <button type="submit" className="primary flex-1">GUARDAR REGISTRO</button>
-              <button type="button" onClick={() => setShowModal(false)} className="outline-red flex-1">CANCELAR</button>
+              <button type="submit" className="primary flex-1 p-15">GUARDAR REGISTRO</button>
+              <button type="button" onClick={() => setShowModal(false)} className="outline-red flex-1 p-15">CANCELAR</button>
             </div>
           </form>
         </div>

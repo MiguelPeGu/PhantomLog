@@ -25,7 +25,7 @@ export default function Phantoms() {
     <div className="page-container">
       <div className="border-bottom pb-20 mb-40 text-center">
         <h1 className="fs-42 ls-8">EL BESTIARIO</h1>
-        <p className="text-dim fs-14 mt-5">BASE DE DATOS DE ENTIDADES CLASIFICADAS // ACCESO NIVEL 4</p>
+        <p className="text-dim fs-14 mt-5">BASE DE DATOS DE ENTIDADES CLASIFICADAS</p>
       </div>
 
       <div className="max-1200">

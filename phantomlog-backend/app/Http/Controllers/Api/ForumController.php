@@ -31,7 +31,7 @@ final class ForumController
                 Report::query()->selectRaw('COALESCE(SUM(score), 0)')
                     ->whereColumn('forum_id', 'forums.id')
             )
-            ->latest();
+            ->orderByDesc('forums.created_at');
 
         return response()->json(
             $query->paginate($request->integer('per_page', 9))
@@ -78,12 +78,8 @@ final class ForumController
     public function show(Forum $forum): JsonResponse
     {
         $forum->load(['user', 'reports' => function (Builder $query): void {
-            $query->with('user')->withCount('comments');
-        }])
-            ->loadAvg('reports', 'score');
-
-        $avgScore = $forum->getAttribute('reports_avg_score');
-        $forum->setAttribute('credibility_score', is_numeric($avgScore) ? (float) $avgScore : 0.0);
+            $query->with('user');
+        }])->loadAvg('reports', 'score');
 
         return response()->json($forum);
     }

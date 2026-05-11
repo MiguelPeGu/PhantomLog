@@ -30,7 +30,7 @@ final class ProductFactory extends Factory
             ['title' => 'Incienso de Sándalo Antiguo', 'desc' => 'Pack de 20 varillas para purificación.', 'img' => 'sage.jpg'],
             ['title' => 'Crucifijo de Plata de Ley', 'desc' => 'Reliquia de protección personal.', 'img' => 'cross.jpg'],
             ['title' => 'Sensor de Movimiento Láser', 'desc' => 'Crea una red de seguridad invisible.', 'img' => 'motion_ir.jpg'],
-            ['title' => 'Péndulo de Cuarzo Amatista', 'desc' => 'Herramienta de radiestesia.', 'img' => 'candles.jpg'], // Using candles as placeholder if pendulo is missing
+            ['title' => 'Péndulo de Cuarzo Amatista', 'desc' => 'Herramienta de radiestesia.', 'img' => 'candles.jpg'],
         ];
 
         /** @var array{title: string, desc: string, img: string} $product */

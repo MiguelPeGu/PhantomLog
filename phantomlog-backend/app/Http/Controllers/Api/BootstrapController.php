@@ -40,12 +40,16 @@ final class BootstrapController
             ->latest()
             ->get();
 
-        // Foros: paginado página 1
+        // Foros: paginado página 1, ordenado por score (igual que ForumController::index)
         $forums = Forum::query()->select('id', 'title', 'description', 'image', 'user_id', 'created_at', 'updated_at')
             ->with('user:id,username,img')
             ->withCount('reports')
             ->withAvg('reports', 'score')
-            ->latest()
+            ->orderByDesc(
+                \App\Models\Report::query()->selectRaw('COALESCE(SUM(score), 0)')
+                    ->whereColumn('forum_id', 'forums.id')
+            )
+            ->orderByDesc('forums.created_at')
             ->paginate(9);
 
         // Expediciones: paginado página 1

@@ -114,7 +114,7 @@ export default function Products() {
     <div className="page-container">
       <header className="mb-100 text-center">
         <h1>SUMINISTROS ARCANOS</h1>
-        <p className="text-dim italic">Equipamiento vital contra la oscuridad.</p>
+        <p className="text-dim italic">EQUIPAMIENTO VITAL CONTRA LA OSCURIDAD.</p>
       </header>
 
       <div className="max-1200">

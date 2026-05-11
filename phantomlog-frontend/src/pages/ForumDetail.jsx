@@ -1,9 +1,10 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { getForum, deleteForum, updateForum } from '../api/forums'
+import { getForum, getForums, deleteForum, updateForum } from '../api/forums'
 import { createReport, getReports, updateReport, deleteReport } from '../api/reports'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useData } from '../context/DataProvider'
 import ShimmerImage from '../components/ShimmerImage'
 import NotFound from './NotFound'
 
@@ -16,6 +17,7 @@ export default function ForumDetail() {
   const [loadingReports, setLoadingReports] = useState(true)
   const { user } = useAuth()
   const { addToast } = useToast()
+  const { refreshForums } = useData()
   const navigate = useNavigate()
 
   const [showForumModal, setShowForumModal] = useState(false)
@@ -31,6 +33,8 @@ export default function ForumDetail() {
   const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {
+    setNotFound(false)
+    setErrorCode(404)
     fetchForum()
     fetchReports()
   }, [id])
@@ -41,8 +45,36 @@ export default function ForumDetail() {
       setForum(res.data)
       setForumData({ title: res.data.title, description: res.data.description, image: null })
     } catch (error) {
-      setNotFound(true);
-      addToast('ERROR AL CARGAR EL EXPEDIENTE', 'error');
+      const status = error?.response?.status
+      if (status === 404) {
+        setErrorCode(404)
+        setNotFound(true)
+      } else {
+        // Fallback: si el detalle falla (500/red), intentamos hidratar desde el listado.
+        try {
+          const listRes = await getForums({ per_page: 100 })
+          const forumsList = listRes?.data?.data || []
+          const fallbackForum = forumsList.find((f) => String(f.id) === String(id))
+
+          if (fallbackForum) {
+            setForum({
+              ...fallbackForum,
+              credibility_score: Number(fallbackForum.reports_avg_score || 0),
+            })
+            setForumData({
+              title: fallbackForum.title || '',
+              description: fallbackForum.description || '',
+              image: null,
+            })
+            return
+          }
+        } catch (_) {
+          // Sin acción: mostramos error principal debajo.
+        }
+
+        const apiMessage = error?.response?.data?.message
+        addToast((apiMessage || 'ERROR AL CARGAR EL EXPEDIENTE').toUpperCase(), 'error')
+      }
     }
   }
 
@@ -67,10 +99,12 @@ export default function ForumDetail() {
 
     try {
       const sendData = async (data) => {
-        await updateForum(id, data)
+        const res = await updateForum(id, data)
+        setForum(prev => ({ ...prev, ...res.data }))
+        setForumData({ title: res.data.title, description: res.data.description, image: null })
         addToast('FORO ACTUALIZADO', 'success')
         setShowForumModal(false)
-        fetchForum()
+        refreshForums()
       }
 
       if (forumData.image) {
@@ -78,10 +112,13 @@ export default function ForumDetail() {
         if (!validTypes.includes(forumData.image.type)) {
           return addToast('EL ARCHIVO DEBE SER UNA IMAGEN (JPG, PNG O WEBP)', 'error')
         }
-
-        const reader = new FileReader()
-        reader.readAsDataURL(forumData.image)
-        reader.onload = () => sendData({ ...forumData, image: reader.result })
+        const image = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.readAsDataURL(forumData.image)
+          reader.onload = () => resolve(reader.result)
+          reader.onerror = reject
+        })
+        await sendData({ ...forumData, image })
       } else {
         await sendData({ title: forumData.title, description: forumData.description })
       }
@@ -124,9 +161,13 @@ export default function ForumDetail() {
           if (!validTypes.includes(reportData.image.type)) {
             return addToast('EL ARCHIVO DEBE SER UNA IMAGEN (JPG, PNG O WEBP)', 'error')
           }
-          const reader = new FileReader()
-          reader.readAsDataURL(reportData.image)
-          reader.onload = () => sendUpdate({ ...reportData, image: reader.result })
+          const image = await new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsDataURL(reportData.image)
+            reader.onload = () => resolve(reader.result)
+            reader.onerror = reject
+          })
+          await sendUpdate({ ...reportData, image })
         } else {
           await sendUpdate({ title: reportData.title, description: reportData.description })
         }
@@ -140,45 +181,41 @@ export default function ForumDetail() {
 
         setIsCreatingReport(true)
         setCountdown(3)
+        const image = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.readAsDataURL(reportData.image)
+          reader.onload = () => resolve(reader.result)
+          reader.onerror = reject
+        })
+        const apiPromise = createReport(id, {
+          title: reportData.title,
+          description: reportData.description,
+          image
+        })
 
-        const reader = new FileReader()
-        reader.readAsDataURL(reportData.image)
-
-        reader.onload = async () => {
-          try {
-            const apiPromise = createReport(id, {
-              title: reportData.title,
-              description: reportData.description,
-              image: reader.result
-            })
-
-            // El contador visual baja cada segundo
-            for (let i = 2; i >= 0; i--) {
-              await new Promise(r => setTimeout(r, 1000))
-              setCountdown(i)
-            }
-
-            await apiPromise
-
-            setIsCreatingReport(false)
-            setShowReportModal(false) // explicar el ciclo de abrir, set creating report a true y set showreportmodal, countdown, api promise, api response false, set creating report a false, close report modal, fetch reports, display toast and repeat.
-            fetchReports()
-            addToast('REPORTE SELLADO CON ÉXITO', 'success')
-          } catch (err) {
-            setIsCreatingReport(false)
-            const errors = err.response?.data?.errors
-            if (errors) {
-              const firstError = Object.values(errors)[0][0]
-              addToast(firstError.toUpperCase(), "error")
-            } else {
-              addToast((err.response?.data?.message || "ERROR AL CREAR REPORTE").toUpperCase(), "error")
-            }
-          }
+        // El contador visual baja cada segundo
+        for (let i = 2; i >= 0; i--) {
+          await new Promise(r => setTimeout(r, 1000))
+          setCountdown(i)
         }
+
+        await apiPromise
+
+        setIsCreatingReport(false)
+        setShowReportModal(false)
+        fetchReports()
+        refreshForums()
+        addToast('REPORTE SELLADO CON ÉXITO', 'success')
       }
     } catch (error) {
       setIsCreatingReport(false)
-      addToast('ERROR CRÍTICO EN LA TRANSMISIÓN', 'error')
+      const errors = error.response?.data?.errors
+      if (errors) {
+        const firstError = Object.values(errors)[0][0]
+        addToast(firstError.toUpperCase(), 'error')
+      } else {
+        addToast((error.response?.data?.message || 'ERROR CRÍTICO EN LA TRANSMISIÓN').toUpperCase(), 'error')
+      }
     }
   }
 
@@ -268,7 +305,9 @@ export default function ForumDetail() {
 
       <div className="column align-center mb-60 gap-40 max-1000 mx-auto">
         <div className="text-center w-100">
-          <h1 className="mb-20 fs-48">{forum.title}</h1>
+          <h1 className="mb-20 fs-48 text-break" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+            {forum.title}
+          </h1>
           <p className="text-dim mb-40 fs-16">
             FORO INICIADO POR <span className="text-normal">{forum.user?.username.toUpperCase()}</span> EL {new Date(forum.created_at).toLocaleDateString()}
           </p>
@@ -396,10 +435,10 @@ export default function ForumDetail() {
 
             <div className="form-group">
               <label className="form-label">ACTUALIZAR EVIDENCIA VISUAL (OPCIONAL)</label>
-              <input type="file" onChange={e => setForumData({ ...forumData, image: e.target.files[0] })} className="text-normal" />
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={e => setForumData({ ...forumData, image: e.target.files[0] })} className="text-normal" />
             </div>
 
-            <div className="flex-center gap-20">
+            <div className="flex-center mt-20 gap-20">
               <button type="submit" className="primary flex-1 p-15">ACTUALIZAR ARCHIVO</button>
               <button type="button" onClick={() => setShowForumModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
             </div>
@@ -408,11 +447,10 @@ export default function ForumDetail() {
       )}
 
       {showReportModal && (
-        <div className="modal-overlay">
-          <form onSubmit={handleReportSubmit} className="horror-form">
-            <h2>{isEditingReport ? 'MODIFICAR EVIDENCIA' : 'REGISTRAR EVIDENCIA'}</h2>
-
-            {isCreatingReport ? (
+        isCreatingReport ? (
+          <div className="modal-overlay">
+            <div className="horror-form">
+              <h2>REGISTRAR EVIDENCIA</h2>
               <div className="text-center p-40">
                 <p className="fs-20 ls-2">SELLANDO REPORTE EN EL ARCHIVO CENTRAL...</p>
                 <div className="fs-64 m-30-0" style={{ color: 'var(--text)' }}>{countdown}</div>
@@ -420,31 +458,35 @@ export default function ForumDetail() {
                   <div className="h-100 bg-accent transition-width" style={{ width: `${(countdown / 3) * 100}%` }}></div>
                 </div>
               </div>
-            ) : (
-              <>
-                <div className="form-group">
-                  <label className="form-label">TÍTULO DEL HALLAZGO</label>
-                  <input required placeholder="Ej: Anomalía detectada en cámara 4" value={reportData.title} onChange={e => setReportData({ ...reportData, title: e.target.value })} />
-                </div>
+            </div>
+          </div>
+        ) : (
+          <div className="modal-overlay">
+            <form onSubmit={handleReportSubmit} className="horror-form">
+              <h2>{isEditingReport ? 'MODIFICAR EVIDENCIA' : 'REGISTRAR EVIDENCIA'}</h2>
 
-                <div className="form-group">
-                  <label className="form-label">DESCRIPCIÓN DE LA EVIDENCIA</label>
-                  <textarea required placeholder="Relata detalladamente lo observado..." value={reportData.description} onChange={e => setReportData({ ...reportData, description: e.target.value })} style={{ minHeight: '180px' }} />
-                </div>
+              <div className="form-group">
+                <label className="form-label">TÍTULO DEL HALLAZGO</label>
+                <input required placeholder="Ej: Anomalía detectada en cámara 4" value={reportData.title} onChange={e => setReportData({ ...reportData, title: e.target.value })} />
+              </div>
 
-                <div className="form-group">
-                  <label className="form-label">{isEditingReport ? 'ACTUALIZAR EVIDENCIA (OPCIONAL)' : 'CAPTURA DE EVIDENCIA (IMAGEN)'}</label>
-                  <input type="file" required={!isEditingReport} onChange={e => setReportData({ ...reportData, image: e.target.files[0] })} className="text-normal" />
-                </div>
+              <div className="form-group">
+                <label className="form-label">DESCRIPCIÓN DE LA EVIDENCIA</label>
+                <textarea required placeholder="Relata detalladamente lo observado..." value={reportData.description} onChange={e => setReportData({ ...reportData, description: e.target.value })} style={{ minHeight: '180px' }} />
+              </div>
 
-                <div className="flex-center mt-20 gap-20">
-                  <button type="submit" className="primary flex-1 p-15">{isEditingReport ? 'ACTUALIZAR DATOS' : 'REGISTRAR EVIDENCIA'}</button>
-                  <button type="button" onClick={() => setShowReportModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
-                </div>
-              </>
-            )}
-          </form>
-        </div>
+              <div className="form-group">
+                <label className="form-label">{isEditingReport ? 'ACTUALIZAR EVIDENCIA (OPCIONAL)' : 'CAPTURA DE EVIDENCIA (IMAGEN)'}</label>
+                <input type="file" accept="image/jpeg,image/png,image/webp" required={!isEditingReport} onChange={e => setReportData({ ...reportData, image: e.target.files[0] })} className="text-normal" />
+              </div>
+
+              <div className="flex-center mt-20 gap-20">
+                <button type="submit" className="primary flex-1 p-15">{isEditingReport ? 'ACTUALIZAR DATOS' : 'REGISTRAR EVIDENCIA'}</button>
+                <button type="button" onClick={() => setShowReportModal(false)} className="outline-red flex-1 p-15">ABORTAR</button>
+              </div>
+            </form>
+          </div>
+        )
       )}
     </div>
   )
