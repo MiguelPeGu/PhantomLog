@@ -45,6 +45,11 @@ final class UserResource extends Resource
         return (string) User::query()->count();
     }
 
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);

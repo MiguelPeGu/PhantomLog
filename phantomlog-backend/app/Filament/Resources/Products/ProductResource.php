@@ -47,9 +47,15 @@ final class ProductResource extends Resource
 
     public static function getNavigationBadgeColor(): ?string
     {
-        $lowStock = Product::query()->where('stock', '<=', 5)->count();
+        if (Product::query()->where('stock', '<=', 0)->exists()) {
+            return 'danger';
+        }
 
-        return $lowStock > 0 ? 'warning' : null;
+        if (Product::query()->where('stock', '<=', 5)->exists()) {
+            return 'warning';
+        }
+
+        return 'success';
     }
 
     public static function form(Schema $schema): Schema

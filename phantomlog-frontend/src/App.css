@@ -976,12 +976,12 @@ body.light-mode .vote-btn.active {
   width: 100%;
   max-width: 450px;
   aspect-ratio: 1/1;
-  background: #060606;
+  background: var(--bg);
   border-right: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 0;
   overflow: hidden;
 }
 

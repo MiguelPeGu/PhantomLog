@@ -45,6 +45,11 @@ final class PhantomResource extends Resource
         return (string) Phantom::query()->count();
     }
 
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'gray';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return PhantomForm::configure($schema);

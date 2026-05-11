@@ -142,7 +142,7 @@ export default function ProductDetail() {
               <ShimmerImage
                 src={product.image?.startsWith('http') ? product.image : `http://localhost:8000/storage/${product.image}`}
                 alt={product.title}
-                objectFit="contain"
+                objectFit="cover"
               />
             </div>
             <div className="product-info-panel column p-40">

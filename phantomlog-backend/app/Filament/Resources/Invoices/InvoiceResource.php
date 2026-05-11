@@ -46,6 +46,11 @@ final class InvoiceResource extends Resource
         return (string) Invoice::query()->count();
     }
 
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return InvoiceForm::configure($schema);

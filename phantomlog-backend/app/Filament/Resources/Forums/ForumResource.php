@@ -46,6 +46,11 @@ final class ForumResource extends Resource
         return (string) Forum::query()->count();
     }
 
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'primary';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ForumForm::configure($schema);
