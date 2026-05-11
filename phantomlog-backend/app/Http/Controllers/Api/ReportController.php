@@ -38,7 +38,6 @@ final class ReportController
             'image.regex' => 'El archivo debe ser una imagen real (JPG, PNG o WEBP).',
         ]);
 
-        // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value) && $key !== 'image') {
                 $data[$key] = mb_trim(strip_tags($value));
@@ -95,7 +94,6 @@ final class ReportController
             'image' => ['sometimes', 'string', 'regex:/^data:image\/(jpeg|png|webp|jpg);base64,/'],
         ]);
 
-        // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value) && $key !== 'image') {
                 $data[$key] = mb_trim(strip_tags($value));
@@ -103,7 +101,7 @@ final class ReportController
         }
 
         if ($request->has('image') && ! empty($request->image)) {
-            $requestImage = $request->string('image')->toString(); // fixed: línea 107 (cast + @var eliminado)
+            $requestImage = $request->string('image')->toString();
             if (preg_match('/^data:image\/(\w+);base64,/', $requestImage, $type)) {
                 if ($report->image) {
                     Storage::disk('public')->delete($report->image);

@@ -1,4 +1,5 @@
-import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { CartProvider } from './context/CartContext'
@@ -26,9 +27,29 @@ import Dashboard      from './pages/Dashboard'
 import Profile        from './pages/Profile'
 import NotFound       from './pages/NotFound'
 
+const TitleUpdater = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = location.pathname;
+    let title = 'Phantomlog';
+
+    if (path === '/') title += ' - Inicio';
+    else {
+      const segment = path.split('/')[1];
+      const formatted = segment.charAt(0).toUpperCase() + segment.slice(1);
+      title += ` - ${formatted}`;º
+    }
+
+    document.title = title;
+  }, [location]);
+
+  return <Outlet />;
+};
+
 export const router = createBrowserRouter([
   {
-    element: <Outlet />,
+    element: <TitleUpdater />,
     children: [
       {
         path: "/",

@@ -62,7 +62,6 @@ final class InvoiceController
             'cvv.regex' => 'El CVV debe tener 3 números.',
         ]);
 
-        // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value)) {
                 $data[$key] = mb_trim(strip_tags($value));
@@ -111,7 +110,7 @@ final class InvoiceController
                 'total' => $total,
             ]);
 
-            $invoice->details()->createMany($details);
+            $invoice->details()->createMany($details); 
 
             try {
                 Mail::to($user->email)->send(new InvoicePaid($invoice));

@@ -100,10 +100,7 @@ final class Report extends Model
     protected static function booted(): void
     {
         self::created(function (Report $report): void {
-            // Initial score is 0
         });
-
-        // We use saved/deleted on the ReportVote model to update the Report score
     }
 
     protected function getVotesCountAttribute(): int

@@ -24,7 +24,8 @@ final class ForumController
             ->withAvg('reports', 'score')
             ->when(
                 $request->filled('search'),
-                fn (Builder $query): Builder => $query->where('title', 'like', '%'.$request->string('search').'%')
+                fn (Builder $query): Builder => $query
+                    ->where('title', 'like', '%'.$request->string('search').'%')
                     ->orWhere('description', 'like', '%'.$request->string('search').'%')
             )
             ->orderByDesc(

@@ -65,7 +65,6 @@ final class ExpeditionController
             'date.after' => 'La incursión debe programarse para una fecha futura.',
         ]);
 
-        // Sanitización manual
         foreach ($data as $key => $value) {
             if (is_string($value)) {
                 $data[$key] = mb_trim(strip_tags($value));

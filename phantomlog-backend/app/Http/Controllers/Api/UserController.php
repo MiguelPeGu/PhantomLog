@@ -67,7 +67,7 @@ final class UserController
 
         foreach ($data as $key => $value) {
             if (is_string($value) && $key !== 'password' && $key !== 'img') {
-                $data[$key] = mb_trim(strip_tags($value));
+                $data[$key] = mb_trim(strip_tags($value)); // m
             }
         }
 

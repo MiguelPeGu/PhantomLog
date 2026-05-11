@@ -78,10 +78,7 @@ final class Forum extends Model
         return $this->belongsToMany(User::class, 'followers');
     }
 
-    /**
-     * Accesor para obtener la puntuación de credibilidad basada en el promedio de los reportes.
-     * Requiere que se haya cargado withAvg() o loadAvg() en el controlador.
-     */
+
     protected function getCredibilityScoreAttribute(): float
     {
         $avg = $this->attributes['reports_avg_score'] ?? null;
