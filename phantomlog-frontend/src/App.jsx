@@ -38,7 +38,7 @@ const TitleUpdater = () => {
     else {
       const segment = path.split('/')[1];
       const formatted = segment.charAt(0).toUpperCase() + segment.slice(1);
-      title += ` - ${formatted}`;º
+      title += ` - ${formatted}`;
     }
 
     document.title = title;
