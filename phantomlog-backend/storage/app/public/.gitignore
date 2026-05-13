@@ -1,2 +1,8 @@
 *
 !.gitignore
+!forums/
+!forums/**
+!images/
+!images/**
+!reports/
+!reports/**
