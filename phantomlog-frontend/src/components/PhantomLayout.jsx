@@ -39,16 +39,6 @@ export default function PhantomLayout() {
 
   useEffect(() => { setShowContent(true) }, [])
 
-  const handleLogout = async () => {
-    addToast("Cerrando sesión...", "info")
-    try {
-      if (logout) await logout()
-    } catch {
-      // ignore
-    } finally {
-      navigate('/login')
-    }
-  }
 
   const navLinks = [
     { name: 'Foros', path: '/forums' },
