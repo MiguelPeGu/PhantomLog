@@ -215,7 +215,7 @@ export default function Products() {
                       />
                       {p.category && (
                         <div className="absolute-br" style={{ bottom: '15px', right: '15px' }}>
-                          <span className="status-badge active fs-9 ls-1">{p.category.toUpperCase()}</span>
+                          <span className="category-badge uppercase">{p.category}</span>
                         </div>
                       )}
                     </Link>

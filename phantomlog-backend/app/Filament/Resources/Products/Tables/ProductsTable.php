@@ -39,6 +39,11 @@ final class ProductsTable
                     ->label('Stock')
                     ->numeric()
                     ->badge()
+                    ->color(fn (int $state): string => match (true) {
+                        $state <= 0 => 'danger',
+                        $state <= 5 => 'warning',
+                        default => 'success',
+                    })
                     ->sortable(),
             ])
             ->filters([

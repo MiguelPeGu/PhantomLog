@@ -164,6 +164,7 @@ export default function Expeditions() {
       </header>
 
       <div className="max-1200">
+        <h2 className="mb-40 ls-2 text-normal border-bottom pb-10" style={{ color: 'var(--text)' }}>EXPEDICIONES ACTIVAS</h2>
         <div className={`grid-3 loading-fade${fading ? ' is-loading' : ''}`}>
           {loadingExpeditions && expeditions.length === 0 ? (
             [...Array(6)].map((_, i) => <ExpeditionSkeleton key={i} />)

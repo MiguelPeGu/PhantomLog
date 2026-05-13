@@ -122,19 +122,21 @@ export default function SuccessInvoice() {
           </tbody>
         </table>
 
-        <div className="flex-center justify-end invoice-footer">
-          <div className="w-250">
-            <div className="flex-center justify-between mb-10">
-              <span>SUBTOTAL:</span>
-              <span>{Number(invoice.subtotal || 0).toFixed(2)}€</span>
+        <div className="flex-center justify-end invoice-footer border-top pt-30 mt-10">
+          <div className="w-300">
+            <div className="flex-center justify-between mb-15">
+              <span className="text-dim fs-14 ls-1">SUBTOTAL ARCANO:</span>
+              <span className="fs-18">{Number(invoice.subtotal || 0).toFixed(2)}€</span>
             </div>
-            <div className="flex-center justify-between mb-10">
-              <span>IMPUESTOS ({invoice.tax}%):</span>
-              <span>{(Number(invoice.total || 0) - Number(invoice.subtotal || 0)).toFixed(2)}€</span>
+            <div className="flex-center justify-between mb-20">
+              <span className="text-dim fs-14 ls-1">TASA DE SACRIFICIO ({invoice.tax}%):</span>
+              <span className="fs-18">{(Number(invoice.total || 0) - Number(invoice.subtotal || 0)).toFixed(2)}€</span>
             </div>
-            <div className="flex-center justify-between mt-10 fs-24 text-accent bold">
-              <span>TOTAL:</span>
-              <span>{Number(invoice.total || 0).toFixed(2)}€</span>
+            <div className="flex-center justify-between border-top pt-20 mt-10" style={{ borderTopWidth: '2px', borderTopColor: 'var(--text)' }}>
+              <span className="bold fs-16 ls-2">TOTAL FINAL:</span>
+              <span className="fs-36 bold text-accent" style={{ textShadow: '0 0 15px rgba(255, 0, 0, 0.3)' }}>
+                {Number(invoice.total || 0).toFixed(2)}€
+              </span>
             </div>
           </div>
         </div>

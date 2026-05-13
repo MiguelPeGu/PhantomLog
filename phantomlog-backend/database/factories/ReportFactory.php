@@ -48,12 +48,24 @@ final class ReportFactory extends Factory
         /** @var array{title: string, desc: string, img: string} $finding */
         $finding = $this->faker->randomElement($findings);
 
+        $extraDetails = [
+            'Se recomienda precaución extrema.',
+            'El equipo de grabación registró picos inusuales.',
+            'No se encontró explicación física para este fenómeno.',
+            'La zona ha sido sellada para futuras investigaciones.',
+            'Los testigos reportan una sensación de opresión constante.',
+            'Se ha procedido a la purga energética del área.',
+            'Protocolo de contención nivel 3 activado.',
+            'Las lecturas EMF confirman la persistencia de la entidad.',
+            'Se observó una distorsión visual en el espectro completo.'
+        ];
+
         return [
             'id' => (string) Str::uuid(),
             'forum_id' => Forum::query()->inRandomOrder()->value('id') ?? Forum::factory(),
             'user_id' => User::query()->inRandomOrder()->value('id') ?? User::factory(),
             'title' => $finding['title'].' [Ref: '.$this->faker->bothify('??-####').']',
-            'description' => $finding['desc'].' '.$this->faker->sentence(),
+            'description' => $finding['desc'].' '.$this->faker->randomElement($extraDetails),
             'image' => 'images/reports/'.$finding['img'],
             'score' => $this->faker->numberBetween(0, 50),
             'created_at' => $this->faker->dateTimeBetween('-6 months', 'now'),
