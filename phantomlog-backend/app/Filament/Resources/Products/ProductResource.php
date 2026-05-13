@@ -40,12 +40,12 @@ final class ProductResource extends Resource
     #[Override]
     protected static ?string $pluralModelLabel = 'Productos';
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationBadge(): string
     {
         return (string) Product::query()->count();
     }
 
-    public static function getNavigationBadgeColor(): ?string
+    public static function getNavigationBadgeColor(): string
     {
         if (Product::query()->where('stock', '<=', 0)->exists()) {
             return 'danger';

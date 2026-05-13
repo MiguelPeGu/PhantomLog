@@ -59,6 +59,7 @@ final class ForumFactory extends Factory
             ['title' => 'INF-777: Psiquiátrico de Gonjiam', 'desc' => 'Expedición al hospital más aterrador de Corea. Registro de portazos y sombras en los pasillos.', 'image' => 'images/forums/gonjiam.jpg'],
         ];
 
+        /** @var array{title: string, desc: string, image: string} $case */
         $case = $this->faker->unique()->randomElement($cases);
 
         return [
@@ -68,9 +69,7 @@ final class ForumFactory extends Factory
             'image' => $case['image'],
             'user_id' => User::query()->inRandomOrder()->value('id') ?? User::factory(),
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'updated_at' => function (array $attributes) {
-                return $attributes['created_at'];
-            },
+            'updated_at' => fn (array $attributes) => $attributes['created_at'],
         ];
     }
 }

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 final class PhantomController
 {
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
         $query = Phantom::query()->withCount('expeditions')->latest();
 

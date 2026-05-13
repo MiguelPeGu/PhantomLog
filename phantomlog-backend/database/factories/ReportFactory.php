@@ -45,14 +45,15 @@ final class ReportFactory extends Factory
             ['title' => 'Sensación de Toque Físico', 'desc' => 'Investigador reporta empujón en la espalda; cámara capta distorsión.', 'img' => 'alucinacion_tactil.jpg'],
         ];
 
+        /** @var array{title: string, desc: string, img: string} $finding */
         $finding = $this->faker->randomElement($findings);
 
         return [
             'id' => (string) Str::uuid(),
             'forum_id' => Forum::query()->inRandomOrder()->value('id') ?? Forum::factory(),
             'user_id' => User::query()->inRandomOrder()->value('id') ?? User::factory(),
-            'title' => $finding['title'] . ' [Ref: ' . $this->faker->bothify('??-####') . ']',
-            'description' => $finding['desc'] . ' ' . $this->faker->sentence(),
+            'title' => $finding['title'].' [Ref: '.$this->faker->bothify('??-####').']',
+            'description' => $finding['desc'].' '.$this->faker->sentence(),
             'image' => 'images/reports/'.$finding['img'],
             'score' => $this->faker->numberBetween(0, 50),
             'created_at' => $this->faker->dateTimeBetween('-6 months', 'now'),

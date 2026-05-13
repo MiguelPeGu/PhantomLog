@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Forum;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 final class ForumSeeder extends Seeder

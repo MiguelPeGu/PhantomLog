@@ -44,6 +44,7 @@ final class ExpeditionFactory extends Factory
             ['name' => 'El Guardián del Puente', 'desc' => 'Investigación sobre el puente de piedra donde los animales se niegan a cruzar.'],
         ];
 
+        /** @var array{name: string, desc: string} $mission */
         $mission = $this->faker->unique()->randomElement($missions);
 
         return [

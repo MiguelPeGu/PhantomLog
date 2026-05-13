@@ -110,7 +110,7 @@ final class InvoiceController
                 'total' => $total,
             ]);
 
-            $invoice->details()->createMany($details); 
+            $invoice->details()->createMany($details);
 
             try {
                 Mail::to($user->email)->send(new InvoicePaid($invoice));

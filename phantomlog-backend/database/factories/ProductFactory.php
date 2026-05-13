@@ -53,6 +53,7 @@ final class ProductFactory extends Factory
             ['sku' => 'EQ-PARAB-MIC', 'name' => 'Micrófono Parabólico II', 'price' => 210.00, 'category' => 'EQUIPMENT', 'image' => 'parabolic_mic.jpg', 'desc' => 'Versión avanzada con filtrado digital.'],
         ];
 
+        /** @var array{sku: string, name: string, price: float, category: string, image: string, desc: string} $product */
         $product = $this->faker->unique()->randomElement($products);
 
         return [

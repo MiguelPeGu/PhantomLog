@@ -41,12 +41,12 @@ final class InvoiceResource extends Resource
     #[Override]
     protected static ?string $pluralModelLabel = 'Facturas';
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationBadge(): string
     {
         return (string) Invoice::query()->count();
     }
 
-    public static function getNavigationBadgeColor(): ?string
+    public static function getNavigationBadgeColor(): string
     {
         return 'info';
     }

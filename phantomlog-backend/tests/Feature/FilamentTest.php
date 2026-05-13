@@ -43,8 +43,8 @@ describe('Filament Panel Access', function (): void {
 
 describe('Filament Navigation Groups', function (): void {
 
-    test('UserResource is in Gestion de Usuarios group', function (): void {
-        expect(UserResource::getNavigationGroup())->toBe('Gestion de Usuarios');
+    test('UserResource is in Comunidad group', function (): void {
+        expect(UserResource::getNavigationGroup())->toBe('Comunidad');
     });
 
     test('ForumResource is in Comunidad group', function (): void {

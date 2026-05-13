@@ -41,12 +41,12 @@ final class ForumResource extends Resource
     #[Override]
     protected static ?string $pluralModelLabel = 'Foros';
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationBadge(): string
     {
         return (string) Forum::query()->count();
     }
 
-    public static function getNavigationBadgeColor(): ?string
+    public static function getNavigationBadgeColor(): string
     {
         return 'primary';
     }

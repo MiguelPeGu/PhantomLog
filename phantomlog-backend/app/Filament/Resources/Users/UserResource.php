@@ -40,12 +40,12 @@ final class UserResource extends Resource
     #[Override]
     protected static ?string $pluralModelLabel = 'Usuarios';
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationBadge(): string
     {
         return (string) User::query()->count();
     }
 
-    public static function getNavigationBadgeColor(): ?string
+    public static function getNavigationBadgeColor(): string
     {
         return 'info';
     }

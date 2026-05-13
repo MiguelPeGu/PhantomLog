@@ -17,7 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Override;
 use UnitEnum;
 
@@ -41,14 +41,14 @@ final class ExpeditionResource extends Resource
     #[Override]
     protected static ?string $pluralModelLabel = 'Expediciones';
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationBadge(): string
     {
         return (string) Expedition::query()
-            ->where('date', '>=', Carbon::now())
+            ->where('date', '>=', Date::now())
             ->count();
     }
 
-    public static function getNavigationBadgeColor(): ?string
+    public static function getNavigationBadgeColor(): string
     {
         return 'success';
     }

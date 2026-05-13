@@ -40,12 +40,12 @@ final class PhantomResource extends Resource
     #[Override]
     protected static ?string $pluralModelLabel = 'Fantasmas';
 
-    public static function getNavigationBadge(): ?string
+    public static function getNavigationBadge(): string
     {
         return (string) Phantom::query()->count();
     }
 
-    public static function getNavigationBadgeColor(): ?string
+    public static function getNavigationBadgeColor(): string
     {
         return 'gray';
     }

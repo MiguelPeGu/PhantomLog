@@ -42,7 +42,7 @@ final class Forum extends Model
     ];
 
     #[Override]
-    protected $appends = ['image_url', 'credibility_score']; 
+    protected $appends = ['image_url', 'credibility_score'];
 
     /**
      * @return array<string, string>
@@ -77,7 +77,6 @@ final class Forum extends Model
     {
         return $this->belongsToMany(User::class, 'followers');
     }
-
 
     protected function getCredibilityScoreAttribute(): float
     {

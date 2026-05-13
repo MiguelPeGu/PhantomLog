@@ -8,6 +8,7 @@ use App\Models\Expedition;
 use App\Models\Forum;
 use App\Models\Phantom;
 use App\Models\Product;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,7 +47,7 @@ final class BootstrapController
             ->withCount('reports')
             ->withAvg('reports', 'score')
             ->orderByDesc(
-                \App\Models\Report::query()->selectRaw('COALESCE(SUM(score), 0)')
+                Report::query()->selectRaw('COALESCE(SUM(score), 0)')
                     ->whereColumn('forum_id', 'forums.id')
             )
             ->orderByDesc('forums.created_at')

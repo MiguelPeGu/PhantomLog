@@ -99,8 +99,7 @@ final class Report extends Model
 
     protected static function booted(): void
     {
-        self::created(function (Report $report): void {
-        });
+        self::created(function (Report $report): void {});
     }
 
     protected function getVotesCountAttribute(): int
