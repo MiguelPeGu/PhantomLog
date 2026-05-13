@@ -244,27 +244,29 @@ export default function ForumDetail() {
         </div>
 
         {/* Título + autor */}
-        <div className="column align-center max-1000 mx-auto gap-20 mb-60">
-          <div className="skeleton w-100 text-center" style={{ height: '52px', maxWidth: '700px' }}></div>
-          <div className="skeleton skeleton-text" style={{ width: '40%' }}></div>
+        <div className="column align-center mb-60 gap-40 max-1000 mx-auto">
+          <div className="text-center w-100">
+            <div className="skeleton mx-auto mb-20" style={{ width: '80%', height: '58px', maxWidth: '700px' }}></div>
+            <div className="skeleton mx-auto" style={{ width: '40%', height: '20px' }}></div>
+          </div>
 
           {/* Imagen */}
-          <div className="horror-card mx-auto p-10 w-100" style={{ minHeight: '420px', maxWidth: '800px' }}>
-            <div className="skeleton w-100" style={{ height: '400px' }}></div>
+          <div className="horror-card mx-auto p-10 mb-40" style={{ width: '100%', maxWidth: '800px', minHeight: '500px', display: 'block' }}>
+            <div className="skeleton w-100 h-100" style={{ minHeight: '480px' }}></div>
           </div>
 
           {/* Credibility bar */}
-          <div className="w-100" style={{ maxWidth: '800px' }}>
+          <div className="credibility-bar-wrapper w-100">
             <div className="flex-center justify-between mb-10">
-              <div className="skeleton" style={{ width: '110px', height: '12px' }}></div>
-              <div className="skeleton" style={{ width: '130px', height: '12px' }}></div>
+              <div className="skeleton" style={{ width: '100px', height: '12px' }}></div>
+              <div className="skeleton" style={{ width: '120px', height: '12px' }}></div>
             </div>
             <div className="skeleton w-100" style={{ height: '8px', borderRadius: '4px' }}></div>
-            <div className="skeleton skeleton-text mt-10" style={{ width: '180px' }}></div>
+            <div className="skeleton mt-15 mx-auto" style={{ width: '200px', height: '16px' }}></div>
           </div>
 
           {/* Descripción */}
-          <div className="horror-card w-100" style={{ maxWidth: '800px' }}>
+          <div className="horror-card fs-18 column border-accent-left-3 pl-40 min-h-120 w-100">
             <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
             <div className="skeleton skeleton-text" style={{ width: '95%' }}></div>
             <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
@@ -272,18 +274,21 @@ export default function ForumDetail() {
         </div>
 
         {/* Report cards */}
-        <div className="flex-center justify-between mb-40">
-          <div className="skeleton" style={{ width: '200px', height: '36px' }}></div>
-        </div>
-        <div className="grid-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="horror-card column p-20" style={{ minHeight: '320px' }}>
-              <div className="skeleton w-100 mb-20" style={{ height: '180px' }}></div>
-              <div className="skeleton skeleton-title" style={{ width: '80%' }}></div>
-              <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
-              <div className="skeleton skeleton-text" style={{ width: '60%' }}></div>
-            </div>
-          ))}
+        <div className="mt-60">
+          <div className="flex-center justify-between mb-40">
+            <div className="skeleton" style={{ width: '280px', height: '40px' }}></div>
+            <div className="skeleton" style={{ width: '180px', height: '40px' }}></div>
+          </div>
+          <div className="grid-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="horror-card column p-20 min-h-320">
+                <div className="skeleton w-100 mb-20" style={{ height: '180px', aspectRatio: '16/9' }}></div>
+                <div className="skeleton mb-15" style={{ width: '85%', height: '24px' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '100%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '60%' }}></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     )

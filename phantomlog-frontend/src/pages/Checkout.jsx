@@ -122,42 +122,71 @@ export default function Checkout() {
           <div className="skeleton mx-auto mb-10" style={{ width: '320px', height: '44px' }}></div>
           <div className="skeleton mx-auto" style={{ width: '220px', height: '18px' }}></div>
         </header>
-        <div className="flex-center align-start gap-40 wrap">
+        <div className="flex-center align-start gap-40 wrap grid-2-1">
           {/* Formulario */}
           <div className="horror-card flex-2 p-30">
-            <div className="skeleton mb-20" style={{ width: '240px', height: '28px' }}></div>
-            <div className="grid-2 gap-20 mb-20">
-              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
-              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+            <div className="skeleton mb-25" style={{ width: '280px', height: '32px' }}></div>
+            <div className="column gap-20">
+              <div className="grid-2 gap-20">
+                <div className="column gap-10">
+                  <div className="skeleton" style={{ width: '120px', height: '14px' }}></div>
+                  <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+                </div>
+                <div className="column gap-10">
+                  <div className="skeleton" style={{ width: '100px', height: '14px' }}></div>
+                  <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+                </div>
+              </div>
+              <div className="grid-2 gap-20">
+                <div className="column gap-10">
+                  <div className="skeleton" style={{ width: '80px', height: '14px' }}></div>
+                  <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+                </div>
+                <div className="column gap-10">
+                  <div className="skeleton" style={{ width: '110px', height: '14px' }}></div>
+                  <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+                </div>
+              </div>
+              <div className="column gap-10">
+                <div className="skeleton" style={{ width: '160px', height: '14px' }}></div>
+                <div className="skeleton w-100" style={{ height: '44px', borderRadius: '4px' }}></div>
+              </div>
+              <div className="column gap-10">
+                <div className="skeleton" style={{ width: '40px', height: '14px' }}></div>
+                <div className="skeleton" style={{ width: '100px', height: '44px', borderRadius: '4px' }}></div>
+              </div>
             </div>
-            <div className="grid-2 gap-20 mb-20">
-              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
-              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+
+            <div className="mt-40 pt-20 border-top">
+              <div className="skeleton mb-25" style={{ width: '240px', height: '32px' }}></div>
+              <div className="skeleton mb-15" style={{ width: '140px', height: '14px' }}></div>
+              <div className="skeleton w-100 mb-30" style={{ height: '44px', borderRadius: '4px' }}></div>
+              
+              <div className="column gap-15">
+                <div className="skeleton w-100" style={{ height: '44px', borderRadius: '4px' }}></div>
+                <div className="grid-2 gap-20">
+                  <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+                  <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
+                </div>
+              </div>
             </div>
-            <div className="skeleton mb-20" style={{ height: '44px', borderRadius: '4px' }}></div>
-            <div className="skeleton mb-30" style={{ width: '120px', height: '44px', borderRadius: '4px' }}></div>
-            <div className="skeleton mb-20" style={{ width: '180px', height: '28px' }}></div>
-            <div className="skeleton mb-15" style={{ height: '44px', borderRadius: '4px' }}></div>
-            <div className="grid-2 gap-20 mb-20">
-              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
-              <div className="skeleton" style={{ height: '44px', borderRadius: '4px' }}></div>
-            </div>
-            <div className="skeleton w-100 mt-20" style={{ height: '58px', borderRadius: '4px' }}></div>
+
+            <div className="skeleton w-100 mt-40" style={{ height: '58px', borderRadius: '4px' }}></div>
           </div>
 
           {/* Sidebar */}
-          <div className="horror-card flex-1 p-30">
-            <div className="skeleton mb-20" style={{ width: '200px', height: '28px' }}></div>
+          <div className="horror-card flex-1 p-30 h-fit">
+            <div className="skeleton mb-25" style={{ width: '220px', height: '32px' }}></div>
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex-center justify-between mb-15">
-                <div className="skeleton skeleton-text" style={{ width: '55%' }}></div>
-                <div className="skeleton skeleton-text" style={{ width: '20%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '60%' }}></div>
+                <div className="skeleton skeleton-text" style={{ width: '25%' }}></div>
               </div>
             ))}
             <div className="mt-40 text-right">
-              <div className="skeleton skeleton-text mb-5" style={{ width: '120px', marginLeft: 'auto' }}></div>
-              <div className="skeleton skeleton-text mb-5" style={{ width: '160px', marginLeft: 'auto' }}></div>
-              <div className="skeleton mt-10" style={{ width: '180px', height: '32px', marginLeft: 'auto' }}></div>
+              <div className="skeleton skeleton-text mb-8" style={{ width: '140px', marginLeft: 'auto' }}></div>
+              <div className="skeleton skeleton-text mb-15" style={{ width: '180px', marginLeft: 'auto' }}></div>
+              <div className="skeleton mt-10" style={{ width: '200px', height: '36px', marginLeft: 'auto' }}></div>
             </div>
           </div>
         </div>
