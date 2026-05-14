@@ -137,9 +137,9 @@ export default function PhantomDetail() {
           
           {/* Visual Evidence Section */}
           <div className="column gap-20">
-            <div className="bestiary-img-box shimmer-box">
+            <div className="bestiary-img-box">
               <ShimmerImage 
-                src={phantom.image?.startsWith('http') ? phantom.image : `http://localhost:8000/storage/${phantom.image}`} 
+                src={phantom.image ? (phantom.image.startsWith('http') ? phantom.image : `http://localhost:8000/storage/${phantom.image}`) : null} 
                 alt={phantom.name}
                 objectFit="cover"
                 className="contrast-high"

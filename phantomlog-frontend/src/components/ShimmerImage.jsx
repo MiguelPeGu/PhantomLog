@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useLayoutEffect, useRef } from 'react'
 
 const NO_IMAGE_PLACEHOLDER = (
   <div style={{
@@ -12,29 +12,31 @@ const NO_IMAGE_PLACEHOLDER = (
 )
 
 const ShimmerImage = ({ src, alt, style, className = "", objectFit = "cover" }) => {
+  const imgRef = useRef(null)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
-  const imgRef = useRef(null)
 
-  // Si no hay src, mostrar placeholder directamente — sin ciclo de shimmer
   const hasSrc = src && src !== 'null' && src !== 'undefined'
 
-  useEffect(() => {
-    if (!hasSrc) return
-    setLoaded(false)
-    setError(false)
+  useLayoutEffect(() => {
+    if (!hasSrc) {
+      setLoaded(false)
+      setError(false)
+      return
+    }
     if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
       setLoaded(true)
+    } else {
+      setLoaded(false)
+      setError(false)
     }
   }, [src, hasSrc])
 
   return (
     <div className={`shimmer-container ${className}`} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: 'var(--bg)', ...style }}>
 
-      {/* Sin src: placeholder inmediato, sin shimmer */}
       {!hasSrc && NO_IMAGE_PLACEHOLDER}
 
-      {/* Con src: shimmer solo mientras no ha cargado, se desmonta al cargar */}
       {hasSrc && !loaded && !error && (
         <div className="shimmer-box" style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
