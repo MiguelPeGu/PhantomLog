@@ -179,7 +179,7 @@ export default function Cart() {
             
             <div className="mt-60 flex-center justify-end gap-15">
               <Link to="/products" className="btn">SEGUIR BUSCANDO</Link>
-              <Link to="/checkout" className="btn primary fs-18 p-10-20">SELLAR PACTO (CHECKOUT)</Link>
+              <Link to="/checkout" className="btn primary fs-18 p-10-20">FINALIZAR LA COMPRA</Link>
             </div>
           </div>
         </div>

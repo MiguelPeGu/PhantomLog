@@ -206,7 +206,7 @@ export default function Checkout() {
   return (
     <div className="page-container mx-auto" style={{ maxWidth: '1100px' }}>
       <header className="text-center mb-40">
-        <h1>SELLAR PACTO (CHECKOUT)</h1>
+        <h1>TERMINAR EL PAGO</h1>
         <p className="text-dim">Finaliza la ceremonia de intercambio.</p>
       </header>
 
