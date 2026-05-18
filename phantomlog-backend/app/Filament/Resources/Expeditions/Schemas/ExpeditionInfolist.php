@@ -27,7 +27,7 @@ final class ExpeditionInfolist
                                         TextEntry::make('location')->label('Ubicación Objetivo'),
                                         TextEntry::make('date')->label('Fecha Programada')->dateTime(),
                                         TextEntry::make('phantom.name')->label('Objetivo (Fantasma)'),
-                                        TextEntry::make('user.username')->label('Líder de Expedición'),
+                                        TextEntry::make('creator.username')->label('Líder de Expedición'),
                                         TextEntry::make('description')->label('Instrucciones')->columnSpanFull(),
                                     ])->columns(2),
                             ]),

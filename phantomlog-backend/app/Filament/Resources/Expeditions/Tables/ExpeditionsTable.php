@@ -33,8 +33,6 @@ final class ExpeditionsTable
                     ->sortable(),
                 TextColumn::make('phantom.name')
                     ->label('Objetivo'),
-                TextColumn::make('user.username')
-                    ->label('Líder'),
             ])
             ->filters([
                 //

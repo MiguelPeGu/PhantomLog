@@ -22,6 +22,7 @@ export default function ReportDetail() {
   const [editingCommentId, setEditingCommentId] = useState(null)
   const [editingCommentText, setEditingCommentText] = useState('')
   const [userVote, setUserVote] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     fetchReport()
@@ -149,11 +150,13 @@ export default function ReportDetail() {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault()
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || isSubmitting) return;
+
+    setIsSubmitting(true)
     try {
       await createComment(reportId, { content: newComment })
       setNewComment('')
-      fetchComments()
+      await fetchComments()
       addToast('TRANSMISIÓN REGISTRADA', 'success')
     } catch (err) { 
       const errors = err.response?.data?.errors
@@ -164,6 +167,8 @@ export default function ReportDetail() {
         const msg = err.response?.data?.message || 'ERROR AL COMENTAR'
         addToast(msg.toUpperCase(), 'error') 
       }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -372,14 +377,17 @@ export default function ReportDetail() {
                   value={newComment} 
                   onChange={e => setNewComment(e.target.value)} 
                   maxLength={1000}
-                  placeholder="ESCRIBE TU HALLAZGO..." 
+                  placeholder={isSubmitting ? "ENVIANDO..." : "ESCRIBE TU HALLAZGO..."} 
                   className="w-100"
+                  disabled={isSubmitting}
                 />
                 <small className={`absolute fs-10 right-10 bottom--20 ${newComment.length >= 1000 ? 'text-accent' : 'text-dim'}`}>
                   {newComment.length} / 1000
                 </small>
               </div>
-              <button type="submit" className="primary p-0-30 h-42">ENVIAR</button>
+              <button type="submit" className="primary p-0-30 h-42" disabled={isSubmitting || !newComment.trim()}>
+                {isSubmitting ? 'ENVIANDO...' : 'ENVIAR'}
+              </button>
             </form>
           </div>
         ) : (

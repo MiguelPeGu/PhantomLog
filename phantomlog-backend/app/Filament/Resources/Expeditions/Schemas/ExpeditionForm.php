@@ -19,7 +19,7 @@ final class ExpeditionForm
             ->components([
                 Select::make('user_id')
                     ->label('Investigador Responsable')
-                    ->relationship('user', 'username')
+                    ->relationship('creator', 'username')
                     ->getOptionLabelFromRecordUsing(fn (User $record): string => sprintf('%s %s - %s', $record->firstname, $record->lastname, $record->username))
                     ->searchable(['firstname', 'lastname', 'username'])
                     ->preload()

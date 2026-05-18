@@ -36,7 +36,7 @@ final class ExpeditionResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     #[Override]
-    protected static ?string $modelLabel = 'ExpediciÃ³n';
+    protected static ?string $modelLabel = 'Expedición';
 
     #[Override]
     protected static ?string $pluralModelLabel = 'Expediciones';
