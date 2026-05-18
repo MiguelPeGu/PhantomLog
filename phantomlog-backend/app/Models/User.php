@@ -107,7 +107,7 @@ final class User extends Authenticatable implements FilamentUser, HasName, MustV
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        return $this->can('accessAdmin', $this);
     }
 
     public function getFilamentName(): string

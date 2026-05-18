@@ -14,6 +14,15 @@ export default function Register() {
     address: '', postalCode: '',
   })
   const [loading, setLoading] = useState(false)
+  const [theme] = useState(localStorage.getItem('phantom-theme') || 'dark')
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode')
+    } else {
+      document.body.classList.remove('light-mode')
+    }
+  }, [theme])
 
   useEffect(() => {
     if (user) {

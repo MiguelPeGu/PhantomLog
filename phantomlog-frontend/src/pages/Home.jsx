@@ -5,6 +5,15 @@ import { createPortal } from 'react-dom'
 export default function Home() {
   const [flickerOpacity, setFlickerOpacity] = useState(0)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const [theme] = useState(localStorage.getItem('phantom-theme') || 'dark')
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode')
+    } else {
+      document.body.classList.remove('light-mode')
+    }
+  }, [theme])
 
   useEffect(() => {
     let isMounted = true;
@@ -43,7 +52,7 @@ export default function Home() {
         <div
           className="flicker-overlay bg-flicker-space"
           style={{
-            backgroundImage: 'url("/boy.png")',
+            backgroundImage: theme === 'light' ? 'url("/girl-home.png")' : 'url("/boy.png")',
             opacity: flickerOpacity,
             transform: `translate(${offset.x}px, ${offset.y}px)`,
             position: 'fixed',

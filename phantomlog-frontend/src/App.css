@@ -2045,6 +2045,20 @@ body.light-mode .category-badge {
   color: var(--text-dim);
 }
 
+.text-accent {
+  color: var(--accent);
+}
+
+body.light-mode .bg-radial-horror {
+  background: radial-gradient(circle, #f5f8fa 0%, #eef2f6 70%);
+}
+
+body.light-mode .horror-form {
+  background: #ffffff;
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px rgba(0, 119, 255, 0.1);
+}
+
 .text-break {
   word-break: break-word;
   white-space: pre-wrap;
