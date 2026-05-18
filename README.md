@@ -35,10 +35,10 @@ Asegúrate de tener instalado **todo lo siguiente** antes de continuar:
 |---|---|---|
 | **PHP** | `^8.5.0` | `php -v` |
 | **Composer** | `^2.x` | `composer -V` |
-| **Bun** | `^1.x` | `bun -v` |
+| **Bun** (o **Node.js/npm**) | `^1.x` (o Node `^20.x` / npm `^10.x`) | `bun -v` (o `npm -v`) |
 | **Git** | cualquier versión reciente | `git -v` |
 
-> **¿Por qué Bun y no npm?** El proyecto usa [Bun](https://bun.sh) como gestor de paquetes y runtime de JavaScript por su velocidad. Descárgalo en [bun.sh](https://bun.sh).
+> **Nota sobre el gestor de paquetes JS:** El proyecto es compatible con **Bun** (recomendado por su extrema velocidad en la descarga de paquetes y compilación) y **npm (Node.js)** indistintamente. Si prefieres no usar Bun, puedes sustituir cualquier comando `bun` de esta guía por su equivalente de `npm` (por ejemplo, usar `npm install` o `npm run dev` en lugar de sus variantes con `bun`).
 
 ---
 
@@ -84,6 +84,22 @@ Este comando realiza en secuencia:
 4. `php artisan migrate --force` — Crea las tablas en la base de datos SQLite
 5. `bun install` — Instala las dependencias del frontend
 6. `bun run build` — Compila el bundle de React para producción
+
+> **Si usas npm y no tienes Bun instalado:** Dado que el script `composer setup` ejecuta internamente `bun install` y `bun run build`, fallará si no tienes Bun. En ese caso, realiza la preparación manualmente ejecutando los siguientes comandos:
+>
+> 1. En la carpeta `phantomlog-backend/` ejecuta:
+>    ```bash
+>    composer install
+>    # Copia el .env si no existe
+>    php -r "file_exists('.env') || copy('.env.example', '.env');"
+>    php artisan key:generate
+>    php artisan migrate --force
+>    ```
+> 2. En la carpeta `phantomlog-frontend/` ejecuta:
+>    ```bash
+>    npm install
+>    npm run build
+>    ```
 
 #### 2.2 — Crear el archivo de base de datos SQLite
 
@@ -161,31 +177,49 @@ MAIL_PASSWORD=tu_contrasena_de_mailtrap
 
 ```bash
 cd ../phantomlog-frontend
+
+# Si usas Bun:
 bun install
+
+# Si usas npm:
+npm install
 ```
 
 ---
 
 ### Paso 4 — Arrancar el entorno de desarrollo
 
-> **Este comando se ejecuta desde dentro de `phantomlog-backend/`**
+El proyecto requiere **dos terminales abiertas en paralelo**.
+
+**Terminal 1 — Backend** (desde `phantomlog-backend/`):
 
 ```bash
-cd phantomlog-backend
 composer dev
 ```
 
-Este **único comando** lanza en paralelo los tres servicios necesarios:
+Este comando lanza en paralelo dentro de la misma terminal:
 
 | Servicio | URL |
 |---|---|
 | API Laravel (`php artisan serve`) | `http://localhost:8000` |
 | Cola de trabajos (`php artisan queue:listen`) | — |
-| Frontend React con Vite (`bun run dev`) | `http://localhost:5173` |
+| Assets Blade/Filament (`bun run dev` o `npm run dev` del backend) | — |
 
-La aplicación estará disponible en: **[http://localhost:5173](http://localhost:5173)**
+**Terminal 2 — Frontend SPA** (desde `phantomlog-frontend/`):
 
-> Para detenerlo todo, pulsa `Ctrl + C` en la terminal.
+```bash
+# Si usas Bun:
+bun run dev
+
+# Si usas npm:
+npm run dev
+```
+
+Este comando lanza el servidor de desarrollo de Vite con la SPA de React.
+
+Con ambas terminales activas, la aplicación estará disponible en: **[http://localhost:5173](http://localhost:5173)**
+
+> Para detenerlo todo, pulsa `Ctrl + C` en cada terminal.
 
 ---
 
@@ -354,15 +388,29 @@ php artisan db:seed
 
 Funciona igual en los tres sistemas operativos.
 
-### 6. Arrancar el entorno de desarrollo completo
+### 6. Arrancar el entorno de desarrollo
+
+Se necesitan **dos terminales abiertas al mismo tiempo**.
+
+**Terminal 1** — ejecutar desde `phantomlog-backend/`:
 
 ```bash
 composer dev
 ```
 
-Funciona igual en Linux, macOS y Windows. Lanza en paralelo la API, la cola de trabajos y el servidor de Vite.
+**Terminal 2** — ejecutar desde `phantomlog-frontend/`:
 
-La aplicación queda disponible en `http://localhost:5173` y la API en `http://localhost:8000`.
+```bash
+# Si usas Bun:
+bun run dev
+
+# Si usas npm:
+npm run dev
+```
+
+Con ambas terminales activas, la aplicación estará disponible en `http://localhost:5173` y la API en `http://localhost:8000`.
+
+Funciona igual en Linux, macOS y Windows.
 
 ---
 
