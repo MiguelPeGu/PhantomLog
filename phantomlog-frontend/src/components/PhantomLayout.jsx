@@ -49,7 +49,7 @@ export default function PhantomLayout() {
 
   return (
     <div key={theme} className="column min-vh100" style={{ background: 'var(--bg)' }}>
-      {/* Header Estilo Amazon/Horror */}
+      {/* Header Estilo Horror */}
       <header className="main-header header-grid">
         <div className="header-left gap-20">
           <Link to="/dashboard" className="header-logo">PHANTOMLOG</Link>

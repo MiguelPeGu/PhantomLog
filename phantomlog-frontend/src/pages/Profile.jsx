@@ -30,9 +30,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!localStorage.getItem('token')) return
-
     refreshUser().catch(() => {
-      // Si falla, mantenemos usuario cacheado para no romper la vista.
     })
   }, [refreshUser])
 
@@ -90,10 +88,6 @@ export default function Profile() {
       year: 'numeric', month: 'short', day: 'numeric'
     }).toUpperCase()
 
-  // Property names from the Laravel models:
-  // Forums: title, created_at
-  // Expeditions: name, location, date
-  // Invoices: n_invoice, total, tax, created_at, details (array)
   const forums = user?.forums || []
   const createdExpeditions = user?.created_expeditions || []
   const joinedExpeditions = user?.joined_expeditions || []

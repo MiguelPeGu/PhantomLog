@@ -13,21 +13,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * BootstrapController
- *
- * Devuelve TODOS los datos iniciales de la app en UNA sola petición HTTP.
- *
- * Sin esto, el DataProvider hacía 5 peticiones paralelas al arrancar:
- *   GET /forums + /expeditions + /phantoms + /products + /invoices
- *
- * Con SQLite (base de datos single-file), las 5 peticiones se serializan
- * internamente aunque el frontend las lance con Promise.all, ya que SQLite
- * solo permite un escritor/lector a la vez. Esto causaba 8-10 segundos
- * de carga al arrancar la aplicación.
- *
- * Con este endpoint: 1 única petición → 1 token validation → 1 DB context.
- */
 final class BootstrapController
 {
     public function index(Request $request): JsonResponse

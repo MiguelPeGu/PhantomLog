@@ -16,9 +16,6 @@ const PhantomSkeleton = () => (
 )
 
 export default function Phantoms() {
-  // DataProvider ya carga los phantoms al arrancar la app con refreshAll().
-  // No se necesita un useEffect local aquí — evita una petición HTTP duplicada
-  // cada vez que el usuario navega a /phantoms.
   const { phantoms, loadingPhantoms } = useData()
 
   return (

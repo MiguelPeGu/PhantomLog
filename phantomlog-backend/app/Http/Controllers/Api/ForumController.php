@@ -142,7 +142,7 @@ final class ForumController
 
         return response()->json(null, 204);
     }
-
+    /*
     public function toggleFollow(Request $request, Forum $forum): JsonResponse
     {
         $user = $request->user();
@@ -151,5 +151,5 @@ final class ForumController
         $user->followedForums()->toggle($forum->id);
 
         return response()->json(['message' => 'Ok']);
-    }
+    }*/
 }

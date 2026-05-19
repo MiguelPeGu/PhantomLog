@@ -12,7 +12,7 @@ export function CartProvider({ children }) {
     try {
       const res = await getCart();
       if (res.data && res.data.items) {
-        const totalItems = res.data.items.reduce((acc, item) => acc + item.quantity, 0);
+        const totalItems = res.data.items.reduce((acc, item) => acc + item.quantity, 0); 
         setCartCount(totalItems);
       } else {
         setCartCount(0);

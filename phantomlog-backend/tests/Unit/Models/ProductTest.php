@@ -27,8 +27,6 @@ test('product calculates totals with tax', function (): void {
         'tax' => 21,
     ]);
 
-    // Note: If you have a method like getPriceWithTaxAttribute or similar, test it here.
-    // For now we check basic fields.
     expect((int) $product->tax)->toBe(21);
 });
 

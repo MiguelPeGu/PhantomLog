@@ -30,7 +30,6 @@ export default function Home() {
           setFlickerOpacity(Math.random() * 0.4 + 0.1);
           setOffset({ x: Math.random() * 10 - 5, y: Math.random() * 10 - 5 });
           await new Promise(r => setTimeout(r, 80));
-
           setFlickerOpacity(0);
           await new Promise(r => setTimeout(r, 60));
           if (!isMounted) break;
