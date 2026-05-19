@@ -21,7 +21,7 @@ export default function Login() {
   }, [theme])
 
   useEffect(() => {
-    if (user) {
+    if (user && localStorage.getItem('token')) {
       navigate('/dashboard')
     }
   }, [user, navigate])

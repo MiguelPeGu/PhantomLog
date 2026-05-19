@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 
 export default function Home() {
   const [flickerOpacity, setFlickerOpacity] = useState(0)
@@ -47,29 +46,19 @@ export default function Home() {
 
   return (
     <div className="vh100 flex-center column text-center relative overflow-hidden">
-      {createPortal(
-        <div
-          className="flicker-overlay bg-flicker-space"
-          style={{
-            backgroundImage: theme === 'light' ? 'url("/girl-home.png")' : 'url("/boy.png")',
-            opacity: flickerOpacity,
-            transform: `translate(${offset.x}px, ${offset.y}px)`,
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            pointerEvents: 'none',
-            zIndex: 10,
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: 'var(--flicker-size)',
-            backgroundAttachment: 'fixed'
-          }}
-        />,
-        document.body
-      )}
+      <div
+        className="flicker-overlay bg-flicker-space"
+        style={{
+          backgroundImage: theme === 'light' ? 'url("/girl-home.png")' : 'url("/boy.png")',
+          opacity: flickerOpacity,
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'var(--flicker-size)',
+          backgroundAttachment: 'fixed',
+        }}
+      />
 
-      <div className="relative w-100 flex-center column" style={{ zIndex: 1 }}>
+      <div className="relative w-100 flex-center column z-2">
         <h1 className="hero-title">
           PHANTOMLOG
         </h1>

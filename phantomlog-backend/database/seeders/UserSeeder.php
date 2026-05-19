@@ -79,7 +79,10 @@ final class UserSeeder extends Seeder
         ];
 
         foreach ($users as $data) {
-            User::query()->create($data);
+            User::query()->updateOrCreate(
+                ['email' => $data['email']],
+                $data,
+            );
         }
     }
 }

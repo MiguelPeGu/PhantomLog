@@ -8,6 +8,10 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const { addToast } = useToast()
   const [user, setUser] = useState(() => {
+    if (!localStorage.getItem('token')) {
+      localStorage.removeItem('auth_user')
+      return null
+    }
     try {
       const raw = localStorage.getItem('auth_user')
       return raw ? JSON.parse(raw) : null
@@ -42,6 +46,8 @@ export function AuthProvider({ children }) {
         })
         .finally(() => setLoading(false))
     } else {
+      localStorage.removeItem('auth_user')
+      setUser(null)
       setLoading(false)
     }
   }, [addToast])

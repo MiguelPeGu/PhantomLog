@@ -25,7 +25,7 @@ export default function Register() {
   }, [theme])
 
   useEffect(() => {
-    if (user) {
+    if (user && localStorage.getItem('token')) {
       navigate('/dashboard')
     }
   }, [user, navigate])
