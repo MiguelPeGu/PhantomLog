@@ -32,9 +32,6 @@ final class UserInfolist
                                     ])->columns(2),
                                 Section::make('Avatar')
                                     ->schema([
-                                        // disk('public') no es necesario porque el accessor
-                                        // ya devuelve la URL completa (http://...)
-                                        // Para URLs externas (dicebear) también funciona
                                         ImageEntry::make('img')
                                             ->hiddenLabel()
                                             ->circular()

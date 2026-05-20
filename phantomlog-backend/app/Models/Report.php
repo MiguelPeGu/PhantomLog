@@ -93,7 +93,7 @@ final class Report extends Model
 
     public function updateScore(): void
     {
-        $this->score = (int) $this->votes()->sum('value');
+        $this->score = (int) $this->votes()->sum('value'); // suma aritmetica
         $this->save();
     }
 

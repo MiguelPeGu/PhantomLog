@@ -78,9 +78,7 @@ final class ForumController
 
     public function show(Forum $forum): JsonResponse
     {
-        $forum->load(['user', 'reports' => function (Builder $query): void {
-            $query->with('user');
-        }])->loadAvg('reports', 'score');
+        $forum->load('user')->loadAvg('reports', 'score');
 
         return response()->json($forum);
     }

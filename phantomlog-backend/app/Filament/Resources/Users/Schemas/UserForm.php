@@ -103,7 +103,9 @@ final class UserForm
                             ->afterStateHydrated(static function (FileUpload $component, ?string $state): void {
                                 if ($state && str_starts_with($state, 'http')) {
                                     $path = parse_url($state, PHP_URL_PATH);
+                                    //quitamos storage del path para obtener la ruta relativa
                                     $relativePath = mb_ltrim(str_replace('/storage/', '', (string) $path), '/');
+                                    // leemos el contenido de la imagen desde la URL y lo guardamos en el disco
                                     $component->state($relativePath);
                                 }
                             })

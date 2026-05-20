@@ -50,28 +50,6 @@ export default function ForumDetail() {
         setErrorCode(404)
         setNotFound(true)
       } else {
-        // Fallback: si el detalle falla (500/red), intentamos hidratar desde el listado.
-        try {
-          const listRes = await getForums({ per_page: 100 })
-          const forumsList = listRes?.data?.data || []
-          const fallbackForum = forumsList.find((f) => String(f.id) === String(id))
-
-          if (fallbackForum) {
-            setForum({
-              ...fallbackForum,
-              credibility_score: Number(fallbackForum.reports_avg_score || 0),
-            })
-            setForumData({
-              title: fallbackForum.title || '',
-              description: fallbackForum.description || '',
-              image: null,
-            })
-            return
-          }
-        } catch (_) {
-          // Sin acción: mostramos error principal debajo.
-        }
-
         const apiMessage = error?.response?.data?.message
         addToast((apiMessage || 'ERROR AL CARGAR EL EXPEDIENTE').toUpperCase(), 'error')
       }
