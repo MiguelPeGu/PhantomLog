@@ -27,6 +27,103 @@ PhantomLog es una aplicación web full-stack de arquitectura desacoplada (**SPA 
 
 ---
 
+## Resumen de inicio rapido
+
+Lista completa y ordenada de todos los comandos necesarios para poner en marcha PhantomLog desde cero en cualquier sistema operativo.
+
+> Todos los comandos del backend se ejecutan desde `phantomlog-backend/`. El frontend se gestiona desde `composer dev` y no requiere abrir una segunda terminal.
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/MiguelPeGu/PhantomLog.git
+cd PhantomLog
+cd phantomlog-backend
+```
+
+### 2. Crear el archivo de base de datos SQLite
+
+Este paso es necesario la primera vez si el archivo no existe todavía.
+
+**Linux / macOS:**
+```bash
+touch database/database.sqlite
+```
+
+**Windows (PowerShell):**
+```powershell
+New-Item -ItemType File database/database.sqlite
+```
+
+> En los tres sistemas operativos puedes comprobar que el archivo existe con `ls database/` (Linux/macOS) o `dir database\` (Windows).
+
+### 3. Instalar dependencias y preparar el entorno
+
+```bash
+composer setup
+```
+
+Este comando es identico en Linux, macOS y Windows. Instala las dependencias PHP y JS, copia el `.env`, genera la clave de la aplicación, ejecuta las migraciones y compila el frontend.
+
+### 4. Vincular el almacenamiento de imágenes
+
+```bash
+php artisan storage:link
+```
+
+Funciona igual en los tres sistemas operativos. Solo es necesario ejecutarlo una vez.
+
+### 5. Cargar datos de demostración (opcional)
+
+```bash
+php artisan db:seed
+```
+
+Funciona igual en los tres sistemas operativos.
+
+### 6. Arrancar el entorno de desarrollo
+
+Se necesitan **dos terminales abiertas al mismo tiempo**.
+
+**Terminal 1** — ejecutar desde `phantomlog-backend/`:
+
+```bash
+composer dev
+```
+
+**Terminal 2** — ejecutar desde `phantomlog-frontend/`:
+
+```bash
+# Si usas Bun:
+bun install
+bun run dev
+
+# Si usas npm:
+npm install
+npm run dev
+```
+
+Con ambas terminales activas, la aplicación estará disponible en `http://localhost:5173` y la API en `http://localhost:8000`.
+
+Funciona igual en Linux, macOS y Windows.
+
+---
+
+## Seguridad
+
+- La autenticación se gestiona con **Laravel Sanctum** mediante tokens Bearer en cabeceras HTTP.
+- El acceso al panel `/admin` está protegido por el middleware `RedirectNonAdminFromFilament` y por la `UserPolicy`, que verifican que el usuario tenga el rol `admin`.
+- Las rutas de la API que requieren autenticación están bajo el middleware `auth:sanctum`.
+
+---
+
+## Base de datos
+
+El proyecto usa **SQLite** en desarrollo. El archivo se crea automáticamente en `phantomlog-backend/database/database.sqlite`.
+
+El diseño de las migraciones es agnóstico al motor de base de datos, lo que permite migrar a **MySQL o PostgreSQL en producción** sin modificar ninguna línea de código, simplemente cambiando las variables `DB_*` en el `.env`.
+
+---
 ## Requisitos previos
 
 Asegúrate de tener instalado **todo lo siguiente** antes de continuar:
@@ -334,101 +431,6 @@ bun run dev
 
 ---
 
-## Resumen de inicio rapido
-
-Lista completa y ordenada de todos los comandos necesarios para poner en marcha PhantomLog desde cero en cualquier sistema operativo.
-
-> Todos los comandos del backend se ejecutan desde `phantomlog-backend/`. El frontend se gestiona desde `composer dev` y no requiere abrir una segunda terminal.
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/MiguelPeGu/PhantomLog.git
-cd PhantomLog
-cd phantomlog-backend
-```
-
-### 2. Crear el archivo de base de datos SQLite
-
-Este paso es necesario la primera vez si el archivo no existe todavía.
-
-**Linux / macOS:**
-```bash
-touch database/database.sqlite
-```
-
-**Windows (PowerShell):**
-```powershell
-New-Item -ItemType File database/database.sqlite
-```
-
-> En los tres sistemas operativos puedes comprobar que el archivo existe con `ls database/` (Linux/macOS) o `dir database\` (Windows).
-
-### 3. Instalar dependencias y preparar el entorno
-
-```bash
-composer setup
-```
-
-Este comando es identico en Linux, macOS y Windows. Instala las dependencias PHP y JS, copia el `.env`, genera la clave de la aplicación, ejecuta las migraciones y compila el frontend.
-
-### 4. Vincular el almacenamiento de imágenes
-
-```bash
-php artisan storage:link
-```
-
-Funciona igual en los tres sistemas operativos. Solo es necesario ejecutarlo una vez.
-
-### 5. Cargar datos de demostración (opcional)
-
-```bash
-php artisan db:seed
-```
-
-Funciona igual en los tres sistemas operativos.
-
-### 6. Arrancar el entorno de desarrollo
-
-Se necesitan **dos terminales abiertas al mismo tiempo**.
-
-**Terminal 1** — ejecutar desde `phantomlog-backend/`:
-
-```bash
-composer dev
-```
-
-**Terminal 2** — ejecutar desde `phantomlog-frontend/`:
-
-```bash
-# Si usas Bun:
-bun run dev
-
-# Si usas npm:
-npm run dev
-```
-
-Con ambas terminales activas, la aplicación estará disponible en `http://localhost:5173` y la API en `http://localhost:8000`.
-
-Funciona igual en Linux, macOS y Windows.
-
----
-
-## Seguridad
-
-- La autenticación se gestiona con **Laravel Sanctum** mediante tokens Bearer en cabeceras HTTP.
-- El acceso al panel `/admin` está protegido por el middleware `RedirectNonAdminFromFilament` y por la `UserPolicy`, que verifican que el usuario tenga el rol `admin`.
-- Las rutas de la API que requieren autenticación están bajo el middleware `auth:sanctum`.
-
----
-
-## Base de datos
-
-El proyecto usa **SQLite** en desarrollo. El archivo se crea automáticamente en `phantomlog-backend/database/database.sqlite`.
-
-El diseño de las migraciones es agnóstico al motor de base de datos, lo que permite migrar a **MySQL o PostgreSQL en producción** sin modificar ninguna línea de código, simplemente cambiando las variables `DB_*` en el `.env`.
-
----
 
 ## Trabajo realizado por
 
