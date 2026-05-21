@@ -63,7 +63,9 @@ final class ReportFactory extends Factory
         return [
             'id' => (string) Str::uuid(),
             'forum_id' => Forum::query()->inRandomOrder()->value('id') ?? Forum::factory(),
-            'user_id' => User::query()->inRandomOrder()->value('id') ?? User::factory(),
+            'user_id' => function (array $attributes) {
+                return Forum::find($attributes['forum_id'])?->user_id ?? (User::query()->inRandomOrder()->value('id') ?? User::factory());
+            },
             'title' => $finding['title'].' [Ref: '.$this->faker->bothify('??-####').']',
             'description' => $finding['desc'].' '.$this->faker->randomElement($extraDetails),
             'image' => 'images/reports/'.$finding['img'],

@@ -59,9 +59,14 @@ final class ReportSeeder extends Seeder
         ];
 
         foreach ($reports as $index => $data) {
-            $user = $users[$index] ?? null;
-            if ($user instanceof User && $data['forum_id']) {
-                $user->reports()->create($data);
+            if ($data['forum_id']) {
+                $forum = Forum::find($data['forum_id']);
+                if ($forum) {
+                    $forum->reports()->create([
+                        ...$data,
+                        'user_id' => $forum->user_id,
+                    ]);
+                }
             }
         }
 
@@ -73,8 +78,7 @@ final class ReportSeeder extends Seeder
             if ($currentCount < $targetCount) {
                 Report::factory()->count($targetCount - $currentCount)->create([
                     'forum_id' => $forum->id,
-                    // Use a random user for these extra reports
-                    'user_id' => $users->random()->id,
+                    'user_id' => $forum->user_id,
                 ]);
             }
         }
