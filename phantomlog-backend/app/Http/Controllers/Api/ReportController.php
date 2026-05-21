@@ -19,7 +19,7 @@ final class ReportController
         $perPage = $request->integer('per_page', 10);
 
         return response()->json(
-            $forum->reports()->with('user')->withCount('comments')->latest()->paginate($perPage)
+            $forum->reports()->with('user')->withCount(['comments', 'votes'])->latest()->paginate($perPage)
         );
     }
 
@@ -68,13 +68,13 @@ final class ReportController
             'score' => 0,
         ]);
 
-        return response()->json($report->load('user'), 201);
+        return response()->json($report->load('user')->loadCount('votes'), 201);
     }
 
     public function show(Forum $forum, Report $report): JsonResponse
     {
         return response()->json(
-            $report->load(['user', 'comments.user'])
+            $report->load(['user', 'comments.user'])->loadCount('votes')
         );
     }
 
@@ -119,7 +119,7 @@ final class ReportController
 
         $report->update($data);
 
-        return response()->json($report);
+        return response()->json($report->loadCount('votes'));
     }
 
     public function destroy(Request $request, Forum $forum, Report $report): JsonResponse

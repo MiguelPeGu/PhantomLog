@@ -30,7 +30,6 @@ final class CartService
         /** @var array<string, array{product: Product|array<mixed>, quantity: int}> $cart */
         $cart = cache()->get('cart_'.$userId, []);
 
-        // Re-hydrate products from DB in case they were cached as plain arrays
         foreach ($cart as $id => $item) {
             if (is_array($item['product'])) {
                 $product = Product::query()->find($id);

@@ -47,7 +47,7 @@ final class Report extends Model
     ];
 
     #[Override]
-    protected $appends = ['votes_count', 'image_url'];
+    protected $appends = ['image_url'];
 
     /**
      * @return array<string, string>
@@ -97,15 +97,6 @@ final class Report extends Model
         $this->save();
     }
 
-    protected static function booted(): void
-    {
-        self::created(function (Report $report): void {});
-    }
-
-    protected function getVotesCountAttribute(): int
-    {
-        return $this->votes()->count();
-    }
 
     protected function getImageUrlAttribute(): ?string
     {

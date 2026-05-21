@@ -32,7 +32,7 @@ final class ReportVoteController
             $message = 'Voto registrado';
         }
 
-        $report = Report::query()->findOrFail($reportId);
+        $report = Report::query()->withCount('votes')->findOrFail($reportId);
 
         return response()->json([
             'message' => $message,
